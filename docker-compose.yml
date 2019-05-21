@@ -1,0 +1,19 @@
+version: "3"
+services:
+  app:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+      - "3030:3030"
+      - "9229:9229"
+  postgres:
+    image: postgres:11.1-alpine
+    environment:
+      - POSTGRES_USER=blockchain
+      - POSTGRES_PASSWORD=testuser
+    volumes:
+      - ../postgredata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432

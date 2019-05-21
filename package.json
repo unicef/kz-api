@@ -1,0 +1,48 @@
+{
+  "name": "api.uscip",
+  "version": "1.0.0",
+  "description": "This is test backend app",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -k \"npm run build:watch\" \"npm run start:dev\" \"docsify serve docs -p 3030\"",
+    "start": "node dist/index.js",
+    "start:dev": "nodemon --inspect=0.0.0.0:9229 dist/server.js",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node-pg-migrate"
+  },
+  "keywords": [],
+  "author": "iSKY.SOLUTIONS",
+  "dependencies": {
+    "@hapi/joi": "^15.0.0",
+    "@types/bluebird": "^3.5.26",
+    "@types/cors": "^2.8.5",
+    "@types/express": "^4.11.1",
+    "@types/grecaptcha": "^2.0.36",
+    "@types/hapi__joi": "^15.0.1",
+    "@types/helmet": "0.0.43",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^9.6.1",
+    "@types/pg": "^7.4.14",
+    "@types/sequelize": "^4.28.1",
+    "@types/validator": "^10.11.0",
+    "cors": "^2.8.5",
+    "express": "^4.16.3",
+    "express-recaptcha": "^5.0.0",
+    "helmet": "^3.18.0",
+    "morgan": "^1.9.1",
+    "node-pg-migrate": "^3.18.1",
+    "pg": "^7.9.0",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^5.5.1",
+    "sequelize-typescript": "^1.0.0-alpha.9",
+    "swagger-ui-express": "^4.0.2",
+    "tsoa": "^2.3.8",
+    "typescript": "^2.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "nodemon": "^1.17.3"
+  }
+}
