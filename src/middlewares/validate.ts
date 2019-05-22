@@ -20,6 +20,8 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
                 }
              })
         }
+
+        next();
     } catch (error) {
         const status = error.status || 400;
         const message = error.message || 'Something went wrong';
@@ -31,7 +33,7 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
             message: message,
             errorCode: errorCode
         }
-        res.status(error.status).json(errorObj);
+        res.status(status).json(errorObj);
+        return;
     }
-    next();
 };

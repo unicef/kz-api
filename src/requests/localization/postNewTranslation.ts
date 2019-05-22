@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { validationProcess } from "../../middlewares/validate";
 import config from "../../config/config";
-
-import Translation from "../../models/translation";
 import Joi from "@hapi/joi";
 
 const postNewTranslation = (req: Request, res: Response, next: NextFunction) => {
