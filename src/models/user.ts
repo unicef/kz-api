@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
+import SHA1 from "crypto-js/sha256";
 
 class User extends Model {
     public id!: number;
@@ -12,6 +13,14 @@ class User extends Model {
     public emailVerifiedAt!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    static generatePassword = (passwordSalt: string, passwordInput: string) => {
+        const passwordString = passwordSalt + passwordInput + passwordSalt;
+
+        const hashedPassword = SHA1(passwordString).toString();
+
+        return hashedPassword;
+    }
 }
 
 User.init(

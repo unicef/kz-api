@@ -3,6 +3,8 @@ import ApiController from "./apiController";
 import config from "../config/config";
 import User from "../models/user";
 import i18n from "i18next";
+import cryptoRandomString from "crypto-random-string";
+import UserAlreadyExists from "../exceptions/userAlreadyExists";
 
 
 class UserController {
@@ -13,22 +15,28 @@ class UserController {
         ApiController.success(response, res);
     }
 
+    // create partner process
     static createPartner = async (req: Request, res: Response) => {
-        let user: any = await User.findOne({
-            where: {email: req.body.email},
-        });
-        if (user !== null) {
-            res.json({
-                success:false
+        try {
+            let user: any = await User.findOne({
+                where: {email: req.body.email},
             });
+            if (user !== null) {
+                throw new UserAlreadyExists(400, i18n.t('userExistsError'), i18n.t('userExistsError'));
+            }
+            const passwordSalt: string = cryptoRandomString(10);
+
+            user = await User.create({
+                email: req.body.email,
+                password: User.generatePassword(passwordSalt, req.body.password),
+                passwordSalt: passwordSalt
+            })
+            
+            return res.json(user);
+        } catch(error) {
+            ApiController.failed(error.status, error.message, undefined, res);
             return;
         }
-        user = await User.create({
-            email: req.body.email,
-            password: req.body.password,
-        })
-        
-        res.json(user);
     }
 }
 export default UserController;
