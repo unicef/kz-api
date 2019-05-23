@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import BadValidationException from "../exceptions/badValidationException";
+import Joi from "@hapi/joi";
 
 export const validationProcess = (req: Request, res: Response, next: NextFunction, request: any) => {
     try {
@@ -7,7 +8,8 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
             request.querySchema.validate(req.query, (err: any, value: any) => {
                 req.query = value;
                 if (err) {
-                    throw new BadValidationException(400, err.message, 'Validation error');
+                    const message = getErrorMessage(err);
+                    throw new BadValidationException(400, message, 'Validation error');
                 }
              })
         }
@@ -16,7 +18,9 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
             request.bodySchema.validate(req.body, (err: any, value: any) => {
                 req.body = value;
                 if (err) {
-                    throw new BadValidationException(400, err.message, 'Validation error');
+                    const message = getErrorMessage(err);
+
+                    throw new BadValidationException(400, message, 'Validation error');
                 }
              })
         }
@@ -37,3 +41,14 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
         return;
     }
 };
+
+const getErrorMessage = (errors: any) => {
+    let message: string = '';
+    // generatiing message
+    errors.details.forEach(error => {
+        message = message + ', ' + error.message;
+    });
+    message = message.substring(2);
+
+    return message;
+}

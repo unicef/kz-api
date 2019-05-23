@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import ApiController from "./apiController";
 import config from "../config/config";
 import User from "../models/user";
+import i18n from "i18next";
+
 
 class UserController {
     // get users list
     static getUsersList = async (req: Request, res: Response) => {
-        let response = config;
+        let response = i18n.t('testlong');
 
         ApiController.success(response, res);
     }
