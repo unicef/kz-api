@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
+import Role from "./role";
 import SHA1 from "crypto-js/sha256";
 
 class User extends Model {
@@ -63,5 +64,13 @@ User.init(
         sequelize: sequelize
     }
 )
+
+User.belongsToMany(Role, {
+    through: 'usersHasRoles',
+    uniqueKey: 'id',
+    foreignKey: 'userId',
+    as: 'roles',
+    timestamps: false
+});
 
 export default User;

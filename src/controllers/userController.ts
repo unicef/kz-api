@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import ApiController from "./apiController";
-import config from "../config/config";
 import User from "../models/user";
 import i18n from "i18next";
 import cryptoRandomString from "crypto-random-string";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
+import Role from "../models/role";
 
 
 class UserController {
@@ -18,21 +18,33 @@ class UserController {
     // create partner process
     static createPartner = async (req: Request, res: Response) => {
         try {
+            // check exists user
             let user: any = await User.findOne({
                 where: {email: req.body.email},
             });
             if (user !== null) {
                 throw new UserAlreadyExists(400, i18n.t('userExistsError'), i18n.t('userExistsError'));
             }
-            const passwordSalt: string = cryptoRandomString(10);
 
+            // creating user
+            const passwordSalt: string = cryptoRandomString(10);
             user = await User.create({
                 email: req.body.email,
                 password: User.generatePassword(passwordSalt, req.body.password),
                 passwordSalt: passwordSalt
             })
+
+            // add Responsible assistant role to user
+            const role = await Role.findByPk('ra');
+            user.addRole(role);
+
+            // TODO: activating mail process
             
-            return res.json(user);
+            const responseData = {
+                usedId: user.id,
+                message: i18n.t('successCreatedPartner')
+            };
+            return ApiController.success(responseData, res);
         } catch(error) {
             ApiController.failed(error.status, error.message, undefined, res);
             return;
