@@ -2,6 +2,9 @@ import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
 import Role from "./role";
 import SHA1 from "crypto-js/sha256";
+import cryptoRandomString from "crypto-random-string";
+import ActivationHash from "./activationHash";
+import config from "../config/config";
 
 class User extends Model {
     public id!: number;
@@ -22,12 +25,41 @@ class User extends Model {
 
         return hashedPassword;
     }
+
+    public getActivationLink = () => {
+        // delete all previous hashes
+        ActivationHash.destroy({
+            where: {
+              userId: this.id
+            }
+        }).catch((error) => {
+            console.log('ERROR destroing activation link');
+            console.log(error.message);
+        });
+
+        // generate new hash
+        const activationHashString = cryptoRandomString(64);
+        let activationHash = null;
+        ActivationHash.create({
+            userId: this.id,
+            hash: activationHashString,
+            expiredAt: ActivationHash.getExpiredDate()
+        }).catch((error) => {
+            console.log('ERROR creating activation link');
+            console.log(error.message);
+        });
+
+        // generate activation link
+        const activationLink = process.env.CLIENT_URL + config.client.activationRoute + '?activation=' + activationHashString;
+
+        return activationLink;
+    }
 }
 
 User.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },

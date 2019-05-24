@@ -6,6 +6,9 @@ export default {
         "password" : "testuser",
         "database" : "blockchain"
     },
+    "mail" : {
+        "from" : '"USCIP 👻" <noreply@uscip.com>'
+    },
     "locales" : {
         "en" : {
             "code" : "en",
@@ -15,5 +18,9 @@ export default {
             "code" : "ru",
             "title" : "Русский"
         }
+    },
+    "client" : {
+        "activationRoute" : "/auth/activate-account",
+        "activationExpiredDays" : 3 
     }
   };

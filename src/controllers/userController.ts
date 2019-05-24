@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
-import ApiController from "./apiController";
-import User from "../models/user";
 import i18n from "i18next";
 import cryptoRandomString from "crypto-random-string";
-import UserAlreadyExists from "../exceptions/userAlreadyExists";
+import ApiController from "./apiController";
+import ActivationLinkMail from "../mails/activationLinkMail";
+import User from "../models/user";
 import Role from "../models/role";
+import UserAlreadyExists from "../exceptions/userAlreadyExists";
+
 
 
 class UserController {
@@ -34,11 +36,14 @@ class UserController {
                 passwordSalt: passwordSalt
             })
 
+
             // add Responsible assistant role to user
             const role = await Role.findByPk('ra');
             user.addRole(role);
 
-            // TODO: activating mail process
+            // activation mail sending
+            let mail = new ActivationLinkMail(user);
+            mail.send();
             
             const responseData = {
                 usedId: user.id,
