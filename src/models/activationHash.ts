@@ -1,6 +1,8 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
 import config from "../config/config";
+import User from "./user";
+import Role from "./role";
 
 class ActivationHash extends Model {
     public id!: number;

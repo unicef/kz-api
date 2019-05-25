@@ -16,4 +16,5 @@ const sequelize = new Sequelize(
 
 sequelize.authenticate();
 
+
 export default sequelize;

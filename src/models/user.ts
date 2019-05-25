@@ -18,7 +18,7 @@ class User extends Model {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
-    static generatePassword = (passwordSalt: string, passwordInput: string) => {
+    static generatePassword = (passwordSalt: string, passwordInput: string): string => {
         const passwordString = passwordSalt + passwordInput + passwordSalt;
 
         const hashedPassword = SHA1(passwordString).toString();
@@ -32,6 +32,8 @@ class User extends Model {
             where: {
               userId: this.id
             }
+        }).then(() => {
+            console.log('FUCK YOYU');
         }).catch((error) => {
             console.log('ERROR destroing activation link');
             console.log(error.message);
@@ -39,12 +41,11 @@ class User extends Model {
 
         // generate new hash
         const activationHashString = cryptoRandomString(64);
-        let activationHash = null;
         ActivationHash.create({
             userId: this.id,
             hash: activationHashString,
             expiredAt: ActivationHash.getExpiredDate()
-        }).catch((error) => {
+        }).then().catch((error) => {
             console.log('ERROR creating activation link');
             console.log(error.message);
         });

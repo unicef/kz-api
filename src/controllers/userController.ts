@@ -6,6 +6,8 @@ import ActivationLinkMail from "../mails/activationLinkMail";
 import User from "../models/user";
 import Role from "../models/role";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
+import ActivationHash from "../models/activationHash";
+import BadActivationLink from "../exceptions/badActivationLink";
 
 
 
@@ -54,6 +56,43 @@ class UserController {
             ApiController.failed(error.status, error.message, undefined, res);
             return;
         }
+    }
+
+    // activation user process
+    static activationProcess = async (req: Request, res: Response) => {
+        const hash = req.body.hash;
+        try {
+            // get activation hash model
+            const hashModel = await ActivationHash.findOne({
+                where: {hash: hash}
+            }) || false;
+            // check expires
+            let today: Date = new Date();
+            if (!hashModel || today > hashModel.expiredAt) {
+                console.log('Bad activation hash error');
+                throw new BadActivationLink(400, i18n.t('badActivationLink'), i18n.t('badActivationLink'))
+            }
+            // get activation user
+            const user = await User.findByPk(hashModel.userId) || false;
+            if (!user) {
+                console.log('Bad activation hash error');
+                throw new BadActivationLink(400, i18n.t('badActivationLink'), i18n.t('badActivationLink'))
+            }
+            // activation process
+            user.emailVerifiedAt = new Date();
+            user.save();
+
+            hashModel.destroy();
+
+            const responseData = {
+                message: i18n.t('successUserActivation')
+            }
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            ApiController.failed(error.status, error.message, undefined, res);
+            return;
+        }
+        
     }
 }
 export default UserController;
