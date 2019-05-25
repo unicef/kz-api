@@ -27,7 +27,7 @@ const postNewPartner = (req: Request, res: Response, next: NextFunction) => {
         }).keys({
             email: Joi.string().email({ minDomainSegments: 2 }),
             password: Joi.string().min(10).regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*~^()_+`\-={}\[\]:;<>\\\/?])[A-Za-z\d#$@!%&*~^()_+`\-={}\[\]:;<>.\\\/?]{10,}$/),
-            password_confirmation: Joi.string().required().valid(Joi.ref('password')),
+            passwordConfirmation: Joi.string().required().valid(Joi.ref('password')),
             "g-recaptcha-response": Joi.string().required()
         }),
         querySchema: null

@@ -95,7 +95,8 @@ Retunes all phrase translations by phrase key
     error: {
         devMessage: "Validation error",
         message: "child "key" fails because ["key" is required]",
-        status: 400
+        status: 400,
+        errorCode: 132 //error validation code
     }
 }
 ```
@@ -158,7 +159,8 @@ Retunes all phrases by language code.
     error: {
         devMessage: "Validation error",
         message: "child "code" fails because ["code" must be one of [ru, en]]",
-        status: 400
+        status: 400,
+        errorCode: 132 //error validation code
     }
 }
 ```
@@ -218,7 +220,8 @@ Retunes all phrases by language code.
     error: {
         devMessage: "Validation error",
         message: "child "key" fails because ["key" must be required]",
-        status: 400
+        status: 400,
+        errorCode: 132 //error validation code
     }
 }
 ```

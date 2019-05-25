@@ -1,5 +1,9 @@
 - Home
 
+- User
+    - [Resp. assistant registration](user.md?id=responsible-assistant-registration "Resp. assistant registration")
+    - [User activation](user.md?id=user-activation "User activation")
+
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
     - [Get all translations by phrase key](localization.md?id=get-all-translations-by-phrase-key "Get all translations by phrase key")
