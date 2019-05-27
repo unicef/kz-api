@@ -17,7 +17,7 @@ export default class ApiController {
         res.status(200).json(responseObj);
     }
 
-    static failed = (status: number, message: string, errorCode?: number, res: Response) => {
+    static failed = (status: number, message: string, res: Response, errorCode?: number) => {
         const code = errorCode || 132;
 
         const errorObj: any = {

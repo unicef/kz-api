@@ -12,6 +12,7 @@ class User extends Model {
     public readonly password!: string;
     public readonly passwordSalt!: string;
     public isBlocked!: boolean;
+    public showSeed!: boolean;
 
     // timestamps!
     public emailVerifiedAt!: Date;
@@ -94,6 +95,11 @@ User.init(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        showSeed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         },
         emailVerifiedAt: {
             type: new DataTypes.DATE,

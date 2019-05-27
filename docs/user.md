@@ -192,3 +192,61 @@ Bad user email or password
 
 <!-- tabs:end -->
 
+<hr>
+
+# Get authenticated user information
+
+#### Request
+
+**URL: `GET: /me`**
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    id: 17,
+    email: "andrecukerman@mailinator.com",
+    showSeed: true,
+    createdAt: "19-05-24 06:12:39",
+    roles: [
+        "U2FsdGVkX19JIaSvK8objk0JIGRHJ3sD8x+yrrMSq7Q="
+    ],
+    seedPrase: {
+        phrase: "plot tank rate alarm dysfunctional approve garrulous saw pinch unbecoming zippy direful",
+        link: "http://localhost:3000/files?id=17"
+    }
+}
+```
+#### ** 401 Unauthorized **
+- Code: `401 Unauthorized` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        message: "Bad token",
+        status: 400,
+        errorCode: 214 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->

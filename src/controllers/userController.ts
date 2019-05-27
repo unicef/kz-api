@@ -12,6 +12,10 @@ import BadEmailException from "../exceptions/badEmailException";
 import userIsNotActivated from "../exceptions/userIsNotActivated";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
+import dateformat from "dateformat";
+import CryptoJS from "crypto-js";
+import fs from "fs";
+
 
 
 
@@ -21,6 +25,40 @@ class UserController {
         let response = i18n.t('testlong');
 
         ApiController.success(req.user, res);
+    }
+
+    // get user Data about auth user
+    static getMe = async (req: Request, res: Response) => {
+        const user = req.user;
+        let responseData: any = {
+            id: user.id,
+            email: user.email,
+            showSeed: user.showSeed,
+            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
+        }
+        // working with rolles
+        let roles: [any] = [];
+        user.roles.forEach((role: Role) => {
+            const roleHash: string = CryptoJS.AES.encrypt(role.id, user.id + responseData.createdAt).toString();
+            roles.push(roleHash);
+        });
+        responseData.roles = roles;
+
+        // get user seed phrase
+        const seedPhrase = 'plot tank rate alarm dysfunctional approve garrulous saw pinch unbecoming zippy direful';
+        if (user.showSeed) {
+            // generate txt file with seed
+            fs.writeFile(__dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt", seedPhrase, (err) => {
+                if (err) console.log(err);
+                console.log("Successfully Written to File.");
+            });
+        }
+        responseData.seedPrase = {
+            phrase: seedPhrase,
+            link: 'http://localhost:3000/file?id=' + user.id
+        }
+
+        return res.json(responseData);
     }
 
     // create partner process
@@ -57,7 +95,7 @@ class UserController {
             };
             return ApiController.success(responseData, res);
         } catch(error) {
-            ApiController.failed(error.status, error.message, undefined, res);
+            ApiController.failed(error.status, error.message, res, undefined);
             return;
         }
     }
@@ -93,7 +131,7 @@ class UserController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            ApiController.failed(error.status, error.message, undefined, res);
+            ApiController.failed(error.status, error.message, res, undefined);
             return;
         }
         
@@ -133,7 +171,7 @@ class UserController {
             
             ApiController.success(responseData, res);
         } catch (error) {
-            ApiController.failed(error.status, error.message, 142, res);
+            ApiController.failed(error.status, error.message, res, 142);
             return;
         }
         
