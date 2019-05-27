@@ -22,5 +22,8 @@ export default {
     "client" : {
         "activationRoute" : "/auth/activate-account",
         "activationExpiredDays" : 3 
+    },
+    "jwt" : {
+        "secret" : "uscip_d874nfydbd84nd"
     }
   };

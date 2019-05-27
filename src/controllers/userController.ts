@@ -8,6 +8,10 @@ import Role from "../models/role";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import ActivationHash from "../models/activationHash";
 import BadActivationLink from "../exceptions/badActivationLink";
+import BadEmailException from "../exceptions/badEmailException";
+import userIsNotActivated from "../exceptions/userIsNotActivated";
+import jwt from "jsonwebtoken";
+import config from "../config/config";
 
 
 
@@ -16,7 +20,7 @@ class UserController {
     static getUsersList = async (req: Request, res: Response) => {
         let response = i18n.t('testlong');
 
-        ApiController.success(response, res);
+        ApiController.success(req.user, res);
     }
 
     // create partner process
@@ -90,6 +94,46 @@ class UserController {
             return ApiController.success(responseData, res);
         } catch (error) {
             ApiController.failed(error.status, error.message, undefined, res);
+            return;
+        }
+        
+    }
+
+    static login = async (req: Request, res: Response) => {
+        try {
+            const user = await User.findOne({
+                where: {
+                    email: req.body.email
+                }
+            }) || false;
+            if (!user) {
+                console.log('Bad user email');
+                throw new BadEmailException(403, i18n.t('badEmailOrPass'), i18n.t('badEmailOrPass'))
+            }
+            // check user password
+            if (!user.checkPassword(req.body.password)) {
+                console.log('Bad user password');
+                throw new BadEmailException(403, i18n.t('badEmailOrPass'), i18n.t('badEmailOrPass'))
+            }
+    
+            // check user activation 
+            if (user.emailVerifiedAt == null) {
+                console.log('User don\'t activate');
+                throw new userIsNotActivated(412, i18n.t('userIsNotActivated'), i18n.t('userIsNotActivated'))
+            }
+    
+            let token = jwt.sign({userEmail: user.email},
+                config.jwt.secret,
+                { expiresIn: '24h'});
+    
+            const responseData = {
+                token: token,
+                message: i18n.t('userSuccessfulAuth')
+            };
+            
+            ApiController.success(responseData, res);
+        } catch (error) {
+            ApiController.failed(error.status, error.message, 142, res);
             return;
         }
         

@@ -3,6 +3,7 @@
 - User
     - [Resp. assistant registration](user.md?id=responsible-assistant-registration "Resp. assistant registration")
     - [User activation](user.md?id=user-activation "User activation")
+    - [Login](user.md?id=login-user "Login user")
 
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

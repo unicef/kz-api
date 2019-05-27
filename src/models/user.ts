@@ -55,6 +55,17 @@ class User extends Model {
 
         return activationLink;
     }
+
+    // checking entered user password
+    public checkPassword = (passwordInput: string): boolean => {
+        const passwordString = this.passwordSalt + passwordInput + this.passwordSalt;
+
+        const hashedPassword = SHA1(passwordString).toString();
+        if (hashedPassword == this.password) {
+            return true;
+        }
+        return false;
+    }
 }
 
 User.init(
