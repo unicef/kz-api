@@ -8,8 +8,12 @@ class FileController{
     static getFile = async (req: Request, res: Response) => {
         try {
             const user = await User.findByPk(req.query.id);
-            const file = __dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt";
-            res.download(file, 'seed.txt');
+            if (user) {
+                const file = __dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt";
+                res.download(file, 'seed.txt');
+            }
+            res.status(404);
+            return;
         } catch (error) {
             ApiController.failed(503, error.message, res);
             return;

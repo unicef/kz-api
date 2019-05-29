@@ -41,7 +41,7 @@ ActivationHash.init(
         }
     },
     {
-        tableName: 'usersActivationHashes',
+        tableName: 'users_activation_hashes',
         modelName: 'activationHash',
         timestamps: false,
         sequelize: sequelize

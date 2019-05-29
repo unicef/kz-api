@@ -1,7 +1,7 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-    pgm.createTable("usersHasRoles", {
+    pgm.createTable("users_has_roles", {
         id: "id",
         userId: { 
             type: "integer", 
@@ -15,5 +15,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-    pgm.dropTable("usersHasRoles", {});
+    pgm.dropTable("users_has_roles", {});
 };

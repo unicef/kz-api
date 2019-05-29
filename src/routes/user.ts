@@ -14,6 +14,7 @@ router.get("/", [checkAuthToken], UserController.getUsersList);
 router.post("/partner", [postNewPartner, checkRecaptcha], UserController.createPartner);
 router.post("/activation", [postActivationProcess], UserController.activationProcess);
 router.post("/login", [postLogin], UserController.login);
+router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 
 
 export default router;

@@ -37,7 +37,7 @@ class UserController {
             createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
         }
         // working with rolles
-        let roles: [any] = [];
+        let roles: string[] = [];
         user.roles.forEach((role: Role) => {
             const roleHash: string = CryptoJS.AES.encrypt(role.id, user.id + responseData.createdAt).toString();
             roles.push(roleHash);
@@ -175,6 +175,19 @@ class UserController {
             return;
         }
         
+    }
+
+    static changeShowSeedFlag = async (req: Request, res: Response) => {
+        if (req.user.showSeed) {
+            req.user.showSeed = false;
+            req.user.save();
+        }
+
+        const responseData = {
+            message: i18n.t('successChangeShowFeedFlag')
+        }
+
+        return ApiController.success(responseData, res);
     }
 }
 export default UserController;

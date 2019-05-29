@@ -6,6 +6,9 @@
     - [Login](user.md?id=login-user "Login user")
     - [Me](user.md?id=get-authenticated-user-information "Get auth user")
 
+- Partner
+    - [Properties](partner.md?id=get-partner-static-properties "Get partner properties")
+
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
     - [Get all translations by phrase key](localization.md?id=get-all-translations-by-phrase-key "Get all translations by phrase key")

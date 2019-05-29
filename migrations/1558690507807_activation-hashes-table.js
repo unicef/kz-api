@@ -1,7 +1,7 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-    pgm.createTable("usersActivationHashes", {
+    pgm.createTable("users_activation_hashes", {
         id: "id",
         userId: { 
             type: "integer", 
@@ -20,5 +20,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-    pgm.dropTable("usersActivationHashes", {});
+    pgm.dropTable("users_activation_hashes", {});
 };

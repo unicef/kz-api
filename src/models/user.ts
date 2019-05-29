@@ -116,7 +116,7 @@ User.init(
 )
 
 User.belongsToMany(Role, {
-    through: 'usersHasRoles',
+    through: 'users_has_roles',
     uniqueKey: 'id',
     foreignKey: 'userId',
     as: 'roles',
