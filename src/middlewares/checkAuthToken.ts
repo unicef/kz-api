@@ -30,7 +30,10 @@ export const checkAuthToken = (req: Request, res: Response, next: NextFunction) 
                         where: {
                             email: decoded.userEmail
                         },
-                        include: [User.associations.roles]
+                        include: [
+                            User.associations.roles,
+                            User.associations.personalData
+                        ]
                     }).then((user) => {
                         if (user == null) {
                             throw new BadTokenException(401, i18n.t('badAuthToken'), i18n.t('badAuthToken'));

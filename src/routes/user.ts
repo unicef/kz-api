@@ -5,6 +5,7 @@ import { checkRecaptcha } from "../middlewares/checkRecaptcha";
 import postActivationProcess from "../requests/user/postActivationProcess";
 import postLogin from "../requests/user/postLogin";
 import checkAuthToken from "../middlewares/checkAuthToken";
+import putUserInformation from "../requests/user/putUserInformation";
 
 const router = Router();
 
@@ -15,6 +16,6 @@ router.post("/partner", [postNewPartner, checkRecaptcha], UserController.createP
 router.post("/activation", [postActivationProcess], UserController.activationProcess);
 router.post("/login", [postLogin], UserController.login);
 router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
-
+router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData)
 
 export default router;

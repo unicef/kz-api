@@ -10,9 +10,6 @@ import CompanyOwnership from "../models/companyOwnership";
 import PartnerType from "../models/partnerType";
 import CSOType from "../models/csoType";
 
-
-
-
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
         let responseData: any = {};

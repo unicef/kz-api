@@ -1,23 +1,22 @@
 import { Request, Response } from "express";
-import i18n from "i18next";
 import cryptoRandomString from "crypto-random-string";
-import ApiController from "./apiController";
-import ActivationLinkMail from "../mails/activationLinkMail";
-import User from "../models/user";
-import Role from "../models/role";
-import UserAlreadyExists from "../exceptions/userAlreadyExists";
-import ActivationHash from "../models/activationHash";
-import BadActivationLink from "../exceptions/badActivationLink";
-import BadEmailException from "../exceptions/badEmailException";
-import userIsNotActivated from "../exceptions/userIsNotActivated";
-import jwt from "jsonwebtoken";
-import config from "../config/config";
 import dateformat from "dateformat";
 import CryptoJS from "crypto-js";
+import jwt from "jsonwebtoken";
+import i18n from "i18next";
 import fs from "fs";
-
-
-
+import ApiController from "./apiController";
+import config from "../config/config";
+import userIsNotActivated from "../exceptions/userIsNotActivated";
+import UserAlreadyExists from "../exceptions/userAlreadyExists";
+import BadActivationLink from "../exceptions/badActivationLink";
+import BadEmailException from "../exceptions/badEmailException";
+import ActivationHash from "../models/activationHash";
+import User from "../models/user";
+import Role from "../models/role";
+import event from "../services/event";
+import UserLoggedIn from "../events/userLoggedIn";
+import UserRegistered from "../events/userRegistered";
 
 class UserController {
     // get users list
@@ -34,6 +33,7 @@ class UserController {
             id: user.id,
             email: user.email,
             showSeed: user.showSeed,
+            showForm: false,
             createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
         }
         // working with rolles
@@ -52,10 +52,15 @@ class UserController {
                 if (err) console.log(err);
                 console.log("Successfully Written to File.");
             });
+
+            responseData.seedPrase = {
+                phrase: seedPhrase,
+                link: 'http://localhost:3000/file?id=' + user.id
+            }
         }
-        responseData.seedPrase = {
-            phrase: seedPhrase,
-            link: 'http://localhost:3000/file?id=' + user.id
+        // showForm flag
+        if (!user.personalData.isFilledData()) {
+            responseData.showForm = true;
         }
 
         return res.json(responseData);
@@ -85,9 +90,7 @@ class UserController {
             const role = await Role.findByPk('ra');
             user.addRole(role);
 
-            // activation mail sending
-            let mail = new ActivationLinkMail(user);
-            mail.send();
+            event(new UserRegistered(user));
             
             const responseData = {
                 usedId: user.id,
@@ -163,7 +166,9 @@ class UserController {
             let token = jwt.sign({userEmail: user.email},
                 config.jwt.secret,
                 { expiresIn: '24h'});
-    
+            
+            event(new UserLoggedIn(user));
+
             const responseData = {
                 token: token,
                 message: i18n.t('userSuccessfulAuth')
@@ -188,6 +193,17 @@ class UserController {
         }
 
         return ApiController.success(responseData, res);
+    }
+
+    static setUserPersonalData = async (req: Request, res: Response) => {
+        for (var key in req.user.personalData.dataValues) {
+            if (req.body[key]) {
+                req.user.personalData[key] = req.body[key];
+            }
+        }
+        req.user.personalData.save();
+        
+        return ApiController.success({}, res);
     }
 }
 export default UserController;

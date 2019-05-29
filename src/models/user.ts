@@ -5,6 +5,7 @@ import SHA1 from "crypto-js/sha256";
 import cryptoRandomString from "crypto-random-string";
 import ActivationHash from "./activationHash";
 import config from "../config/config";
+import UserPersonalData from "./userPersonalData";
 
 class User extends Model {
     public id!: number;
@@ -16,6 +17,7 @@ class User extends Model {
 
     // timestamps!
     public emailVerifiedAt!: Date;
+    public lastLogin!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -105,6 +107,11 @@ User.init(
             type: new DataTypes.DATE,
             allowNull: true,
             defaultValue: null
+        },
+        lastLogin: {
+            type: new DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null
         }
     },
     {
@@ -121,6 +128,11 @@ User.belongsToMany(Role, {
     foreignKey: 'userId',
     as: 'roles',
     timestamps: false
+});
+
+User.belongsTo(UserPersonalData, {
+    foreignKey: 'id',
+    as: 'personalData'
 });
 
 export default User;
