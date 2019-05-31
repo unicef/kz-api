@@ -281,7 +281,6 @@ Update user personal information (firstName, lastName, occupation, phones)
     success: true,
     error: {},
     data: {
-        usedId: 34 // userID 
         message: "Success message"
     }
 }

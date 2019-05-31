@@ -6,6 +6,7 @@ import cryptoRandomString from "crypto-random-string";
 import ActivationHash from "./activationHash";
 import config from "../config/config";
 import UserPersonalData from "./userPersonalData";
+import SetPasswordHash from "./setPasswordHash";
 
 class User extends Model {
     public id!: number;
@@ -35,9 +36,7 @@ class User extends Model {
             where: {
               userId: this.id
             }
-        }).then(() => {
-            console.log('FUCK YOYU');
-        }).catch((error) => {
+        }).then().catch((error) => {
             console.log('ERROR destroing activation link');
             console.log(error.message);
         });
@@ -68,6 +67,24 @@ class User extends Model {
             return true;
         }
         return false;
+    }
+
+    public generateManualPasswordHash = () => {
+        // generate new hash
+        const setNewPasswordHashString = cryptoRandomString(126);
+        SetPasswordHash.create({
+            userId: this.id,
+            hash: setNewPasswordHashString,
+            expiredAt: SetPasswordHash.getExpiredDate()
+        }).then().catch((error) => {
+            console.log('ERROR creating activation link');
+            console.log(error.message);
+        });
+
+        // generate activation link
+        const setPasswordLink = process.env.CLIENT_URL + config.client.setManualPasswordRoute + '?user_token=' + setNewPasswordHashString;
+
+        return setPasswordLink;
     }
 }
 
