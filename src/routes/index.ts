@@ -11,7 +11,7 @@ const routes = Router();
 
 routes.use("/", localizationService);
 routes.options("/", (req: Request, res: Response) => {
-    res.status(200);
+    res.status(200).json({success:true});
     return ;
 })
 routes.get("/me", checkAuthToken, UserController.getMe);
