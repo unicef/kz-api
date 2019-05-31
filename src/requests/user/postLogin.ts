@@ -26,7 +26,8 @@ const postLogin = (req: Request, res: Response, next: NextFunction) => {
             }
         }).keys({
             email: Joi.string().email({ minDomainSegments: 2 }),
-            password: Joi.string().min(10).regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*~^()_+`\-={}\[\]:;<>\\\/?])[A-Za-z\d#$@!%&*~^()_+`\-={}\[\]:;<>.\\\/?]{10,}$/)
+            password: Joi.string().min(10).regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*~^()_+`\-={}\[\]:;<>\\\/?])[A-Za-z\d#$@!%&*~^()_+`\-={}\[\]:;<>.\\\/?]{10,}$/),
+            "g-recaptcha-response": Joi.string().required()
         }),
         querySchema: null
     };

@@ -14,7 +14,7 @@ const router = Router();
 router.get("/", [checkAuthToken], UserController.getUsersList);
 router.post("/partner", [postNewPartner, checkRecaptcha], UserController.createPartner);
 router.post("/activation", [postActivationProcess], UserController.activationProcess);
-router.post("/login", [postLogin], UserController.login);
+router.post("/login", [postLogin, checkRecaptcha], UserController.login);
 router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData)
 
