@@ -21,7 +21,9 @@ class App {
 
     private config(): void{
         // Call midlewares
-        this.app.use(cors());
+        this.app.use(cors({
+            optionsSuccessStatus:200
+        }));
         this.app.use(helmet());
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended:false }));
