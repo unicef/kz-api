@@ -10,6 +10,10 @@ import UserController from "../controllers/userController";
 const routes = Router();
 
 routes.use("/", localizationService);
+routes.options("/", (req: Request, res: Response) => {
+    res.status(200);
+    return ;
+})
 routes.get("/me", checkAuthToken, UserController.getMe);
 routes.use("/localization", localization);
 routes.use("/user", user);
