@@ -107,6 +107,9 @@ class UserController {
     static activationProcess = async (req: Request, res: Response) => {
         const hash = req.body.hash;
         try {
+
+            console.log("hash");
+            console.log(hash);
             // get activation hash model
             const hashModel = await ActivationHash.findOne({
                 where: {hash: hash}
