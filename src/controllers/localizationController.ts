@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ApiController from "./apiController";
 import config from "../config/config";
 import Translation from '../models/translation';
+import i18n from "i18next";
 
 class LocalizationController {
     /**

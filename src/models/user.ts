@@ -21,6 +21,7 @@ class User extends Model {
     public lastLogin!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+    public readonly roles!: [];
 
     static generatePassword = (passwordSalt: string, passwordInput: string): string => {
         const passwordString = passwordSalt + passwordInput + passwordSalt;
@@ -28,6 +29,31 @@ class User extends Model {
         const hashedPassword = SHA1(passwordString).toString();
 
         return hashedPassword;
+    }
+
+    // Check is user exists by user email
+    static isUserExists = async (email: string): Promise<boolean> => {
+        const user = await User.findOne({
+            where: {
+                email: email
+            }
+        })
+        if (user) {
+            return true;
+        }
+        return false;
+    }
+
+    // is user administrator
+    public isAdmin = (): boolean => {
+        let isAdmin = false;
+        this.roles.forEach((role: Role) => {
+            if (role.id == Role.adminRoleId) {
+                isAdmin = true;
+            }
+        })
+
+        return isAdmin;
     }
 
     public getActivationLink = () => {

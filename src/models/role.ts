@@ -3,6 +3,8 @@ import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 
 class Role extends Model {
+    static adminRoleId = 'a';
+
     public id!: string;
     public title!: string;
 

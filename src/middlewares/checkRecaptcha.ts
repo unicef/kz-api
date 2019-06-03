@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { RecaptchaV3  } from "express-recaptcha";
+import { RecaptchaV3, RecaptchaV2  } from "express-recaptcha";
 
 export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) => {
     const recaptchaSite: string = process.env.RECAPTCHA_SITE || '';
     const recaptchaSecret: string = process.env.RECAPTCHA_SECRET || '';
-    const recaptcha = new RecaptchaV3(recaptchaSite, recaptchaSecret);
+    const recaptcha = new RecaptchaV2(recaptchaSite, recaptchaSecret);
     try {
         recaptcha.verify(req, (error, data) => {
             if (error && process.env.NODE_ENV!=='development') {
