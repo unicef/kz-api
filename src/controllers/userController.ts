@@ -18,6 +18,7 @@ import event from "../services/event";
 import UserLoggedIn from "../events/userLoggedIn";
 import UserRegistered from "../events/userRegistered";
 import UserPersonalData from "../models/userPersonalData";
+import UserHelper from "../helpers/userHelper";
 
 class UserController {
     // get users list
@@ -237,7 +238,7 @@ class UserController {
                 id: user.id,
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
                 createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss'),
-                company: null
+                company: UserHelper.getUserPartner(user.id)
             }
 
             ApiController.success(responseData, res);
