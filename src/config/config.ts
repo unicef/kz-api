@@ -1,5 +1,5 @@
 export default {
-    "APP_NAME": "api.blockchain.dev",
+    "APP_NAME": "api.uscip.iskytest.com",
     "db" : {
         "host" : "postgres",
         "user" : "blockchain",

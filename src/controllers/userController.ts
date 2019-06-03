@@ -55,7 +55,7 @@ class UserController {
 
             responseData.seed = {
                 phrase: seedPhrase,
-                link: 'http://localhost:3000/file?id=' + user.id
+                link: 'http://' + config.APP_NAME + '/file?id=' + user.id
             }
         }
         // showForm flag
