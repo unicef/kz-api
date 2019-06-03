@@ -15,9 +15,11 @@ export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) 
 
                 const errorObj: any = {
                     success: false,
-                    status: status,
-                    message: message,
-                    errorCode: errorCode
+                    error: {
+                        status: status,
+                        message: message,
+                        errorCode: errorCode
+                    }
                 }
                 res.status(status).json(errorObj);
                 return;
@@ -32,9 +34,11 @@ export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) 
 
         const errorObj: any = {
             success: false,
-            status: status,
-            message: message,
-            errorCode: errorCode
+            error: {
+                status: status,
+                message: message,
+                errorCode: errorCode
+            }
         }
         res.status(status).json(errorObj);
         return;
