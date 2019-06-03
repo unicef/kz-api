@@ -111,6 +111,8 @@ class UserController {
             const hashModel = await ActivationHash.findOne({
                 where: {hash: hash}
             }) || false;
+            console.log("hashModel");
+            console.log(hashModel);
             // check expires
             let today: Date = new Date();
             if (!hashModel || today > hashModel.expiredAt) {
@@ -119,6 +121,8 @@ class UserController {
             }
             // get activation user
             const user = await User.findByPk(hashModel.userId) || false;
+            console.log('user');
+            console.log(user);
             if (!user) {
                 console.log('Bad activation hash error');
                 throw new BadActivationLink(400, i18n.t('badActivationLink'), i18n.t('badActivationLink'))
@@ -128,10 +132,13 @@ class UserController {
             user.save();
 
             hashModel.destroy();
+            console.log('END');
 
             const responseData = {
                 message: i18n.t('successUserActivation')
             }
+
+            console.log(responseData);
             return ApiController.success(responseData, res);
         } catch (error) {
             ApiController.failed(error.status, error.message, res, undefined);
