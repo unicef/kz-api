@@ -93,7 +93,7 @@ class UserController {
             event(new UserRegistered(user));
             
             const responseData = {
-                usedId: user.id,
+                userId: user.id,
                 message: i18n.t('successCreatedPartner')
             };
             return ApiController.success(responseData, res);
