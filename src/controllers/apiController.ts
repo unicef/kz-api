@@ -22,9 +22,11 @@ export default class ApiController {
 
         const errorObj: any = {
             success: false,
-            status: status,
-            message: message,
-            errorCode: code
+            error: {
+                status: status,
+                message: message,
+                errorCode: code
+            }
         }
         res.status(status).json(errorObj);
         return;
