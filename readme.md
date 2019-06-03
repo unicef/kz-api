@@ -1,4 +1,4 @@
-# UNICEF blockchain API v1.02
+# UNICEF blockchain API
 
 ## Installation
 
