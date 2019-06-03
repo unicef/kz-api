@@ -19,16 +19,17 @@ export default class ApiController {
 
     static failed = (status: number, message: string, res: Response, errorCode?: number) => {
         const code = errorCode || 132;
+        const responseCode = status || 400;
 
         const errorObj: any = {
             success: false,
             error: {
-                status: status,
+                status: responseCode,
                 message: message,
                 errorCode: code
             }
         }
-        res.status(status).json(errorObj);
+        res.status(responseCode).json(errorObj);
         return;
     }
 }
