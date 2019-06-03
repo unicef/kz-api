@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
+<<<<<<< HEAD
 import { RecaptchaV2  } from "express-recaptcha";
+=======
+import { RecaptchaV3, RecaptchaV2  } from "express-recaptcha";
+>>>>>>> createPartner
 
 export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) => {
     const recaptchaSite: string = process.env.RECAPTCHA_SITE || '';

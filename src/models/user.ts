@@ -6,6 +6,7 @@ import cryptoRandomString from "crypto-random-string";
 import ActivationHash from "./activationHash";
 import config from "../config/config";
 import UserPersonalData from "./userPersonalData";
+import SetPasswordHash from "./setPasswordHash";
 
 class User extends Model {
     public id!: number;
@@ -20,6 +21,7 @@ class User extends Model {
     public lastLogin!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+    public readonly roles!: [];
 
     static generatePassword = (passwordSalt: string, passwordInput: string): string => {
         const passwordString = passwordSalt + passwordInput + passwordSalt;
@@ -29,15 +31,38 @@ class User extends Model {
         return hashedPassword;
     }
 
+    // Check is user exists by user email
+    static isUserExists = async (email: string): Promise<boolean> => {
+        const user = await User.findOne({
+            where: {
+                email: email
+            }
+        })
+        if (user) {
+            return true;
+        }
+        return false;
+    }
+
+    // is user administrator
+    public isAdmin = (): boolean => {
+        let isAdmin = false;
+        this.roles.forEach((role: Role) => {
+            if (role.id == Role.adminRoleId) {
+                isAdmin = true;
+            }
+        })
+
+        return isAdmin;
+    }
+
     public getActivationLink = () => {
         // delete all previous hashes
         ActivationHash.destroy({
             where: {
               userId: this.id
             }
-        }).then(() => {
-            console.log('FUCK YOYU');
-        }).catch((error) => {
+        }).then().catch((error) => {
             console.log('ERROR destroing activation link');
             console.log(error.message);
         });
@@ -68,6 +93,24 @@ class User extends Model {
             return true;
         }
         return false;
+    }
+
+    public generateManualPasswordHash = () => {
+        // generate new hash
+        const setNewPasswordHashString = cryptoRandomString(126);
+        SetPasswordHash.create({
+            userId: this.id,
+            hash: setNewPasswordHashString,
+            expiredAt: SetPasswordHash.getExpiredDate()
+        }).then().catch((error) => {
+            console.log('ERROR creating activation link');
+            console.log(error.message);
+        });
+
+        // generate activation link
+        const setPasswordLink = process.env.CLIENT_URL + config.client.setManualPasswordRoute + '?user_token=' + setNewPasswordHashString;
+
+        return setPasswordLink;
     }
 }
 

@@ -5,7 +5,7 @@
     - [User activation](user.md?id=user-activation "User activation")
     - [Login](user.md?id=login-user "Login user")
     - [Me](user.md?id=get-authenticated-user-information "Get auth user")
-    - [Set user information](user.md?id= "Update user personal data")
+    - [Set user information](user.md?id=set-user-information "Update user personal data")
 
 - Partner
     - [Properties](partner.md?id=get-partner-static-properties "Get partner properties")

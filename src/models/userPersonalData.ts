@@ -18,14 +18,14 @@ class UserPersonalData extends Model {
 
     public isFilledData(): boolean {
         let isFilledData = true;
-        for (var key in this.dataValues) {
-            if (this.dataValues[key]==null) {
+        const modelData = JSON.parse(JSON.stringify(this));
+        for (var key in modelData) {
+            if (modelData[key]==null) {
                 isFilledData = false;
             }
         }
         return isFilledData;
     }
-
 }
 
 UserPersonalData.init(
