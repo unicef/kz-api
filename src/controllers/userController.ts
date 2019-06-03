@@ -17,6 +17,7 @@ import Role from "../models/role";
 import event from "../services/event";
 import UserLoggedIn from "../events/userLoggedIn";
 import UserRegistered from "../events/userRegistered";
+import UserPersonalData from "../models/userPersonalData";
 
 class UserController {
     // get users list
@@ -207,6 +208,45 @@ class UserController {
         req.user.personalData.save();
         
         return ApiController.success({}, res);
+    }
+
+    static getUserById = async (req: Request, res: Response) => {
+        const userId: number = req.query.id;
+
+        const user = await User.findOne({
+            where: {
+                id: userId
+            },
+            include: [
+                User.associations.roles,
+                User.associations.personalData
+            ]
+        });
+        if (user) {
+            let responseData: any = {
+                email: user.email,
+                firstNameEn: user.personalData.firstNameEn,
+                firstNameRu: user.personalData.firstNameRu,
+                lastNameEn: user.personalData.lastNameEn,
+                lastNameRu: user.personalData.lastNameRu,
+                occupationEn: user.personalData.occupationEn,
+                occupationRu: user.personalData.occupationRu,
+                roles: user.roles,
+                tel: user.personalData.tel,
+                mobile: user.personalData.mobile,
+                id: user.id,
+                lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
+                createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss'),
+                company: null
+            }
+
+            ApiController.success(responseData, res);
+
+            return ;
+        } else {
+            ApiController.failed(404, 'User not found', res);
+            return ;
+        }
     }
 }
 export default UserController;
