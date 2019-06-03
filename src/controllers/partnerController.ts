@@ -120,6 +120,28 @@ class PartnerController {
             return;
         }
     }
+
+    static getPartnerById = async (req: Request, res: Response) => {
+        const partnerId = req.query.id;
+        const partner = Partner.findOne({
+            where: {
+                id: partnerId
+            },
+            include: [
+                Partner.associations.country,
+                Partner.associations.areaOfWork,
+                Partner.associations.ownership,
+                Partner.associations.partnerType,
+                Partner.associations.csoType
+            ]
+        })
+
+        if (partner) {
+            ApiController.success(partner, res);
+        } else {
+            ApiController.failed(404, 'Partner didn\'t find', res);
+        }
+    }
 }
 
 export default PartnerController;

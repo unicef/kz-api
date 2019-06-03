@@ -238,7 +238,7 @@ class UserController {
                 id: user.id,
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
                 createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss'),
-                company: UserHelper.getUserPartner(user.id)
+                company: await UserHelper.getUserPartner(user.id)
             }
 
             ApiController.success(responseData, res);

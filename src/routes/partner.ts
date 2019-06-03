@@ -9,6 +9,7 @@ const router = Router();
 // get all users
 router.get("/properties", PartnerController.getPartnerProperties);
 router.post("/", [checkAuthToken, postPartner], PartnerController.createPartner);
+router.get("/", [checkAuthToken], PartnerController.getPartnerById);
 
 
 export default router;
