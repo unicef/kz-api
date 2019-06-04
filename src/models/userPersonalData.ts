@@ -20,7 +20,7 @@ class UserPersonalData extends Model {
         let isFilledData = true;
         const modelData = JSON.parse(JSON.stringify(this));
         for (var key in modelData) {
-            if (modelData[key]==null) {
+            if (modelData[key]==null || modelData[key]=='') {
                 isFilledData = false;
             }
         }
