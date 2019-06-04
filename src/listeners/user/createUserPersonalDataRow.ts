@@ -9,7 +9,15 @@ class CreateUserPersonalDataRow extends Listener {
         const user = event.user;
 
         UserPersonalData.create({
-            userId: user.id
+            userId: user.id,
+            firstNameEn: '',
+            firstNameRu: '',
+            lastNameEn: '',
+            lastNameRu: '',
+            occupationEn: '',
+            occupationRu: '',
+            tel: '',
+            mobile: ''
         });
 
         return ;

@@ -19,6 +19,8 @@ class UserHelper {
         UserHelper.userPersonalFields.forEach((field)=>{
             if (req.body.user[field] && req.body.user[field]!== null) {
                 userData[field] = req.body.user[field];
+            } else {
+                userData[field] = '';
             }
         })
 
