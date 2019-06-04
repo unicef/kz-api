@@ -8,6 +8,6 @@ Deploy:
      - rm -f -r /home/gitlab-runner/$CI_PROJECT_DIR/.git
      - "/home/gitlab-runner/xeroxup1.sh $CI_PROJECT_DIR $CI_BUILD_REF $DOMAIN"
      - ssh -p 5253 -tt sadist@95.216.36.104 'cp /home/sadist/kubernetes/uscip.api/.env.example /home/sadist/kubernetes/uscip.api/.env'
-     - ssh -p 5253 -tt sadist@95.216.36.104 'cd /home/sadist/kubernetes/uscip.api/ && docker build -t sadist/uscip-api . && docker login && docker push sadist/uscip-api && kubectl delete deployment deployment-uscip-api && kubectl apply -f deployment-uscip-api.yaml'
+     - ssh -p 5253 -tt sadist@95.216.36.104 'cd /home/sadist/kubernetes/uscip.api/ && docker build -t sadist/uscip-api:$CI_JOB_ID . && docker login && docker push sadist/uscip-api:$CI_JOB_ID && kubectl delete deployment deployment-uscip-api && kubectl apply -f deployment-uscip-api.yaml'
   only:
     - develop
