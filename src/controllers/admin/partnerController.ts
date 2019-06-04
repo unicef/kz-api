@@ -31,27 +31,28 @@ class AdminPartnerController {
             passwordSalt: passwordSalt
         });
         // add role to user
-        const role = await Role.findByPk(req.body.user.roleId);
+        const role = await Role.findByPk(req.body.user.role.id);
         user.addRole(role);
 
         // working with user data
         let userData: any = UserHelper.getUserDataFromRequest(req);
         userData['userId'] = user.id;
-        UserPersonalData.create(userData);
+        const userPersonalData = await UserPersonalData.create(userData);
 
         event(new UserRegisteredRemotely(user));
-        if (req.body.user.roleId == 'ra') {
+        let partner: any = null;
+        if (req.body.user.role.id == 'ra') {
             let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req);
             // create new partner
             partnerData["nameEn"] = req.body.company.nameEn;
             partnerData["nameRu"] = req.body.company.nameRu;
             partnerData["assistId"] = user.id;
 
-            const partner = await Partner.create(partnerData);
+            partner = await Partner.create(partnerData);
         } else {
-            const partner = await Partner.findOne({
+            partner = await Partner.findOne({
                 where: {
-                    id: req.body.user.companyId
+                    id: req.body.user.company.id
                 }
             });
             if (partner) {
@@ -66,6 +67,7 @@ class AdminPartnerController {
             userId: user.id,
             companyId: partner.id
         }, res);
+        return ;
     }
 }
 

@@ -16,24 +16,24 @@
     occupationRu - user occupation in Russian<br/>
     tel - user phone number<br/> 
     mobile - user mobile number<br/>
-    roleId - role id (required)<br/>
+    role - role object {title,id} (required)<br/>
 **company**:<br/> 
     nameEn - company name in English (required)<br/>
     nameRu - company name in Russian (required)<br/>
     tradeNameEn - trade company name in English<br/>
     tradeNameRu - trade company name in Russian<br/>
     license - company license number<br/>
-    countryId - country id<br/>
+    country - country objectn{title,id} <br/>
     seoFirstNameEn - seo first name in English<br/>
     seoFirstNameRu - seo first name in Russian<br/>
     seoLastNameEn - seo last name in English<br/>
     seoLastNameRu - seo last name in Russian<br/>
     establishmentYear - establishment year<br/> 
     employersCount - count of employers<br/> 
-    areaOfWorkId - id area of work<br/> 
-    ownershipId - id company ownership<br/> 
-    partnerTypeId - id partner type<br/> 
-    csoTypeId - id CSO type<br/> 
+    areaOfWork - area of work object {title,id}<br/> 
+    ownership - company ownership object {title,id}<br/> 
+    partnerType - partner type object {title,id}<br/> 
+    csoType - CSO type object {title,id}<br/> 
     tel - company phone number<br/> 
     website - company website<br/>
     cityEn - company city in English<br/>
@@ -49,7 +49,7 @@
 ```json
 {
 	"user": {
-		"email": "test@test.com",
+		"email": "testuscip@mailinator.com",
 		"firstNameEn": "Oleg",
 		"firstNameRu": "Олег",
 		"lastNameEn": "Dyatlov",
@@ -58,7 +58,10 @@
 		"occupationRu": "Разработчик серверных приложений",
 		"tel": "+38 56 238 10 93",
 		"mobile": "+38 093 587 18 18",
-		"roleId": "ra"
+		"role": {
+			"id": "ra",
+			"title": "Responsible assistant"
+		}
 	},
 	"company": {
 		"nameEn": "First test company",
@@ -66,17 +69,29 @@
 		"tradeNameEn": "Volognyanskiy and grandsons",
 		"tradeNameRu": "ОАО Воложнянский и внуки",
 		"license": "20385G-3A9-FE321",
-		"countryId": 228,
+		"country": {
+			"id": 228,
+			"title": "Ukraine"
+		},
 		"seoFirstNameEn": "Vasil",
 		"seoFirstNameRu": "Василий",
 		"seoLastNameEn": "Georgemichelov",
 		"seoLastNameRu": "Жоржмайклов",
 		"establishmentYear": 1996,
 		"employersCount": 27,
-		"areaOfWorkId": 8,
-		"ownershipId": 2,
-		"partnerTypeId": 1,
-		"csoTypeId": null,
+		"areaOfWork": {
+			"id": 8,
+			"title": "Gender Equality"
+		},
+		"ownership": {
+			"id": 2,
+			"title": "State"
+		},
+		"partnerType": {
+			"id": 1,
+			"title": "Bilateral/multilateral"
+		},
+		"csoType": null,
 		"tel": "+38093 238 78 78",
 		"website": "https://cukerman.pro",
 		"cityEn": "Dnipro",

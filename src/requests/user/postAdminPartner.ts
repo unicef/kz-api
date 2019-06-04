@@ -36,7 +36,10 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 occupationRu: Joi.string().max(512),
                 tel: Joi.string().max(20),
                 mobile: Joi.string().max(20),
-                roleId: Joi.string().max(6).required()
+                role: Joi.object().keys({
+                    id: Joi.string().max(6),
+                    title: Joi.string().max(255),
+                }).required()
             }),
             company: Joi.object().keys({
                 nameEn: Joi.string().max(255).required(),
@@ -44,17 +47,32 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 tradeNameEn: Joi.string().max(255),
                 tradeNameRu: Joi.string().max(255),
                 license: Joi.string().max(255),
-                countryId: Joi.number(),
+                country: Joi.object().keys({
+                    id: Joi.number(),
+                    title: Joi.string().max(255),
+                }),
                 seoFirstNameEn: Joi.string().max(255),
                 seoFirstNameRu: Joi.string().max(255),
                 seoLastNameEn: Joi.string().max(255),
                 seoLastNameRu: Joi.string().max(255),
                 establishmentYear: Joi.number().max(new Date().getFullYear()),
                 employersCount: Joi.number(),
-                areaOfWorkId: Joi.number(),
-                ownershipId: Joi.number(),
-                partnerTypeId: Joi.number(),
-                csoTypeId: Joi.number(),
+                areaOfWork: Joi.object().keys({
+                    id: Joi.number(),
+                    title: Joi.string().max(255),
+                }),
+                ownership: Joi.object().keys({
+                    id: Joi.number(),
+                    title: Joi.string().max(255),
+                }),
+                partnerType: Joi.object().keys({
+                    id: Joi.number(),
+                    title: Joi.string().max(255),
+                }),
+                csoType: Joi.object().keys({
+                    id: Joi.number(),
+                    title: Joi.string().max(255),
+                }).allow(null),
                 tel: Joi.string().max(20),
                 website: Joi.string().max(124),
                 cityEn: Joi.string().max(255),

@@ -25,6 +25,14 @@ class PartnerHelper {
         "zip"
     ];
 
+    static partnerSelectFields = [
+        "country",
+        "areaOfWork",
+        "ownership",
+        "partnerType",
+        "csoType"
+    ];
+
     static getPartnerDataFromRequest = (req: Request): {} => {
         let partnerData: any = {};
         PartnerHelper.partnerFields.forEach((field)=>{
@@ -32,6 +40,13 @@ class PartnerHelper {
                 partnerData[field] = req.body.company[field];
             }
         })
+
+        PartnerHelper.partnerSelectFields.forEach((field)=>{
+            if (req.body.company[field] && req.body.company[field]!== null) {
+                partnerData[field+"Id"] = req.body.company[field]["id"];
+            }
+        })
+
         return partnerData;
     }
 }
