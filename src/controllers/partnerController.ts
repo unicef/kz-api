@@ -123,7 +123,7 @@ class PartnerController {
 
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
-        const partner = Partner.findOne({
+        const partner = await Partner.findOne({
             where: {
                 id: partnerId
             },
