@@ -6,9 +6,10 @@ import postActivationProcess from "../requests/user/postActivationProcess";
 import postLogin from "../requests/user/postLogin";
 import checkAuthToken from "../middlewares/checkAuthToken";
 import putUserInformation from "../requests/user/putUserInformation";
+import putUserPasswordManual from "../requests/user/putUserPasswordManual";
+import getUserById from "../requests/user/getUserById";
 
 const router = Router();
-
 
 // get all users
 router.post("/partner", [postNewPartner, checkRecaptcha], UserController.createPartner);
@@ -16,6 +17,7 @@ router.post("/activation", [postActivationProcess], UserController.activationPro
 router.post("/login", [postLogin, checkRecaptcha], UserController.login);
 router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData);
-router.get("/", [], UserController.getUserById);
+router.get("/", [checkAuthToken, getUserById], UserController.getUserById);
+router.put("/password", [putUserPasswordManual], UserController.setUserPassword);
 
 export default router;

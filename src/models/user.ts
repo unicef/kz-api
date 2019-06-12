@@ -11,8 +11,8 @@ import SetPasswordHash from "./setPasswordHash";
 class User extends Model {
     public id!: number;
     public email!: string;
-    public readonly password!: string;
-    public readonly passwordSalt!: string;
+    public password!: string;
+    public passwordSalt!: string;
     public isBlocked!: boolean;
     public showSeed!: boolean;
 
@@ -22,6 +22,19 @@ class User extends Model {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     public readonly roles!: [];
+    public personalData!: UserPersonalData;
+
+    public setPassword = (password: string): boolean => {
+        const passwordSalt = cryptoRandomString(10);
+        const userPassword = User.generatePassword(passwordSalt, password);
+
+        this.passwordSalt = passwordSalt;
+        this.password = userPassword;
+
+        this.save();
+
+        return true;
+    }
 
     static generatePassword = (passwordSalt: string, passwordInput: string): string => {
         const passwordString = passwordSalt + passwordInput + passwordSalt;

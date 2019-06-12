@@ -7,6 +7,8 @@ import BadTokenException from "../exceptions/badTokenException";
 import User from "../models/user";
 import BlockedUserException from "../exceptions/blockedUserException";
 import AdminRoleException from "../exceptions/adminRoleException";
+import HttpException from "../exceptions/httpException";
+import ApiController from "../controllers/apiController";
 
 export const checkAdminRole = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -14,7 +16,7 @@ export const checkAdminRole = (req: Request, res: Response, next: NextFunction) 
         let token: string|boolean = req.headers['authorization'] || false;
     
         if (!token) {
-            throw new AuthRequiredException(401, i18n.t('userAuthRequired'), i18n.t('userAuthRequired'));
+            throw new AuthRequiredException();
         }
         // get token scheme
         const headerParts = token.split(' ');
@@ -25,7 +27,7 @@ export const checkAdminRole = (req: Request, res: Response, next: NextFunction) 
         if (token) {
             jwt.verify(token, jwtSecret, (err, decoded: any) => {
                 if (err) {
-                    throw new BadTokenException(401, i18n.t('badAuthToken'), i18n.t('badAuthToken'));
+                    throw new BadTokenException();
                 } else {
                     let user =  User.findOne({
                         where: {
@@ -37,51 +39,37 @@ export const checkAdminRole = (req: Request, res: Response, next: NextFunction) 
                         ]
                     }).then((user) => {
                         if (user == null) {
-                            throw new BadTokenException(401, i18n.t('badAuthToken'), i18n.t('badAuthToken'));
+                            throw new BadTokenException();
                         }
                         if (user && user.isBlocked) {
-                            throw new BlockedUserException(403, i18n.t('userIsBlocked'), i18n.t('userIsBlocked'));
+                            throw new BlockedUserException();
                         }
                         req.user = user;
 
                         if (!user.isAdmin()) {
-                            throw new AdminRoleException(403, i18n.t('userNotAdmin'), i18n.t('userNotAdmin'))
+                            throw new AdminRoleException();
                         }
                         next();
                     }).catch((error) => {
-                        const status = error.status || 400;
-                        const message = error.message || 'Something went wrong';
-                        const errorCode = 214;
-                
-                        const errorObj: any = {
-                            success: false,
-                            status: status,
-                            message: message,
-                            errorCode: errorCode
+                        if (error instanceof HttpException) {
+                            error.response(res);
+                        } else {
+                            ApiController.failed(500, error.message, res);
                         }
-                        res.status(status).json(errorObj);
-                        return;
+                        return ;
                     });     
               }
             })
         } else {
-            throw new AuthRequiredException(401, i18n.t('userAuthRequired'), i18n.t('userAuthRequired'));
+            throw new AuthRequiredException();
         }
     } catch (error) {
-        const status = error.status || 400;
-        const message = error.message || 'Something went wrong';
-        const errorCode = 214;
-
-        const errorObj: any = {
-            success: false,
-            error: {
-                status: status,
-                message: message,
-                errorCode: errorCode
-            }
+        if (error instanceof HttpException) {
+            error.response(res);
+        } else {
+            ApiController.failed(500, error.message, res);
         }
-        res.status(status).json(errorObj);
-        return;
+        return ;
     }
 };
 

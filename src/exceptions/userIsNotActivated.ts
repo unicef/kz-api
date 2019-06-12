@@ -1,31 +1,16 @@
 import HttpException from "./httpException";
+import i18n from "i18next";
 
 class UserIsNotActivated extends HttpException {
     /**
-     * Http responce code
+     * Create User not activated exception
      */
-    status: number;
-
-    /**
-     * Error message
-     */
-    message: string;
-
-    /**
-     * Message for developers (only on development env mode)
-     */
-    devMessage: string;
-
-    /**
-     * Create Bad validation exception
-     * @param status 
-     * @param message 
-     */
-    constructor(status: number, message: string, devMessage: string) {
-        super(status, message, devMessage);
-        this.status = status;
-        this.message = message;
-        this.devMessage = devMessage;
+    constructor(status?: number, errorCode?: number, message?: string, devMessage?: string) {
+        const responseStatus: number = status || 412;
+        const responseErrorCode: number = errorCode || 111;
+        const responseMessage: string = message || i18n.t('userIsNotActivated');
+        const responseDevMessage: string = devMessage || 'User\'s not activated.';
+        super(responseStatus, responseErrorCode, responseMessage, responseDevMessage);
     }
 }
 

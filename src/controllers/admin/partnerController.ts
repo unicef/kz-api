@@ -12,62 +12,72 @@ import UserRegisteredRemotely from "../../events/userRegisteredRemotely";
 import PartnerHelper from "../../helpers/partnerHelper";
 import Partner from "../../models/partner";
 import ApiController from "../apiController";
+import HttpException from "../../exceptions/httpException";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
-        // check user exists
-        const userExists = await User.isUserExists(req.body.user.email);
-        if (userExists) {
-            throw new UserAlreadyExists(400, i18n.t('userExistsError'), i18n.t('userExistsError'));
-        }
-
-        // creating user
-        const passwordSalt: string = cryptoRandomString(10);
-        const password: string = cryptoRandomString(12);
-
-        const user = await User.create({
-            email: req.body.user.email,
-            password: User.generatePassword(passwordSalt, password),
-            passwordSalt: passwordSalt
-        });
-        // add role to user
-        const role = await Role.findByPk(req.body.user.role.id);
-        user.addRole(role);
-
-        // working with user data
-        let userData: any = UserHelper.getUserDataFromRequest(req);
-        userData['userId'] = user.id;
-        const userPersonalData = await UserPersonalData.create(userData);
-
-        event(new UserRegisteredRemotely(user));
-        let partner: any = null;
-        if (req.body.user.role.id == 'ra') {
-            let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req);
-            // create new partner
-            partnerData["nameEn"] = req.body.company.nameEn;
-            partnerData["nameRu"] = req.body.company.nameRu;
-            partnerData["assistId"] = user.id;
-
-            partner = await Partner.create(partnerData);
-        } else {
-            partner = await Partner.findOne({
-                where: {
-                    id: req.body.user.company.id
-                }
-            });
-            if (partner) {
-                partner.authorisedId = user.id;
-                partner.save();
+        try {
+            // check user exists
+            const userExists = await User.isUserExists(req.body.user.email);
+            if (userExists) {
+                throw new UserAlreadyExists();
             }
-        }
-        // working with documents TODO!!!
 
-        ApiController.success({
-            message: i18n.t('successPartnerCreation'),
-            userId: user.id,
-            companyId: partner.id
-        }, res);
-        return ;
+            // creating user
+            const passwordSalt: string = cryptoRandomString(10);
+            const password: string = cryptoRandomString(12);
+
+            const user = await User.create({
+                email: req.body.user.email,
+                password: User.generatePassword(passwordSalt, password),
+                passwordSalt: passwordSalt
+            });
+            // add role to user
+            const role = await Role.findByPk(req.body.user.role.id);
+            user.addRole(role);
+
+            // working with user data
+            let userData: any = UserHelper.getUserDataFromRequest(req);
+            userData['userId'] = user.id;
+            const userPersonalData = await UserPersonalData.create(userData);
+
+            event(new UserRegisteredRemotely(user));
+            let partner: any = null;
+            if (req.body.user.role.id == 'ra') {
+                let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req);
+                // create new partner
+                partnerData["nameEn"] = req.body.company.nameEn;
+                partnerData["nameRu"] = req.body.company.nameRu;
+                partnerData["assistId"] = user.id;
+
+                partner = await Partner.create(partnerData);
+            } else {
+                partner = await Partner.findOne({
+                    where: {
+                        id: req.body.user.company.id
+                    }
+                });
+                if (partner) {
+                    partner.authorisedId = user.id;
+                    partner.save();
+                }
+            }
+            // working with documents TODO!!!
+
+            ApiController.success({
+                message: i18n.t('successPartnerCreation'),
+                userId: user.id,
+                companyId: partner.id
+            }, res);
+            return ;
+        } catch(error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
     }
 }
 

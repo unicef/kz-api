@@ -6,9 +6,14 @@
     - [Login](user.md?id=login-user "Login user")
     - [Me](user.md?id=get-authenticated-user-information "Get auth user")
     - [Set user information](user.md?id=set-user-information "Update user personal data")
+    - [Set user password manualy](user.md?id=set-user-password-manualy "Set user password manualy")
+    - [Seed phrase showed](user.md?id=set-show-seed-phrase-flag "Set showSeed flag to false")
+    - [Get user information](user.md?id=get-user-information "Get user information by user id")
 
 - Partner
-    - [Properties](partner.md?id=get-partner-static-properties "Get partner properties")
+    - [Form properties](partner.md?id=get-partner-static-properties "Get partner properties")
+    - [Get partner](partner.md?id=get-partner-information "Get partner information")
+
 
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

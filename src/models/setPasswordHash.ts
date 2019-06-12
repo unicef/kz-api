@@ -15,6 +15,15 @@ class SetPasswordHash extends Model {
         
         return expiredDate;
     }
+
+    public isHashExpired = (): boolean => {
+        const today: Date = new Date();
+        if (today > this.expiredAt) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 SetPasswordHash.init(

@@ -19,6 +19,9 @@ import UserLoggedIn from "../events/userLoggedIn";
 import UserRegistered from "../events/userRegistered";
 import UserPersonalData from "../models/userPersonalData";
 import UserHelper from "../helpers/userHelper";
+import SetPasswordHash from "../models/setPasswordHash";
+import BadSetPasswordLink from "../exceptions/badSetPasswordLink";
+import HttpException from "../exceptions/httpException";
 
 class UserController {
     // get users list
@@ -77,7 +80,7 @@ class UserController {
                 where: {email: req.body.email},
             });
             if (user !== null) {
-                throw new UserAlreadyExists(400, i18n.t('userExistsError'), i18n.t('userExistsError'));
+                throw new UserAlreadyExists();
             }
 
             // creating user
@@ -101,7 +104,11 @@ class UserController {
             };
             return ApiController.success(responseData, res);
         } catch(error) {
-            ApiController.failed(error.status, error.message, res, undefined);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
             return;
         }
     }
@@ -110,7 +117,6 @@ class UserController {
     static activationProcess = async (req: Request, res: Response) => {
         const hash = req.body.hash;
         try {
-
             // get activation hash model
             const hashModel = await ActivationHash.findOne({
                 where: {hash: hash}
@@ -118,14 +124,12 @@ class UserController {
             // check expires
             let today: Date = new Date();
             if (!hashModel || today > hashModel.expiredAt) {
-                console.log('Bad activation hash error');
-                throw new BadActivationLink(400, i18n.t('badActivationLink'), i18n.t('badActivationLink'))
+                throw new BadActivationLink();
             }
             // get activation user
             const user = await User.findByPk(hashModel.userId) || false;
             if (!user) {
-                console.log('Bad activation hash error');
-                throw new BadActivationLink(400, i18n.t('badActivationLink'), i18n.t('badActivationLink'))
+                throw new BadActivationLink();
             }
             // activation process
             user.emailVerifiedAt = new Date();
@@ -139,10 +143,13 @@ class UserController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            ApiController.failed(error.status, error.message, res, undefined);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
             return;
         }
-        
     }
 
     static login = async (req: Request, res: Response) => {
@@ -153,19 +160,16 @@ class UserController {
                 }
             }) || false;
             if (!user) {
-                console.log('Bad user email');
-                throw new BadEmailException(403, i18n.t('badEmailOrPass'), i18n.t('badEmailOrPass'))
+                throw new BadEmailException();
             }
             // check user password
             if (!user.checkPassword(req.body.password)) {
-                console.log('Bad user password');
-                throw new BadEmailException(403, i18n.t('badEmailOrPass'), i18n.t('badEmailOrPass'))
+                throw new BadEmailException();
             }
     
             // check user activation 
             if (user.emailVerifiedAt == null) {
-                console.log('User don\'t activate');
-                throw new userIsNotActivated(412, i18n.t('userIsNotActivated'), i18n.t('userIsNotActivated'))
+                throw new userIsNotActivated();
             }
     
             let token = jwt.sign({userEmail: user.email},
@@ -181,23 +185,36 @@ class UserController {
             
             ApiController.success(responseData, res);
         } catch (error) {
-            ApiController.failed(error.status, error.message, res, 142);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
             return;
         }
         
     }
 
     static changeShowSeedFlag = async (req: Request, res: Response) => {
-        if (req.user.showSeed) {
-            req.user.showSeed = false;
-            req.user.save();
+        try {
+            if (req.user.showSeed) {
+                req.user.showSeed = false;
+                req.user.save();
+            }
+    
+            const responseData = {
+                message: i18n.t('successChangeShowFeedFlag')
+            }
+    
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
-
-        const responseData = {
-            message: i18n.t('successChangeShowFeedFlag')
-        }
-
-        return ApiController.success(responseData, res);
     }
 
     static setUserPersonalData = async (req: Request, res: Response) => {
@@ -223,7 +240,7 @@ class UserController {
                 User.associations.personalData
             ]
         });
-        if (user) {
+        if (user && user.personalData) {
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -248,6 +265,48 @@ class UserController {
             ApiController.failed(404, 'User not found', res);
             return ;
         }
+    }
+
+    static setUserPassword = async (req: Request, res: Response) => {
+        const setPasswordHash: string = req.body.hash;
+        const newUserPassword: string = req.body.password;
+        try {
+            const hashModel = await SetPasswordHash.findOne({
+                where: {
+                    hash: setPasswordHash
+                }
+            }) || false;
+    
+            // check expires
+            if (!hashModel || hashModel.isHashExpired()) {
+                throw new BadSetPasswordLink();
+            }
+            // get activation user
+            const user = await User.findByPk(hashModel.userId) || false;
+            if (!user) {
+                throw new BadSetPasswordLink();
+            }
+            // activation process + set password
+            user.setPassword(newUserPassword);
+            user.emailVerifiedAt = new Date();
+            user.save();
+    
+            hashModel.destroy();
+    
+            const responseData = {
+                message: i18n.t('successUserActivation')
+            }
+    
+            ApiController.success(responseData, res);
+            return ;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }  
     }
 }
 export default UserController;

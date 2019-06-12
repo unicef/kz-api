@@ -1,19 +1,19 @@
 import HttpException from "./httpException";
 import i18n from "i18next";
 
-class BadValidationException extends HttpException {
+class BadSetPasswordLink extends HttpException {
     /**
-     * Create bad validation exception
+     * Create bad set password link exception
      * @param status 
      * @param message 
      */
     constructor(status?: number, errorCode?: number, message?: string, devMessage?: string) {
         const responseStatus: number = status || 400;
-        const responseErrorCode: number = errorCode || 129;
-        const responseMessage: string = message || i18n.t('validationError');
-        const responseDevMessage: string = devMessage || 'User is blocked.';
+        const responseErrorCode: number = errorCode || 130;
+        const responseMessage: string = message || i18n.t('badSetPasswordLink');
+        const responseDevMessage: string = devMessage || 'Bad set password link';
         super(responseStatus, responseErrorCode, responseMessage, responseDevMessage);
     }
 }
 
-export default BadValidationException;
+export default BadSetPasswordLink;

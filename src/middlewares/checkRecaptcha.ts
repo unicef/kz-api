@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { RecaptchaV2  } from "express-recaptcha";
+import BadRecaptchaException from "../exceptions/badRecaptchaException";
+import HttpException from "../exceptions/httpException";
+import ApiController from "../controllers/apiController";
 
 export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) => {
     const recaptchaSite: string = process.env.RECAPTCHA_SITE || '';
@@ -8,39 +11,16 @@ export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) 
     try {
         recaptcha.verify(req, (error, data) => {
             if (error && process.env.NODE_ENV!=='development') {
-                //throw new BadRecaptchaException(400, 'Bad recaptcha', error);
-                const status = 400;
-                const message = 'Bad recaptcha';
-                const errorCode = 133;
-
-                const errorObj: any = {
-                    success: false,
-                    error: {
-                        status: status,
-                        message: message,
-                        errorCode: errorCode
-                    }
-                }
-                res.status(status).json(errorObj);
-                return;
+                throw new BadRecaptchaException();
             }
-
             next();
         });
     } catch (error) {
-        const status = error.status || 400;
-        const message = error.message || 'Something went wrong';
-        const errorCode = 132;
-
-        const errorObj: any = {
-            success: false,
-            error: {
-                status: status,
-                message: message,
-                errorCode: errorCode
-            }
+        if (error instanceof HttpException) {
+            error.response(res);
+        } else {
+            ApiController.failed(500, error.message, res);
         }
-        res.status(status).json(errorObj);
-        return;
+        return ;
     }
 };

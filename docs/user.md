@@ -314,3 +314,220 @@ Update user personal information (firstName, lastName, occupation, phones)
 }
 ```
 <!-- tabs:end -->
+
+<hr>
+
+# Set user password manualy
+Set user password after registration from admin panel
+
+#### Request
+
+**URL: `PUT: /user/password`**
+
+**Body Params:**
+
+?> **hash** - hash from email link (required)<br/>
+**password** - user password (required)<br/>
+**passwordConfirmation** - password confirmation (required)<br/>
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+
+# Set show seed phrase flag
+Method for changing show seed phrase flag (showSeed = false)
+
+#### Request
+
+**URL: `PATCH: /user/seed`**
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message"
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+
+# Get user information
+Get user data by user id
+
+#### Request
+
+**URL: `GET: /user`**
+
+**URL Params:**
+
+?> **id** - user id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "email": "andrecukerman@mailinator.com",
+        "firstNameEn": "Andrew",
+        "firstNameRu": "Андрей",
+        "lastNameEn": "Cukerman",
+        "lastNameRu": "Цукровый",
+        "occupationEn": "Back-end developer",
+        "occupationRu": "Разработчик серверных приложений",
+        "roles": [
+            {
+                "id": "ra",
+                "title": "Responsible assistant",
+                "users_has_roles": {
+                    "userId": 7,
+                    "roleId": "ra"
+                }
+            },
+            {
+                "id": "a",
+                "title": "Administrator",
+                "users_has_roles": {
+                    "userId": 7,
+                    "roleId": "a"
+                }
+            }
+        ],
+        "tel": "380932387878",
+        "mobile": "380562381090",
+        "id": 7,
+        "lastLogin": "19-06-12 07:26:56",
+        "createdAt": "19-05-29 14:10:10",
+        "company": null
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->

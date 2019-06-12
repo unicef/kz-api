@@ -1,14 +1,12 @@
-import express from "express";
-import bodyParser from "body-parser";
+import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
-import cors from "cors";
-import routes from "./routes";
+import express from "express";
 import i18next from "i18next";
+import bodyParser from "body-parser";
+import routes from "./routes";
 import config from "./config/config";
 import Translation from './models/translation';
-//import errorMiddleware from "./middlewares/errorMiddleware";
-//import config from "./config";
 
 class App {
     public app: express.Application = express();
@@ -16,7 +14,6 @@ class App {
     constructor() {
         this.app.use( morgan( 'combined') );
         this.config();
-        //this.errorsHandling();
     }
 
     private config(): void{
@@ -61,10 +58,6 @@ class App {
             }
         });
     }
-
-    // private errorsHandling() {
-    //     this.app.use(errorMiddleware);
-    // }
 }
 
 export default new App().app;
