@@ -30,10 +30,10 @@ class Partner extends Model {
     public tradeNameRu!: string;
     public license!: string;
     public countryId!: number;
-    public seoFirstNameEn!: string;
-    public seoFirstNameRu!: string;
-    public seoLastNameEn!: string;
-    public seoLastNameRu!: string;
+    public ceoFirstNameEn!: string;
+    public ceoFirstNameRu!: string;
+    public ceoLastNameEn!: string;
+    public ceoLastNameRu!: string;
     public establishmentYear!: number;
     public employersCount!: number;
     public areaOfWorkId!: number;
@@ -101,22 +101,22 @@ Partner.init(
             allowNull: true,
             defaultValue: null
         },
-        seoFirstNameEn: {
+        ceoFirstNameEn: {
             type: new DataTypes.STRING(255),
             allowNull: true,
             defaultValue: null
         },
-        seoFirstNameRu: {
+        ceoFirstNameRu: {
             type: new DataTypes.STRING(255),
             allowNull: true,
             defaultValue: null
         },
-        seoLastNameEn: {
+        ceoLastNameEn: {
             type: new DataTypes.STRING(255),
             allowNull: true,
             defaultValue: null
         },
-        seoLastNameRu: {
+        ceoLastNameRu: {
             type: new DataTypes.STRING(255),
             allowNull: true,
             defaultValue: null

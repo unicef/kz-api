@@ -50,22 +50,22 @@ exports.up = (pgm) => {
             onDelete: 'SET NULL',
             default: null
         },
-        seoFirstNameEn: {
+        ceoFirstNameEn: {
             type: "varchar(255)",
             notNull: false,
             default: null
         },
-        seoFirstNameRu: {
+        ceoFirstNameRu: {
             type: "varchar(255)",
             notNull: false,
             default: null
         },
-        seoLastNameEn: {
+        ceoLastNameEn: {
             type: "varchar(255)",
             notNull: false,
             default: null
         },
-        seoLastNameRu: {
+        ceoLastNameRu: {
             type: "varchar(255)",
             notNull: false,
             default: null

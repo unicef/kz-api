@@ -24,10 +24,10 @@
     tradeNameRu - trade company name in Russian<br/>
     license - company license number<br/>
     country - country objectn{title,id} <br/>
-    seoFirstNameEn - seo first name in English<br/>
-    seoFirstNameRu - seo first name in Russian<br/>
-    seoLastNameEn - seo last name in English<br/>
-    seoLastNameRu - seo last name in Russian<br/>
+    ceoFirstNameEn - seo first name in English<br/>
+    ceoFirstNameRu - seo first name in Russian<br/>
+    ceoLastNameEn - seo last name in English<br/>
+    ceoLastNameRu - seo last name in Russian<br/>
     establishmentYear - establishment year<br/> 
     employersCount - count of employers<br/> 
     areaOfWork - area of work object {title,id}<br/> 
@@ -73,10 +73,10 @@
 			"id": 228,
 			"title": "Ukraine"
 		},
-		"seoFirstNameEn": "Vasil",
-		"seoFirstNameRu": "Василий",
-		"seoLastNameEn": "Georgemichelov",
-		"seoLastNameRu": "Жоржмайклов",
+		"ceoFirstNameEn": "Vasil",
+		"ceoFirstNameRu": "Василий",
+		"ceoLastNameEn": "Georgemichelov",
+		"ceoLastNameRu": "Жоржмайклов",
 		"establishmentYear": 1996,
 		"employersCount": 27,
 		"areaOfWork": {
