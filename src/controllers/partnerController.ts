@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import cryptoRandomString from "crypto-random-string";
 import Sequelize from "sequelize";
 import i18n from "i18next";
+import fs from "fs";
 import ApiController from "./apiController";
 import config from "../config/config";
 import Role from "../models/role";
@@ -13,6 +14,9 @@ import CSOType from "../models/csoType";
 import User from "../models/user";
 import Partner from "../models/partner";
 import UserPersonalData from "../models/userPersonalData";
+import { Resolver } from "dns";
+import TmpFile from "../models/tmpFile";
+import HttpException from "../exceptions/httpException";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -140,6 +144,27 @@ class PartnerController {
             ApiController.success(partner, res);
         } else {
             ApiController.failed(404, 'Partner didn\'t find', res);
+        }
+    }
+
+    static uploadingDocument = async (req: Request, res: Response) => {
+        try {
+            const tmpFile = await TmpFile.create({
+                id: req.file.filename,
+                userId: req.user.id,
+                originalName: req.file.originalname,
+                mimeType: req.file.mimetype,
+                size: req.file.size
+            });
+            ApiController.success({id: tmpFile.id}, res);
+            return;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
     }
 }
