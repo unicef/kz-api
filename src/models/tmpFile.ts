@@ -1,7 +1,10 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
+import fs from "fs";
 
 class TmpFile extends Model {
+    static tmpFolder = '../../assets/tmp/';
+
     public id!: string;
     public userId!: number;
     public originalName!: string;
@@ -9,6 +12,44 @@ class TmpFile extends Model {
     public size!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    public getFullFilename = (): string => {
+        let fileName = this.id;
+        const extension = this.getFileExtention();
+        if (extension !== null) {
+            fileName = fileName + '.' + extension;
+        }
+        return fileName;
+    }
+
+    public getFileExtention = (): string|null => {
+        const fileName = this.originalName;
+        const re = /(?:\.([^.]+))?$/;
+        const extension = re.exec(fileName);
+
+        if (typeof extension == 'string') {
+            return extension;
+        } else {
+            return null;
+        }
+    }
+
+    private getFilePath = (): string => {
+        return TmpFile.tmpFolder + this.id
+    }
+
+    public copyTo = (folderPath: string, fileName: string): void => {
+        if (!fs.existsSync(folderPath)){
+            fs.mkdirSync(folderPath);
+        }
+        fs.copyFileSync(this.getFilePath(), folderPath + '/' + fileName);
+    }
+
+    public deleteFile = async () => {
+        fs.unlinkSync(this.getFilePath());
+
+        return await this.destroy();
+    }
 }
 
 TmpFile.init(
