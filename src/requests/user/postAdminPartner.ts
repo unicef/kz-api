@@ -40,7 +40,7 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                     id: Joi.string().max(6),
                     title: Joi.string().max(255),
                 }).required()
-            }),
+            }).pattern(/./, Joi.any()),
             company: Joi.object().keys({
                 nameEn: Joi.string().max(255).required(),
                 nameRu: Joi.string().max(255).required(),
@@ -80,11 +80,11 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 addressEn: Joi.string().max(255),
                 addressRu: Joi.string().max(255),
                 zip: Joi.string().max(20),
-            }),
+            }).pattern(/./, Joi.any()),
             documents: Joi.array().items(Joi.object().keys({
                 title: Joi.string().max(255),
                 docId: Joi.string().max(255)
-            }))
+            })).pattern(/./, Joi.any())
         }),
         querySchema: null
     };

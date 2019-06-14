@@ -30,9 +30,9 @@ class PartnerDocument extends Model {
     }
 
     public getFileExtention = (): string|null => {
-        const fileName = this.filename;
         const re = /(?:\.([^.]+))?$/;
-        const extension = re.exec(fileName);
+        const extension = re.exec(this.filename);
+        console.log(extension);
 
         if (typeof extension == 'string') {
             return extension;
