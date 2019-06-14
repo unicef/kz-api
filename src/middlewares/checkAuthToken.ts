@@ -9,7 +9,7 @@ import BlockedUserException from "../exceptions/blockedUserException";
 import HttpException from "../exceptions/httpException";
 import ApiController from "../controllers/apiController";
 
-export const checkAuthToken = (req: Request, res: Response, next: NextFunction) => {
+export const checkAuthToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const jwtSecret = config.jwt.secret;
         let token: string|boolean = req.headers['authorization'] || false;
@@ -24,7 +24,7 @@ export const checkAuthToken = (req: Request, res: Response, next: NextFunction) 
             token = headerParts[1];
         }
         if (token) {
-            jwt.verify(token, jwtSecret, (err, decoded: any) => {
+            const verify = await jwt.verify(token, jwtSecret, (err, decoded: any) => {
                 if (err) {
                     throw new BadTokenException();
                 } else {
@@ -45,6 +45,7 @@ export const checkAuthToken = (req: Request, res: Response, next: NextFunction) 
                         }
                         req.user = user;
                         next();
+                        return user;
                     }).catch((error) => {
                         if (error instanceof HttpException) {
                             error.response(res);
@@ -55,6 +56,7 @@ export const checkAuthToken = (req: Request, res: Response, next: NextFunction) 
                     });     
               }
             })
+            return verify;
         } else {
             throw new AuthRequiredException();
         }

@@ -1,7 +1,9 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize"
+import config from "../config/config";
 
 class PartnerDocument extends Model {
+    static documentsRoute = '/partner/document';
     public id!: number;
     public partnerId!: number;
     public userId!: number;
@@ -10,6 +12,34 @@ class PartnerDocument extends Model {
     public size!: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    get href() {
+        return config.APP_PROTOCOL + config.APP_NAME + PartnerDocument.documentsRoute + '?id=' + this.id;
+    }
+
+    public getFilePath = () => {
+        const fileFoler = this.filename.substring(0, 2);
+
+        return 'assets/partners/documents/' + fileFoler + '/' + this.filename;
+    }
+
+    public getPublicFilename = () => {
+        const fileName = this.title.replace(/[^\u0000-\u007F ]+/g, "");
+
+        return fileName + '.' + this.getFileExtention();
+    }
+
+    public getFileExtention = (): string|null => {
+        const fileName = this.filename;
+        const re = /(?:\.([^.]+))?$/;
+        const extension = re.exec(fileName);
+
+        if (typeof extension == 'string') {
+            return extension;
+        } else {
+            return null;
+        }
+    }
 
 }
 

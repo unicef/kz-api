@@ -17,6 +17,9 @@ import UserPersonalData from "../models/userPersonalData";
 import { Resolver } from "dns";
 import TmpFile from "../models/tmpFile";
 import HttpException from "../exceptions/httpException";
+import PartnerNotFind from "../exceptions/partnerNotFind";
+import BadPermissions from "../exceptions/badPermissions";
+import PartnerDocument from "../models/partnerDocument";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -158,6 +161,78 @@ class PartnerController {
             });
             ApiController.success({id: tmpFile.id}, res);
             return;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getDocuments = async (req: Request, res: Response) => {
+        try {
+            const partnerId = req.query.id;
+            const partner = await Partner.findByPk(partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+                throw new BadPermissions();
+            }
+
+            // get partner documents
+            const partnerDocuments = await PartnerDocument.findAll({
+                where: {
+                    partnerId: partner.id
+                }
+            })
+
+            let responseData: any = [];
+
+            if (partnerDocuments instanceof Array && partnerDocuments.length>0) {
+                partnerDocuments.forEach((element) => {
+                    responseData.push({
+                        href: element.href,
+                        id: element.id,
+                        title: element.title
+                    })
+                })
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static downloadDocument = async (req: Request, res: Response) => {
+        try {
+            const documentId = req.query.id;
+
+            const partnerDocument = await PartnerDocument.findByPk(documentId);
+            if (partnerDocument == null) {
+                throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
+            }
+    
+            // check permissions
+            const partner = await Partner.findByPk(partnerDocument.partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+                throw new BadPermissions();
+            }
+    
+            const file = partnerDocument.getFilePath();
+            res.download(file, partnerDocument.getPublicFilename());
+            return ;
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

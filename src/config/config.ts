@@ -1,4 +1,5 @@
 export default {
+    "APP_PROTOCOL": "http://",
     "APP_NAME": "api.uscip.iskytest.com",
     "db" : {
         "host" : "postgres",

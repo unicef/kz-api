@@ -95,6 +95,7 @@ class AdminPartnerController {
             }, res);
             return ;
         } catch(error) {
+            console.log(error);
             if (error instanceof HttpException) {
                 error.response(res);
             } else {

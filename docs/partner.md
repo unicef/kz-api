@@ -94,6 +94,8 @@ Get select properties for partner form
 
 <!-- tabs:end -->
 
+<hr>
+
 # Get partner information
 Get partner data by partner id
 
@@ -211,3 +213,103 @@ Get partner data by partner id
 }
 ```
 <!-- tabs:end -->
+
+<hr>
+
+# Get partner documents
+Get partner documents list
+
+#### Request
+
+**URL: `GET: /partner/documents`**
+
+**URL Params:**
+
+?> **id** - partner id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": [
+        {
+            "href": "http://api.uscip.iskytest.com/document?id=1",
+            "id": 1,
+            "title": "First Test document"
+        },
+        {
+            "href": "http://api.uscip.iskytest.com/document?id=3",
+            "id": 3,
+            "title": "Third Test document"
+        }
+    ]
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+<hr>
