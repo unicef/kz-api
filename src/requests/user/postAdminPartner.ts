@@ -28,14 +28,14 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
         }).keys({
             user: Joi.object().keys({
                 email: Joi.string().email({ minDomainSegments: 2 }).required(),
-                firstNameEn: Joi.string().max(255),
-                firstNameRu: Joi.string().max(255),
-                lastNameEn: Joi.string().max(255),
-                lastNameRu: Joi.string().max(255),
-                occupationEn: Joi.string().max(512),
-                occupationRu: Joi.string().max(512),
-                tel: Joi.string().max(20),
-                mobile: Joi.string().max(20),
+                firstNameEn: Joi.string().max(255).allow('').allow(null),
+                firstNameRu: Joi.string().max(255).allow('').allow(null),
+                lastNameEn: Joi.string().max(255).allow('').allow(null),
+                lastNameRu: Joi.string().max(255).allow('').allow(null),
+                occupationEn: Joi.string().max(512).allow('').allow(null),
+                occupationRu: Joi.string().max(512).allow('').allow(null),
+                tel: Joi.string().max(20).allow('').allow(null),
+                mobile: Joi.string().max(20).allow('').allow(null),
                 role: Joi.object().keys({
                     id: Joi.string().max(6),
                     title: Joi.string().max(255),
@@ -44,19 +44,19 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
             company: Joi.object().keys({
                 nameEn: Joi.string().max(255).required(),
                 nameRu: Joi.string().max(255).required(),
-                tradeNameEn: Joi.string().max(255),
-                tradeNameRu: Joi.string().max(255),
-                license: Joi.string().max(255),
+                tradeNameEn: Joi.string().max(255).allow('').allow(null),
+                tradeNameRu: Joi.string().max(255).allow('').allow(null),
+                license: Joi.string().max(255).allow('').allow(null),
                 country: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
                 }),
-                ceoFirstNameEn: Joi.string().max(255),
-                ceoFirstNameRu: Joi.string().max(255),
-                ceoLastNameEn: Joi.string().max(255),
-                ceoLastNameRu: Joi.string().max(255),
-                establishmentYear: Joi.number().max(new Date().getFullYear()),
-                employersCount: Joi.number(),
+                ceoFirstNameEn: Joi.string().max(255).allow('').allow(null),
+                ceoFirstNameRu: Joi.string().max(255).allow('').allow(null),
+                ceoLastNameEn: Joi.string().max(255).allow('').allow(null),
+                ceoLastNameRu: Joi.string().max(255).allow('').allow(null),
+                establishmentYear: Joi.number().max(new Date().getFullYear()).allow(null),
+                employersCount: Joi.number().allow(null),
                 areaOfWork: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
@@ -73,18 +73,18 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                     id: Joi.number(),
                     title: Joi.string().max(255),
                 }).allow(null),
-                tel: Joi.string().max(20),
-                website: Joi.string().max(124),
-                cityEn: Joi.string().max(255),
-                cityRu: Joi.string().max(255),
-                addressEn: Joi.string().max(255),
-                addressRu: Joi.string().max(255),
-                zip: Joi.string().max(20),
+                tel: Joi.string().max(20).allow('').allow(null),
+                website: Joi.string().max(124).allow('').allow(null),
+                cityEn: Joi.string().max(255).allow('').allow(null),
+                cityRu: Joi.string().max(255).allow('').allow(null),
+                addressEn: Joi.string().max(255).allow('').allow(null),
+                addressRu: Joi.string().max(255).allow('').allow(null),
+                zip: Joi.string().max(20).allow('').allow(null),
             }).pattern(/./, Joi.any()),
             documents: Joi.array().items(Joi.object().keys({
                 title: Joi.string().max(255),
                 docId: Joi.string().max(255)
-            }))
+            }).pattern(/./, Joi.any()))
         }),
         querySchema: null
     };
