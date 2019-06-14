@@ -84,7 +84,7 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
             documents: Joi.array().items(Joi.object().keys({
                 title: Joi.string().max(255),
                 docId: Joi.string().max(255)
-            })).pattern(/./, Joi.any())
+            }))
         }),
         querySchema: null
     };
