@@ -234,6 +234,7 @@ class PartnerController {
             res.download(file, partnerDocument.getPublicFilename());
             return ;
         } catch (error) {
+            console.log(error);
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
