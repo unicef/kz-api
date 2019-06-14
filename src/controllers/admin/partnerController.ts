@@ -21,6 +21,7 @@ class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
         try {
             // check user exists
+            console.log(req.body);
             const userExists = await User.isUserExists(req.body.user.email);
             if (userExists) {
                 throw new UserAlreadyExists();
