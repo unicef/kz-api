@@ -26,21 +26,21 @@ class PartnerDocument extends Model {
     public getPublicFilename = () => {
         const fileName = this.title.replace(/[^\u0000-\u007F ]+/g, "");
 
-        return fileName + '.' + this.getFileExtention();
+        return fileName + this.getFileExtention();
     }
 
     public getFileExtention = (): string|null => {
         const re = /(?:\.([^.]+))?$/;
         const extension = re.exec(this.filename);
-        console.log(extension);
 
-        if (typeof extension == 'string') {
-            return extension;
-        } else {
+        if (extension == null) {
             return null;
+        } else if (extension instanceof Array) {
+            return extension[0];
+        } else {
+            return extension;
         }
     }
-
 }
 
 PartnerDocument.init(

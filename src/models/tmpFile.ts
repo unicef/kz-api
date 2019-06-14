@@ -27,10 +27,12 @@ class TmpFile extends Model {
         const re = /(?:\.([^.]+))?$/;
         const extension = re.exec(fileName);
 
-        if (typeof extension == 'string') {
-            return extension;
-        } else {
+        if (extension == null) {
             return null;
+        } else if (extension instanceof Array) {
+            return extension[0];
+        } else {
+            return extension;
         }
     }
 
