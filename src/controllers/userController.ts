@@ -384,12 +384,15 @@ class UserController {
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                     req.body.documents.forEach(async (element: any) => {
+                        console.log(element);
                         const tmpFile = await TmpFile.findByPk(element.id);
+                        console.log(tmpFile);
+                        console.log(userCompany);
                         if (tmpFile) {
                             const partnerDocument = await PartnerDocument.create({
                                 partnerId: userCompany.id,
                                 userId: tmpFile.userId,
-                                title: element.title,
+                                title: element.name,
                                 filename: tmpFile.getFullFilename(),
                                 size: tmpFile.size
                             });
