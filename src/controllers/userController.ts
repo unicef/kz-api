@@ -396,7 +396,7 @@ class UserController {
                                 filename: tmpFile.getFullFilename(),
                                 size: tmpFile.size
                             });
-                            const documentsFolder = '../../../assets/partners/documents/';
+                            const documentsFolder = '../../assets/partners/documents/';
                             const fileFoler = tmpFile.id.substring(0, 2);
                             tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
                             tmpFile.deleteFile();
