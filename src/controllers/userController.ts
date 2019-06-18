@@ -392,7 +392,7 @@ class UserController {
                             const partnerDocument = await PartnerDocument.create({
                                 partnerId: userCompany.id,
                                 userId: tmpFile.userId,
-                                title: element.name,
+                                title: element.title,
                                 filename: tmpFile.getFullFilename(),
                                 size: tmpFile.size
                             });
