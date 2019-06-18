@@ -384,7 +384,7 @@ class UserController {
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                     req.body.documents.forEach(async (element: any) => {
-                        const tmpFile = await TmpFile.findByPk(element.docId);
+                        const tmpFile = await TmpFile.findByPk(element.id);
                         if (tmpFile) {
                             const partnerDocument = await PartnerDocument.create({
                                 partnerId: userCompany.id,
