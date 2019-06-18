@@ -33,7 +33,7 @@ class PartnerController {
         
         if (!req.query.key || req.query.key == 'countries') {
             // countries
-            let countries: Country[]|null = await Country.findAll();
+            let countries: Country[]|null = await Country.findAll({attributes: ['id', 'title']});
             responseData['countries'] = countries;
         }
         
