@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import cryptoRandomString from "crypto-random-string";
 import dateformat from "dateformat";
 import CryptoJS from "crypto-js";
@@ -22,6 +22,13 @@ import UserHelper from "../helpers/userHelper";
 import SetPasswordHash from "../models/setPasswordHash";
 import BadSetPasswordLink from "../exceptions/badSetPasswordLink";
 import HttpException from "../exceptions/httpException";
+import putUserStepInformation from "../requests/user/putUserStepInformation";
+import putPartnerStepInformation from "../requests/partner/putPartnerStepInformation";
+import PartnerHelper from "../helpers/partnerHelper";
+import Partner from "../models/partner";
+import UserRegisteredRemotely from "../events/userRegisteredRemotely";
+import TmpFile from "../models/tmpFile";
+import PartnerDocument from "../models/partnerDocument";
 
 class UserController {
     // get users list
@@ -241,6 +248,7 @@ class UserController {
             ]
         });
         if (user && user.personalData) {
+            const company = await UserHelper.getUserPartner(user.id);
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -254,8 +262,12 @@ class UserController {
                 mobile: user.personalData.mobile,
                 id: user.id,
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
-                createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss'),
-                company: await UserHelper.getUserPartner(user.id)
+                createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
+            }
+            if (company) {
+                responseData['company'] = company.id;
+            } else {
+                responseData['company'] = null;
             }
 
             ApiController.success(responseData, res);
@@ -307,6 +319,104 @@ class UserController {
             }
             return;
         }  
+    }
+
+    static saveUserStepForm = async (req: Request, res: Response, next: NextFunction) => {
+        const user = req.user;
+        try {
+            // work with user information
+            putUserStepInformation(req, res, next);
+            let userPersonalInformation = user.personalData;
+            let reqUserData: any = UserHelper.getUserDataFromRequest(req.body.user);
+            if (userPersonalInformation) {
+                await userPersonalInformation.update(reqUserData);
+            } else {
+                // create user personal data
+                reqUserData['userId'] = user.id;
+                userPersonalInformation = await UserPersonalData.create(reqUserData);
+            }
+
+            // work with company details
+            if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
+                putPartnerStepInformation(req, res, next);
+                let userCompany = await UserHelper.getUserPartner(user.id);
+                let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
+                if (userCompany) {
+                    await userCompany.update(partnerData);
+                } else {
+                    if (user.hasRole(Role.partnerAssistId)) {
+                        partnerData["assistId"] = user.id;
+                    } else {
+                        partnerData["authorisedId"] = user.id;
+                    }
+                    userCompany = await Partner.create(partnerData);
+                }
+
+                // working with authorisedPerson information
+                if (user.hasRole(Role.partnerAssistId)) {
+                    let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
+                    if (userCompany.authorisedId !== null) {
+                        // update authorised person information
+                        let authorisedPerson = await User.findOne({
+                            where: {
+                                id: userCompany.authorisedId
+                            },
+                            include: [User.associations.personalData]
+                        });
+                        if (authorisedPerson) {
+                            authorisedPerson.personalData.update(authorisedData);
+                        }
+                    } else {
+                        // create authorised person remotely
+                        let authorisedPerson = await User.generateUser(req.body.company.authorisedPerson.email);
+                        // add role to user
+                        const role = await Role.findByPk(Role.partnerAuthorisedId);
+                        authorisedPerson.addRole(role);
+            
+                        // working with user data
+                        authorisedData['userId'] = authorisedPerson.id;
+                        const userPersonalData = await UserPersonalData.create(authorisedData);
+
+                        userCompany.authorisedId = authorisedPerson.id;
+                        userCompany.save();
+                    }
+                }
+                // working with company docs
+                if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                    req.body.documents.forEach(async (element: any) => {
+                        const tmpFile = await TmpFile.findByPk(element.docId);
+                        if (tmpFile) {
+                            const partnerDocument = await PartnerDocument.create({
+                                partnerId: userCompany.id,
+                                userId: tmpFile.userId,
+                                title: element.title,
+                                filename: tmpFile.getFullFilename(),
+                                size: tmpFile.size
+                            });
+                            const documentsFolder = '../../../assets/partners/documents/';
+                            const fileFoler = tmpFile.id.substring(0, 2);
+                            tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
+                            tmpFile.deleteFile();
+                        } else {
+                            console.log('File wasn\'t uploaded');
+                            throw new Error('Fuck You');
+                        }
+                    });
+                }
+
+                userCompany.statusId = Partner.partnerStatusFilled;
+                userCompany.save();
+            }
+            return ApiController.success({message: i18n.t('userDataSavedSuccessfully')}, res);
+        } catch (error) {
+            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
     }
 }
 export default UserController;

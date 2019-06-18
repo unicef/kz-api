@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
+import Sequelize from "sequelize";
 import Role from "./role";
 import SHA1 from "crypto-js/sha256";
 import cryptoRandomString from "crypto-random-string";
@@ -7,6 +8,9 @@ import ActivationHash from "./activationHash";
 import config from "../config/config";
 import UserPersonalData from "./userPersonalData";
 import SetPasswordHash from "./setPasswordHash";
+import Partner from "./partner";
+import event from "../services/event";
+import UserRegisteredRemotely from "../events/userRegisteredRemotely";
 
 class User extends Model {
     public id!: number;
@@ -55,6 +59,24 @@ class User extends Model {
             return true;
         }
         return false;
+    }
+
+    static generateUser = async (email: string): Promise<User> => {
+        if (User.isUserExists(email)) {
+            throw new Error('User allready exists');
+        } else {
+            const passwordSalt: string = cryptoRandomString(10);
+            const password: string = cryptoRandomString(12);
+            let user = await User.create({
+                email: email,
+                password: User.generatePassword(passwordSalt, password),
+                passwordSalt: passwordSalt
+            });
+    
+            event(new UserRegisteredRemotely(user));
+
+            return user;
+        }
     }
 
     // is user administrator
@@ -124,6 +146,16 @@ class User extends Model {
         const setPasswordLink = process.env.CLIENT_URL + config.client.setManualPasswordRoute + '?user_token=' + setNewPasswordHashString;
 
         return setPasswordLink;
+    }
+
+    public hasRole = (roleId: string): boolean => {
+        let hasRole = false;
+        this.roles.forEach((role: Role) => {
+            if (role.id == roleId) {
+                hasRole = true;
+            }
+        })
+        return hasRole;
     }
 }
 

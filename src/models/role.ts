@@ -4,6 +4,8 @@ import Sequelize from "sequelize";
 
 class Role extends Model {
     static adminRoleId = 'a';
+    static partnerAssistId = 'ra';
+    static partnerAuthorisedId = 'ap';
 
     public id!: string;
     public title!: string;

@@ -2,6 +2,8 @@ import { Request } from "express";
 
 class PartnerHelper {
     static partnerFields = [
+        "nameEn",
+        "nameRu",
         "tradeNameEn",
         "tradeNameRu",
         "license",
@@ -33,17 +35,17 @@ class PartnerHelper {
         "csoType"
     ];
 
-    static getPartnerDataFromRequest = (req: Request): {} => {
+    static getPartnerDataFromRequest = (companyData: any): {} => {
         let partnerData: any = {};
         PartnerHelper.partnerFields.forEach((field)=>{
-            if (req.body.company[field] && req.body.company[field]!== null) {
-                partnerData[field] = req.body.company[field];
+            if (companyData[field] && companyData[field]!== null) {
+                partnerData[field] = companyData[field];
             }
         })
 
         PartnerHelper.partnerSelectFields.forEach((field)=>{
-            if (req.body.company[field] && req.body.company[field]!== null) {
-                partnerData[field+"Id"] = req.body.company[field]["id"];
+            if (companyData[field] && companyData[field]!== null) {
+                partnerData[field+"Id"] = companyData[field]["id"];
             }
         })
 

@@ -14,11 +14,11 @@ class UserHelper {
         "mobile"
     ]
 
-    static getUserDataFromRequest = (req: Request): {} => {
+    static getUserDataFromRequest = (userInputData: any): {} => {
         let userData: any = {};
         UserHelper.userPersonalFields.forEach((field)=>{
-            if (req.body.user[field] && req.body.user[field]!== null) {
-                userData[field] = req.body.user[field];
+            if (userInputData[field] && userInputData[field]!== null) {
+                userData[field] = userInputData[field];
             } else {
                 userData[field] = '';
             }
@@ -27,7 +27,7 @@ class UserHelper {
         return userData;
     }
 
-    static getUserPartner = async (userId: number): Promise<number|null> => {
+    static getUserPartner = async (userId: number): Promise<Partner|null> => {
         const Op = Sequelize.Op;
         let partner: Partner|null = await Partner.findOne({
             where: {
@@ -35,7 +35,7 @@ class UserHelper {
             }
         });
         if (partner) {
-            return partner.id;
+            return partner;
         } else {
             return null;
         }

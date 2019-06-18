@@ -47,7 +47,7 @@ class Partner extends Model {
     public addressEn!: string;
     public addressRu!: string;
     public zip!: string;
-    public readonly createdAt!: Date;
+    public readonly createdAt!: Date; 
     public readonly updatedAt!: Date;
 
 }

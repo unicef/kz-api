@@ -19,5 +19,6 @@ router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData);
 router.get("/", [checkAuthToken, getUserById], UserController.getUserById);
 router.put("/password", [putUserPasswordManual], UserController.setUserPassword);
+router.put("/info/step", [checkAuthToken], UserController.saveUserStepForm);
 
 export default router;

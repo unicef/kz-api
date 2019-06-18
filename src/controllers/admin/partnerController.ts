@@ -30,27 +30,20 @@ class AdminPartnerController {
             const passwordSalt: string = cryptoRandomString(10);
             const password: string = cryptoRandomString(12);
 
-            const user = await User.create({
-                email: req.body.user.email,
-                password: User.generatePassword(passwordSalt, password),
-                passwordSalt: passwordSalt
-            });
+            const user = await User.generateUser(req.body.user.email);
             // add role to user
             const role = await Role.findByPk(req.body.user.role.id);
             user.addRole(role);
 
             // working with user data
-            let userData: any = UserHelper.getUserDataFromRequest(req);
+            let userData: any = UserHelper.getUserDataFromRequest(req.body.user);
             userData['userId'] = user.id;
             const userPersonalData = await UserPersonalData.create(userData);
 
-            event(new UserRegisteredRemotely(user));
             let partner: any = null;
             if (req.body.user.role.id == 'ra') {
-                let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req);
+                let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
                 // create new partner
-                partnerData["nameEn"] = req.body.company.nameEn;
-                partnerData["nameRu"] = req.body.company.nameRu;
                 partnerData["assistId"] = user.id;
 
                 partner = await Partner.create(partnerData);
