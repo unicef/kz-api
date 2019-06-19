@@ -29,6 +29,9 @@ import Partner from "../models/partner";
 import UserRegisteredRemotely from "../events/userRegisteredRemotely";
 import TmpFile from "../models/tmpFile";
 import PartnerDocument from "../models/partnerDocument";
+import UserNotfind from "../exceptions/userNotFind";
+import mailer from "../services/mailer";
+import ResetPasswordMail from "../mails/resetPasswordMail";
 
 class UserController {
     // get users list
@@ -417,6 +420,39 @@ class UserController {
             }
             return;
         }
+    }
+
+    static forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+        const userEmail = req.body.email;
+        try {
+            let user = await User.findOne({
+                where: {
+                    email: userEmail
+                }
+            });
+    
+            if (user==null) {
+                throw new UserNotfind();
+            }
+
+            let mail = new ResetPasswordMail(user);
+            mail.send();
+
+            return ApiController.success({
+                message: i18n.t('userResetPasswordSuccess')
+            }, res)
+
+        } catch (error) {
+            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+        
+
     }
 }
 export default UserController;

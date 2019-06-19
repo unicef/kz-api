@@ -8,6 +8,7 @@ import checkAuthToken from "../middlewares/checkAuthToken";
 import putUserInformation from "../requests/user/putUserInformation";
 import putUserPasswordManual from "../requests/user/putUserPasswordManual";
 import getUserById from "../requests/user/getUserById";
+import postForgotPassword from "../requests/user/postForgotPassword";
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.put("/information", [checkAuthToken, putUserInformation], UserController.
 router.get("/", [checkAuthToken, getUserById], UserController.getUserById);
 router.put("/password", [putUserPasswordManual], UserController.setUserPassword);
 router.put("/info/step", [checkAuthToken], UserController.saveUserStepForm);
+router.post("/forgot", [postForgotPassword], UserController.forgotPassword)
 
 export default router;

@@ -429,6 +429,66 @@ Method for changing show seed phrase flag (showSeed = false)
 ```
 <!-- tabs:end -->
 
+<hr>
+
+# Send forgot password mail
+
+#### Request
+
+**URL: `POST: /user/forgot`**
+
+**Body Params:**
+
+?> **email** - user email (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "success message",
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 
 # Get user information
 Get user data by user id
