@@ -3,7 +3,7 @@ import sequelize from "../services/sequelize";
 import fs from "fs";
 
 class TmpFile extends Model {
-    static tmpFolder = '../../assets/tmp/';
+    static tmpFolder = __dirname + '/../../assets/tmp/';
 
     public id!: string;
     public userId!: number;
@@ -17,7 +17,7 @@ class TmpFile extends Model {
         let fileName = this.id;
         const extension = this.getFileExtention();
         if (extension !== null) {
-            fileName = fileName + '.' + extension;
+            fileName = fileName + extension;
         }
         return fileName;
     }

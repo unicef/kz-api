@@ -388,6 +388,7 @@ class UserController {
                         const tmpFile = await TmpFile.findByPk(element.id);
                         console.log(tmpFile);
                         console.log(userCompany);
+                        console.log(__dirname);
                         if (tmpFile) {
                             const partnerDocument = await PartnerDocument.create({
                                 partnerId: userCompany.id,
@@ -396,7 +397,7 @@ class UserController {
                                 filename: tmpFile.getFullFilename(),
                                 size: tmpFile.size
                             });
-                            const documentsFolder = '../../assets/partners/documents/';
+                            const documentsFolder = __dirname + '/../../assets/partners/documents/';
                             const fileFoler = tmpFile.id.substring(0, 2);
                             tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
                             tmpFile.deleteFile();
