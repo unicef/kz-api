@@ -56,10 +56,10 @@ class User extends Model {
             }
         })
         console.log(user);
-        if (user!==null) {
-            return true;
+        if (user==null) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     static generateUser = async (email: string): Promise<User> => {
