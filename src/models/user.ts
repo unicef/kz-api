@@ -55,7 +55,8 @@ class User extends Model {
                 email: email
             }
         })
-        if (user) {
+        console.log(user);
+        if (user!==null) {
             return true;
         }
         return false;
