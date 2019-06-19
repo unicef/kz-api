@@ -55,7 +55,7 @@ class User extends Model {
                 email: email
             }
         })
-        console.log(user);
+        
         if (user==null) {
             return false;
         }
@@ -63,7 +63,8 @@ class User extends Model {
     }
 
     static generateUser = async (email: string): Promise<User> => {
-        if (User.isUserExists(email)) {
+        const userExists = await User.isUserExists(email);
+        if (userExists) {
             throw new Error('User allready exists');
         } else {
             const passwordSalt: string = cryptoRandomString(10);
