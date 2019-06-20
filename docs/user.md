@@ -441,8 +441,6 @@ Method for changing show seed phrase flag (showSeed = false)
 
 ?> **email** - user email (required)
 
-**Headers: `Authorization: Bearer <Auth token>`**
-
 #### Response
 <!-- tabs:start -->
 #### ** Success Response **

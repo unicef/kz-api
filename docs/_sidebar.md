@@ -14,6 +14,9 @@
 - Partner
     - [Form properties](partner.md?id=get-partner-static-properties "Get partner properties")
     - [Get partner](partner.md?id=get-partner-information "Get partner information")
+    - [Get partner documents](partner.md?id=get-partner-information "Get partner documents list")
+    - [Get single document](partner.md?id=get-partner-information "Get document")
+    - [Delete partner document](partner.md?id=get-partner-information "Get document")
 
 
 - Localization

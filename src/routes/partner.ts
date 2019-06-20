@@ -24,5 +24,6 @@ router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerBy
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], PartnerController.uploadingDocument);
 router.get("/document", [checkAuthToken, getPartnerDocuments], PartnerController.downloadDocument);
 router.get("/documents", [checkAuthToken, getPartnerDocuments], PartnerController.getDocuments);
+router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument)
 
 export default router;

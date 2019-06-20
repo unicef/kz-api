@@ -22,7 +22,7 @@ export default {
     },
     "client" : {
         "activationRoute" : "/auth/activate-account",
-        "activationExpiredDays" : 3,
+        "activationExpiredDays" : 1,
         "setManualPasswordRoute" : "/auth/set-password",
         "setManualPasswordExpiredDays" : 3,
     },

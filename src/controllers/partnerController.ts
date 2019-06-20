@@ -243,6 +243,35 @@ class PartnerController {
             return;
         }
     }
+
+    static deleteDocument = async (req: Request, res: Response) => {
+        try {
+            const documentId = req.query.id;
+
+            const partnerDocument = await PartnerDocument.findByPk(documentId);
+            if (partnerDocument == null) {
+                throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
+            }
+    
+            // check permissions
+            const partner = await Partner.findByPk(partnerDocument.partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+                throw new BadPermissions();
+            }
+
+            await partnerDocument.destroy();
+
+            ApiController.success({
+                message: i18n.t('successDeleteDoc')
+            }, res)
+
+        } catch (error) {
+
+        }
+    }
 }
 
 export default PartnerController;

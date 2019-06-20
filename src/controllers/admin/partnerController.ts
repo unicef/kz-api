@@ -61,7 +61,7 @@ class AdminPartnerController {
             // working with documents 
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                 req.body.documents.forEach(async (element: any) => {
-                    const tmpFile = await TmpFile.findByPk(element.docId);
+                    const tmpFile = await TmpFile.findByPk(element.id);
                     if (tmpFile) {
                         const partnerDocument = await PartnerDocument.create({
                             partnerId: partner.id,
@@ -70,7 +70,7 @@ class AdminPartnerController {
                             filename: tmpFile.getFullFilename(),
                             size: tmpFile.size
                         });
-                        const documentsFolder = '../../../assets/partners/documents/';
+                        const documentsFolder = __dirname + '/../../assets/partners/documents/';
                         const fileFoler = tmpFile.id.substring(0, 2);
                         tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
                         tmpFile.deleteFile();
