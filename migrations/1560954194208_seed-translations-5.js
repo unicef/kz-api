@@ -3,7 +3,7 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.password', 'Пароль', 'Password')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.password.repeat', 'Повторите пароль', 'Repeat password')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.password.dontMatch', 'Пароли не совпадают', 'Passwords don\'t match')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.password.dontMatch', 'Пароли не совпадают', 'Passwords don't match')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.password', 'Пароль должен содержать минимум 10 знаков и состоять минимум из одной цифры, одного специального символа и одной большой буквы', 'Password must be at least 10 characters and contain at least 1 number, 1 special sign and 1 capital letter.')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.btns.setPassword', 'Установить пароль', 'Set password')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('setPassword.title', 'Установить пароль', 'Set password')");
@@ -48,14 +48,14 @@ exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.tradeNameEn', 'Торговое имя EN', 'Trade name/DBA EN')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.license', 'Лицензия', 'License')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.country', 'Страна', 'Country')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoFirstNameRu', 'Имя CEO компании RU', 'Company CEO\'s Name RU')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoFirstNameEn', 'Имя CEO компании EN', 'Company CEO\'s Name EN')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoLastNameRu', 'Фамилия CEO компании RU', 'Company CEO\'s Last Name RU')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoLastNameEn', 'Фамилия CEO компании EN', 'Company CEO\'s Last Name EN')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoFirstNameRu', 'Имя CEO компании RU', 'Company CEO's Name RU')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoFirstNameEn', 'Имя CEO компании EN', 'Company CEO's Name EN')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoLastNameRu', 'Фамилия CEO компании RU', 'Company CEO's Last Name RU')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ceoLastNameEn', 'Фамилия CEO компании EN', 'Company CEO's Last Name EN')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.companyYear', 'Год основания', 'Year established')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.employersCount', 'Количество работников', 'Number of employees')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.areaOfWork', 'Сфера деятельности', 'Area of work')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ownership', 'Тип собственности', 'Сompany\'s Ownership')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.ownership', 'Тип собственности', 'Сompany's Ownership')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.partnerType', 'Тип партнера', 'Partner type')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.csoType', 'Тип CSO', 'CSO type')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.website', 'Сайт', 'Website')");
@@ -71,7 +71,7 @@ exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.btns.upload', 'Загрузить', 'Upload')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.file', 'Файл является обязательным', 'File is required')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.fileFormat', 'Файл должен быть формата  pdf, doc или docx.', 'File should be only pdf, doc or docx.')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.fileSize', 'Размер файла не должен превышать 5Mb', 'File shouldn\'t be bigger than 5Mb')");
+    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.fileSize', 'Размер файла не должен превышать 5Mb', 'File shouldn't be bigger than 5Mb')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('companyDocuments.info', 'Обратите внимание, что каждый из документов не может превышать размер в 5Mb, а так же должен быть формата  pdf, doc, docx', 'Note that combined size of each your document must not exceed 5Mb in format pdf, doc, docx')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.fileName', 'Имя файла', 'File name')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('header.users', 'Пользователи', 'Users')");
