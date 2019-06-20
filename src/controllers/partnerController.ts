@@ -231,7 +231,9 @@ class PartnerController {
             }
     
             const file = partnerDocument.getFilePath();
-            res.download(file, partnerDocument.getPublicFilename());
+            let fileBuffer = fs.readFileSync(file);
+            res.header('Content-Type: application/pdf');
+            res.send(fileBuffer);
             return ;
         } catch (error) {
             console.log(error);
