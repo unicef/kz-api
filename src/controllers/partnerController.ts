@@ -237,13 +237,18 @@ class PartnerController {
 
             const base64 = Buffer.from(fileBuffer).toString('base64');
             const contentType = mime.contentType(partnerDocument.getPublicFilename());
-
-            const responseData = {
-                filename : partnerDocument.getPublicFilename(),
-                doc: base64
-            };
-            res.set('Content-Type', contentType).send(responseData);
-            return ;
+            if (contentType) {
+                const responseData = {
+                        filename : partnerDocument.getPublicFilename(),
+                        contentType: contentType,
+                        doc: base64
+                    };
+                ApiController.success(responseData, res);
+                return ;
+            } else {
+                ApiController.failed(500, 'document wasn\'t found', res);
+                return ;
+            }
         } catch (error) {
             console.log(error);
             if (error instanceof HttpException) {
