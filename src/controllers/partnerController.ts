@@ -232,9 +232,9 @@ class PartnerController {
             }
     
             const filePath = partnerDocument.getFilePath();
-            const file = new File([filePath], partnerDocument.getPublicFilename());
+            const fileBuffer = fs.readFileSync(filePath);
 
-            const base64 = await PartnerController.getBase64(file);
+            const base64 = Buffer.from(fileBuffer).toString('base64');
             res.send(base64);
             return ;
         } catch (error) {
@@ -247,16 +247,7 @@ class PartnerController {
             return;
         }
     }
-
-    static async getBase64(file: Blob) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = error => reject(error);
-        });
-    }
-
+    
     static deleteDocument = async (req: Request, res: Response) => {
         try {
             const documentId = req.query.id;
