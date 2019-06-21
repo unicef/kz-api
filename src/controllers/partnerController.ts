@@ -4,6 +4,7 @@ import Sequelize from "sequelize";
 import stream from "stream";
 import i18n from "i18next";
 import fs from "fs";
+import mime from "mime-types";
 import ApiController from "./apiController";
 import config from "../config/config";
 import Role from "../models/role";
@@ -235,6 +236,10 @@ class PartnerController {
             const fileBuffer = fs.readFileSync(filePath);
 
             const base64 = Buffer.from(fileBuffer).toString('base64');
+            const contentType = mime.contentType(partnerDocument.getPublicFilename());
+            
+            res.setHeader('Content-Type', contentType);
+            res.setHeader('filename', partnerDocument.getPublicFilename());
             res.send(base64);
             return ;
         } catch (error) {
@@ -247,7 +252,7 @@ class PartnerController {
             return;
         }
     }
-    
+
     static deleteDocument = async (req: Request, res: Response) => {
         try {
             const documentId = req.query.id;
