@@ -237,10 +237,12 @@ class PartnerController {
 
             const base64 = Buffer.from(fileBuffer).toString('base64');
             const contentType = mime.contentType(partnerDocument.getPublicFilename());
-            
-            res.setHeader('Content-Type', contentType);
-            res.setHeader('filename', partnerDocument.getPublicFilename());
-            res.send(base64);
+
+            const responseData = {
+                filename : partnerDocument.getPublicFilename(),
+                doc: base64
+            };
+            res.set('Content-Type', contentType).send(responseData);
             return ;
         } catch (error) {
             console.log(error);
