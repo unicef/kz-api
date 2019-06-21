@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import cryptoRandomString from "crypto-random-string";
 import Sequelize from "sequelize";
+import stream from "stream";
 import i18n from "i18next";
 import fs from "fs";
 import ApiController from "./apiController";
@@ -230,19 +231,11 @@ class PartnerController {
                 throw new BadPermissions();
             }
     
-            const file = partnerDocument.getFilePath();
-            const encFile = fs.readFileSync(file);
+            const filePath = partnerDocument.getFilePath();
+            const file = new File([filePath], partnerDocument.getPublicFilename());
 
-            res.writeHead(200, {
-                'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="filename.pdf"'
-              });
-        
-              const download = Buffer.from(encFile.toString('utf-8'), 'base64');
-        
-              res.end(download);
-
-            //res.download(file, partnerDocument.getPublicFilename());
+            const base64 = await PartnerController.getBase64(file);
+            res.send(base64);
             return ;
         } catch (error) {
             console.log(error);
@@ -253,6 +246,15 @@ class PartnerController {
             }
             return;
         }
+    }
+
+    static async getBase64(file: Blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = error => reject(error);
+        });
     }
 
     static deleteDocument = async (req: Request, res: Response) => {
