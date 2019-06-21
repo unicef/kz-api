@@ -21,6 +21,6 @@ router.put("/information", [checkAuthToken, putUserInformation], UserController.
 router.get("/", [checkAuthToken, getUserById], UserController.getUserById);
 router.put("/password", [putUserPasswordManual], UserController.setUserPassword);
 router.put("/info/step", [checkAuthToken], UserController.saveUserStepForm);
-router.post("/forgot", [postForgotPassword], UserController.forgotPassword)
+router.post("/forgot", [postForgotPassword], UserController.forgotPassword);
 
 export default router;

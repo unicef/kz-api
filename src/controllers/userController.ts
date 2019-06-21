@@ -235,7 +235,7 @@ class UserController {
         }
         req.user.personalData.save();
         
-        return ApiController.success({}, res);
+        return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
     }
 
     static getUserById = async (req: Request, res: Response) => {
@@ -451,8 +451,6 @@ class UserController {
             }
             return;
         }
-        
-
     }
 }
 export default UserController;

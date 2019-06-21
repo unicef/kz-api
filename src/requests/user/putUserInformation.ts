@@ -34,7 +34,7 @@ const putUserInformation = (req: Request, res: Response, next: NextFunction) => 
             occupationRu: Joi.string().max(512).required(),
             tel: Joi.string().max(20).required(),
             mobile: Joi.string().max(20).required(),
-        }),
+        }).pattern(/./, Joi.any()),
         querySchema: null
     };
 

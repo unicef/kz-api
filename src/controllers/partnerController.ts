@@ -231,7 +231,18 @@ class PartnerController {
             }
     
             const file = partnerDocument.getFilePath();
-            res.download(file, partnerDocument.getPublicFilename());
+            const encFile = fs.readFileSync(file);
+
+            res.writeHead(200, {
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'attachment; filename="filename.pdf"'
+              });
+        
+              const download = Buffer.from(encFile.toString('utf-8'), 'base64');
+        
+              res.end(download);
+
+            //res.download(file, partnerDocument.getPublicFilename());
             return ;
         } catch (error) {
             console.log(error);
