@@ -24,7 +24,7 @@ class PartnerDocument extends Model {
     }
 
     public getPublicFilename = () => {
-        const fileName = this.title.replace(/[^\u0000-\u007F ]+/g, "");
+        const fileName = this.title;
 
         return fileName + this.getFileExtention();
     }
