@@ -222,7 +222,6 @@ class PartnerController {
             if (partnerDocument == null) {
                 throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
             }
-    
             // check permissions
             const partner = await Partner.findByPk(partnerDocument.partnerId);
             if (partner == null) {
