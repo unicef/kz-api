@@ -75,8 +75,7 @@ class AdminPartnerController {
                         tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
                         tmpFile.deleteFile();
                     } else {
-                        console.log('File wasn\'t uploaded');
-                        throw new Error('Fuck You');
+                        throw new Error('File wasn\'t uploaded');
                     }
                 });
             }

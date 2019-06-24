@@ -193,6 +193,49 @@ class PartnerController {
         }
     }
 
+    static updateDocuments = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = req.user;
+            const partner = await UserHelper.getUserPartner(user.id);
+    
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+    
+            if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                req.body.documents.forEach(async (element: any) => {
+                    const tmpFile = await TmpFile.findByPk(element.id);
+                    if (tmpFile) {
+                        const partnerDocument = await PartnerDocument.create({
+                            partnerId: partner.id,
+                            userId: tmpFile.userId,
+                            title: element.title,
+                            filename: tmpFile.getFullFilename(),
+                            size: tmpFile.size
+                        });
+                        const documentsFolder = __dirname + '/../../assets/partners/documents/';
+                        const fileFoler = tmpFile.id.substring(0, 2);
+                        tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
+                        tmpFile.deleteFile();
+                    } else {
+                        throw new Error('File wasn\'t uploaded');
+                    }
+                });
+            }
+
+            return ApiController.success({
+                message: i18n.t('successUpdatedDocuments')
+            }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
         const partner = await Partner.findOne({

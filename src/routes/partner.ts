@@ -6,6 +6,7 @@ import getPartnerById from "../requests/partner/getPartnerById";
 import multer from "multer";
 import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
+import postPartnerDocuments from "../requests/partner/postPartnerDocuments";
 
 const router = Router();
 const upload = multer({ 
@@ -25,7 +26,7 @@ router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerBy
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], PartnerController.uploadingDocument);
 router.get("/document", [checkAuthToken, getPartnerDocuments], PartnerController.downloadDocument);
 router.get("/documents", [checkAuthToken, getPartnerDocuments], PartnerController.getDocuments);
-router.post("/documents", [checkAuthToken], PartnerController.getDocuments);
+router.post("/documents", [checkAuthToken, postPartnerDocuments], PartnerController.updateDocuments);
 router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument)
 
 export default router;
