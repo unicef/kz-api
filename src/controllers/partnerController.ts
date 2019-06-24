@@ -73,12 +73,12 @@ class PartnerController {
     }
 
     static createPartner = async (req: Request, res: Response) => {
-        // creating authorized person
+        // creating authorised person
         const passwordSalt: string = cryptoRandomString(10);
         const randPassword: string = cryptoRandomString(10);
         try {
             let authorizePerson = await User.create({
-                email: req.body.authorized.email,
+                email: req.body.authorised.email,
                 password: User.generatePassword(passwordSalt, randPassword),
                 passwordSalt: passwordSalt
             });
@@ -87,12 +87,12 @@ class PartnerController {
 
             let authorizePersonalData = UserPersonalData.create({
                 userId: authorizePerson.id,
-                firstNameEn: req.body.authorized.firstNameEn,
-                firstNameRu: req.body.authorized.firstNameRu,
-                lastNameEn: req.body.authorized.lastNameEn,
-                lastNameRu: req.body.authorized.lastNameRu,
-                occupationEn: req.body.authorized.occupationEn,
-                occupationRu: req.body.authorized.occupationRu
+                firstNameEn: req.body.authorised.firstNameEn,
+                firstNameRu: req.body.authorised.firstNameRu,
+                lastNameEn: req.body.authorised.lastNameEn,
+                lastNameRu: req.body.authorised.lastNameRu,
+                occupationEn: req.body.authorised.occupationEn,
+                occupationRu: req.body.authorised.occupationRu
             });
 
             const partner = await Partner.create({
@@ -159,7 +159,7 @@ class PartnerController {
             if (partner == null) {
                 throw new PartnerNotFind();
             }
-            let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
+            let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
             await partner.update(partnerData);
 
             if (user.hasRole('ra')) {
@@ -170,12 +170,12 @@ class PartnerController {
                 }
                 // get authorised person data
                 const authorisedData: any = {
-                    firstNameEn: req.body.authorizedPerson.firstNameEn,
-                    firstNameRu: req.body.authorizedPerson.firstNameRu,
-                    lastNameEn: req.body.authorizedPerson.lastNameEn,
-                    lastNameRu: req.body.authorizedPerson.lastNameRu,
-                    occupationEn: req.body.authorizedPerson.occupationEn,
-                    occupationRu: req.body.authorizedPerson.occupationRu
+                    firstNameEn: req.body.authorisedPerson.firstNameEn,
+                    firstNameRu: req.body.authorisedPerson.firstNameRu,
+                    lastNameEn: req.body.authorisedPerson.lastNameEn,
+                    lastNameRu: req.body.authorisedPerson.lastNameRu,
+                    occupationEn: req.body.authorisedPerson.occupationEn,
+                    occupationRu: req.body.authorisedPerson.occupationRu
                 }
                 await authPerson.update(authorisedData);
             }

@@ -66,7 +66,7 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
             addressRu: Joi.string().max(255).required(),
             zip: Joi.string().max(20).required(),
         }).pattern(/./, Joi.any()),
-        authorizedPerson: Joi.object().options({
+        authorisedPerson: Joi.object().options({
             abortEarly: false,
             language: {
                 string: {
@@ -103,7 +103,7 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
         }
     })
     
-    validationRules.authorizedPerson.validate(req.body.company.authorizedPerson, (err: any, value: any) => {
+    validationRules.authorisedPerson.validate(req.body.company.authorisedPerson, (err: any, value: any) => {
         if (err) {
             throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
         }

@@ -201,7 +201,7 @@ Partner.belongsTo(User, {
 });
 Partner.belongsTo(User, {
     foreignKey: 'authorisedId',
-    as: 'authorized'
+    as: 'authorised'
 });
 Partner.belongsTo(Country, {
     foreignKey: 'countryId',

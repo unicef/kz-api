@@ -49,7 +49,7 @@ const postPartner = (req: Request, res: Response, next: NextFunction) => {
             addressEn: Joi.string().max(255).required(),
             addressRu: Joi.string().max(255).required(),
             zip: Joi.string().max(20).required(),
-            authorized: Joi.object().keys({
+            authorised: Joi.object().keys({
                 email: Joi.string().email({ minDomainSegments: 2 }),
                 firstNameEn: Joi.string().max(255).required(),
                 firstNameRu: Joi.string().max(255).required(),
