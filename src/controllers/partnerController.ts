@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import cryptoRandomString from "crypto-random-string";
 import Sequelize from "sequelize";
 import stream from "stream";
@@ -22,6 +22,11 @@ import HttpException from "../exceptions/httpException";
 import PartnerNotFind from "../exceptions/partnerNotFind";
 import BadPermissions from "../exceptions/badPermissions";
 import PartnerDocument from "../models/partnerDocument";
+import putPartnerInformation from "../requests/partner/putPartnerInformation";
+import BadValidationException from "../exceptions/badValidationException";
+import PartnerHelper from "../helpers/partnerHelper";
+import PartnerWithoutAuthorised from "../exceptions/partnerWithoutAuthorised";
+import UserHelper from "../helpers/userHelper";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -125,7 +130,65 @@ class PartnerController {
             }, res);
             return ;
         } catch (error) {
-            ApiController.failed(error.status, error.message, res, undefined);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static updatePartner = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partnerId = req.body.company.id;
+            const user = req.user;
+            const userPartner = await UserHelper.getUserPartner(user.id);
+
+            if ((!user.hasRole('ra') && !user.hasRole('ap')) || userPartner==null || userPartner.id!==partnerId) {
+                throw new BadPermissions();
+            }
+
+            // validate unput params 
+            const isParamsValid = putPartnerInformation(req, res, next);
+            if (!isParamsValid) {
+                throw new BadValidationException();
+            }
+
+            const partner = await Partner.findByPk(partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
+            await partner.update(partnerData);
+
+            if (user.hasRole('ra')) {
+                // update authorised person information
+                const authPerson = await User.findByPk(partner.authorisedId);
+                if (authPerson == null) {
+                    throw new PartnerWithoutAuthorised();
+                }
+                // get authorised person data
+                const authorisedData: any = {
+                    firstNameEn: req.body.authorizedPerson.firstNameEn,
+                    firstNameRu: req.body.authorizedPerson.firstNameRu,
+                    lastNameEn: req.body.authorizedPerson.lastNameEn,
+                    lastNameRu: req.body.authorizedPerson.lastNameRu,
+                    occupationEn: req.body.authorizedPerson.occupationEn,
+                    occupationRu: req.body.authorizedPerson.occupationRu
+                }
+                await authPerson.update(authorisedData);
+            }
+
+            return ApiController.success({
+                message: i18n.t('successPartnerSaving')
+            }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
             return;
         }
     }

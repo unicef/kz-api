@@ -4,7 +4,7 @@ import Joi from "@hapi/joi";
 import i18n from "i18next";
 import BadValidationException from "../../exceptions/badValidationException";
 
-const putPartnerStepInformation = (req: Request, res: Response, next: NextFunction) => {
+const putPartnerInformation = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         company: Joi.object().options({
             abortEarly: false,
@@ -87,7 +87,6 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
                 }
             }
         }).keys({
-            email: Joi.string().email({ minDomainSegments: 2 }),
             firstNameEn: Joi.string().max(255).required(),
             firstNameRu: Joi.string().max(255).required(),
             lastNameEn: Joi.string().max(255).required(),
@@ -97,17 +96,20 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
         }).pattern(/./, Joi.any())
     };
 
-    validationRules.company.validate(req.body.company.company, (err: any, value: any) => {
+
+    validationRules.company.validate(req.body.company, (err: any, value: any) => {
         if (err) {
             throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
         }
     })
     
-    validationRules.authorizedPerson.validate(req.body.company.authorizedPerson, (err: any, value: any) => {
+    validationRules.authorizedPerson.validate(req.body.authorizedPerson, (err: any, value: any) => {
         if (err) {
             throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
         }
     })
+
+    return true;
 }
 
 const getErrorMessage = (errors: any) => {
@@ -121,4 +123,4 @@ const getErrorMessage = (errors: any) => {
     return message;
 }
 
-export default putPartnerStepInformation;
+export default putPartnerInformation;

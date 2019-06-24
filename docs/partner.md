@@ -216,6 +216,111 @@ Get partner data by partner id
 
 <hr>
 
+# Update partner information
+Update partner information
+
+#### Request
+
+**URL: `PUT: /partner`**
+
+**Body Params:**
+
+?> **company**:<br/> 
+    id - company id (required)
+    nameEn - company name in English (required)<br/>
+    nameRu - company name in Russian (required)<br/>
+    tradeNameEn - trade company name in English (required)<br/>
+    tradeNameRu - trade company name in Russian (required)<br/>
+    license - company license number (required)<br/>
+    country - country object {title,id} (required)<br/>
+    ceoFirstNameEn - seo first name in English (required)<br/>
+    ceoFirstNameRu - seo first name in Russian (required)<br/>
+    ceoLastNameEn - seo last name in English (required)<br/>
+    ceoLastNameRu - seo last name in Russian (required)<br/>
+    establishmentYear - establishment year (required)<br/> 
+    employersCount - count of employers (required)<br/> 
+    areaOfWork - area of work object {title,id} (required)<br/> 
+    ownership - company ownership object {title,id} (required)<br/> 
+    partnerType - partner type object {title,id} (required)<br/> 
+    csoType - CSO type object {title,id} (required)<br/> 
+    tel - company phone number (required) <br/> 
+    website - company website (required)<br/>
+    cityEn - company city in English (required)<br/>
+    cityRu - company city in Russian (required)<br/>
+    addressEn - company address in English (required)<br/>
+    addressRu - company address in Russian (required)<br/>
+    zip - postal zip code (required)<br/>
+    **authorisedPerson**:<br/> 
+    firstNameEn - user first name in English (required)<br/>
+    firstNameRu - user first name in Russian (required)<br/>
+    lastNameEn - user last name in English (required)<br/>
+    lastNameRu - user last name in Russian (required)<br/>
+    occupationEn - user occupation in English (required)<br/>
+    occupationRu - user occupation in Russian (required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "success saving message",
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 # Get partner documents
 Get partner documents list
 
