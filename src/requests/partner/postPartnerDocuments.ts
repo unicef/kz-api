@@ -26,10 +26,12 @@ const postPartnerDocuments = (req: Request, res: Response, next: NextFunction) =
                 }
             }
         }).keys({
-            documents: Joi.array().items(Joi.object().keys({
-                title: Joi.string().max(255),
-                id: Joi.string().max(255)
-            }).pattern(/./, Joi.any()))
+            documents: Joi.array().items(
+                Joi.object().keys({
+                    title: Joi.string().max(255),
+                    id: Joi.string().max(255)
+                }).pattern(/./, Joi.any())
+            )
         }),
         querySchema: null
     };

@@ -43,6 +43,18 @@ class PartnerController {
             let countries: Country[]|null = await Country.findAll({attributes: ['id', 'title']});
             responseData['countries'] = countries;
         }
+
+        
+        if (!req.query.key || req.query.key == 'companies') {
+            // countries
+            let companies: Partner[]|null = await Partner.findAll({
+                where: {
+                    authorisedId: null
+                },
+                attributes: ['id', 'nameEn']
+            });
+            responseData['companies'] = companies;
+        }
         
         if (!req.query.key || req.query.key == 'areasOfWork') {
             // areas of work

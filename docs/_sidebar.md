@@ -29,3 +29,4 @@
 
 - Admin
     - [Create new partner account](admin_partner.md?id=create-new-partner-account "Create new partner")
+    - [Update partner account](admin_partner.md?id=update-partner-account "Update partner")

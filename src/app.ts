@@ -4,6 +4,7 @@ import helmet from "helmet";
 import express from "express";
 import i18next from "i18next";
 import bodyParser from "body-parser";
+import { init as SentryInit, Handlers as SentryHandlers } from "@sentry/node";
 import routes from "./routes";
 import config from "./config/config";
 import Translation from './models/translation';
@@ -21,6 +22,9 @@ class App {
         this.app.use(cors({
             optionsSuccessStatus:200
         }));
+        SentryInit({ dsn: 'https://1fe5fdb0c4fa4524a674810b4d6ac436@sentry.io/1489635' });
+        this.app.use(SentryHandlers.requestHandler());
+
         this.app.use(helmet());
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended:false }));
@@ -28,6 +32,7 @@ class App {
 
         //Set all routes from routes folder
         this.app.use("/", routes);
+        this.app.use(SentryHandlers.errorHandler());
         
         // serving static files
         this.app.use(express.static('public'));

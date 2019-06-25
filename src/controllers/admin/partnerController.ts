@@ -16,6 +16,9 @@ import ApiController from "../apiController";
 import HttpException from "../../exceptions/httpException";
 import TmpFile from "../../models/tmpFile";
 import PartnerDocument from "../../models/partnerDocument";
+import UserNotfind from "../../exceptions/userNotFind";
+import PartnerNotFind from "../../exceptions/partnerNotFind";
+import DocumentHelper from "../../helpers/documentHelper";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -88,6 +91,44 @@ class AdminPartnerController {
             return ;
         } catch(error) {
             console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static updatePartner = async (req: Request, res: Response) => {
+        try {
+            const user = await User.findByPk(req.body.user.id);
+            if (user == null) {
+                throw new UserNotfind(400, 116, i18n.t('adminUserNotFind'), 'User with id:' + req.body.user.id + ' not find');
+            }
+
+            const partner = await Partner.findByPk(req.body.company.id);
+            if (partner == null) {
+                throw new PartnerNotFind(400, 110, i18n.t('adminPartnerNotFind'), 'Partner with id:' + req.body.company.id + ' nod find');
+            }
+
+            // get user request data
+            let userData = UserHelper.getUserDataFromRequest(req.body.user);
+            await user.personalData.update(userData);
+            // get partner data from request
+            let partnerData = PartnerHelper.getPartnerDataFromRequest(req.body.company);
+            await partner.update(partnerData);
+            // working with partner documents
+            if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                req.body.documents.forEach(async (element: any) => {
+                    DocumentHelper.transferDocumentFromTemp(element.id, element.title, partner);
+                });
+            }
+
+            return ApiController.success({
+                message: i18n.t('adminSuccessPartnerSaving')
+            }, res);
+        } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
