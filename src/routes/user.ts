@@ -9,12 +9,14 @@ import putUserInformation from "../requests/user/putUserInformation";
 import putUserPasswordManual from "../requests/user/putUserPasswordManual";
 import getUserById from "../requests/user/getUserById";
 import postForgotPassword from "../requests/user/postForgotPassword";
+import repeatActivationLink from "../requests/user/repeatActivationLink";
 
 const router = Router();
 
 // get all users
 router.post("/partner", [postNewPartner, checkRecaptcha], UserController.createPartner);
 router.post("/activation", [postActivationProcess], UserController.activationProcess);
+router.post("/repeat-activation-link", [repeatActivationLink], UserController.repeatActivationLink);
 router.post("/login", [postLogin, checkRecaptcha], UserController.login);
 router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData);

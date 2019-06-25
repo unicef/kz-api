@@ -10,6 +10,7 @@
     - [Seed phrase showed](user.md?id=set-show-seed-phrase-flag "Set showSeed flag to false")
     - [Forgot password](user.md?id=send-forgot-password-mail "Send forgot password mail")
     - [Get user information](user.md?id=get-user-information "Get user information by user id")
+    - [Repeat activation link](user.md?id=repeat-activation-link "Get activation link again")
 
 - Partner
     - [Form properties](partner.md?id=get-partner-static-properties "Get partner properties")

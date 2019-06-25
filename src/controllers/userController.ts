@@ -33,6 +33,7 @@ import PartnerDocument from "../models/partnerDocument";
 import UserNotfind from "../exceptions/userNotFind";
 import mailer from "../services/mailer";
 import ResetPasswordMail from "../mails/resetPasswordMail";
+import ActivationLinkMail from "../mails/activationLinkMail";
 
 class UserController {
     // get users list
@@ -455,7 +456,39 @@ class UserController {
             }, res)
 
         } catch (error) {
-            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static repeatActivationLink = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const repeatHash = req.body.repeatHash;
+            const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+            const userEmail = CryptoJS.AES.decrypt(repeatHash, secret).toString(CryptoJS.enc.Utf8);
+    
+            const user = await User.findOne({
+                where: {
+                    email: userEmail
+                }
+            })
+    
+            if (user == null) {
+                throw new UserNotfind();
+            }
+    
+            // sending activation mail again
+            let mail = new ActivationLinkMail(user);
+            mail.send();
+    
+            return ApiController.success({
+                message: i18n.t('activationLinkSent')
+            }, res);
+        } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
             } else {

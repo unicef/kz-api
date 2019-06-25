@@ -589,3 +589,60 @@ Get user data by user id
 }
 ```
 <!-- tabs:end -->
+
+<hr>
+
+# Repeat activation link
+Get activation link again
+
+#### Request
+
+**URL: `POST: /user/repeat-activation-link`**
+
+**Body Params:**
+
+?> **repeatHash** - repeat hash from activation error
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "success sending message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
