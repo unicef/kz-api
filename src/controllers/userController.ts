@@ -184,7 +184,7 @@ class UserController {
                 // get activation user hash
                 const secret: string = process.env.ACTIVATION_SECRET || '123fds';
                 const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
-                return res.json({
+                return res.status(412).json({
                     success:false, 
                     error:{message:i18n.t('userIsNotActivated')}, 
                     data: {

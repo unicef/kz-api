@@ -52,7 +52,7 @@ class PartnerController {
                 where: {
                     authorisedId: null
                 },
-                attributes: ['id', 'nameEn']
+                attributes: ['id', ['nameEn', 'title']]
             });
             responseData['companies'] = companies;
         }
