@@ -114,7 +114,15 @@ class AdminPartnerController {
 
             // get user request data
             let userData = UserHelper.getUserDataFromRequest(req.body.user);
-            await user.personalData.update(userData);
+            const userPersonalData = await UserPersonalData.findOne({
+                where: {
+                    userId: user.id
+                }
+            });
+            if (userPersonalData == null) {
+                throw new UserNotfind(400, 116, i18n.t('userPersonalDataNotFind'), 'User personal data not find');
+            }
+            await userPersonalData.update(userData);
             // get partner data from request
             let partnerData = PartnerHelper.getPartnerDataFromRequest(req.body.company);
             await partner.update(partnerData);
