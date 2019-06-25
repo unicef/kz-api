@@ -50,7 +50,7 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 country: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
-                }),
+                }).allow(null),
                 ceoFirstNameEn: Joi.string().max(255).allow('').allow(null),
                 ceoFirstNameRu: Joi.string().max(255).allow('').allow(null),
                 ceoLastNameEn: Joi.string().max(255).allow('').allow(null),
@@ -60,15 +60,15 @@ const postAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 areaOfWork: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
-                }),
+                }).allow(null),
                 ownership: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
-                }),
+                }).allow(null),
                 partnerType: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
-                }),
+                }).allow(null),
                 csoType: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),
