@@ -22,7 +22,7 @@ class App {
         this.app.use(cors({
             optionsSuccessStatus:200
         }));
-        SentryInit({ dsn: 'https://1fe5fdb0c4fa4524a674810b4d6ac436@sentry.io/1489635' });
+        SentryInit({ dsn: 'http://cb9e31b65cc84f298c7b1e15c01d6e4a@sentry.iskytest.com:8082/2' });
         this.app.use(SentryHandlers.requestHandler());
 
         this.app.use(helmet());

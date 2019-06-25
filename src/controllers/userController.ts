@@ -179,7 +179,19 @@ class UserController {
     
             // check user activation 
             if (user.emailVerifiedAt == null) {
-                throw new userIsNotActivated();
+                // get activation user hash
+                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const hash = CryptoJS.AES.encrypt(user.email, secret);
+                return res.status(412).json({
+                    success:false,
+                    error: {
+                        message: i18n.t('userIsNotActivated')
+                    },
+                    data: {
+                        message: i18n.t('userIsNotActivated'),
+                        repeatHash: hash
+                    }
+                });
             }
     
             let token = jwt.sign({userEmail: user.email},
