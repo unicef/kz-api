@@ -79,6 +79,12 @@ class UserController {
         if (!user.personalData.isFilledData()) {
             responseData.showForm = true;
         }
+        if (user.hasRole('ra') || user.hasRole('ap')) {
+            const partner = await UserHelper.getUserPartner(user.id);
+            if (partner == null || partner.statusId == Partner.partnerStatusNew) {
+                responseData.showForm = true;
+            }
+        }
 
         ApiController.success(responseData, res);
         return ;
