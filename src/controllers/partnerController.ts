@@ -27,6 +27,7 @@ import BadValidationException from "../exceptions/badValidationException";
 import PartnerHelper from "../helpers/partnerHelper";
 import PartnerWithoutAuthorised from "../exceptions/partnerWithoutAuthorised";
 import UserHelper from "../helpers/userHelper";
+import DocumentHelper from "../helpers/documentHelper";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -216,22 +217,7 @@ class PartnerController {
     
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                 req.body.documents.forEach(async (element: any) => {
-                    const tmpFile = await TmpFile.findByPk(element.id);
-                    if (tmpFile) {
-                        const partnerDocument = await PartnerDocument.create({
-                            partnerId: partner.id,
-                            userId: tmpFile.userId,
-                            title: element.title,
-                            filename: tmpFile.getFullFilename(),
-                            size: tmpFile.size
-                        });
-                        const documentsFolder = __dirname + '/../../assets/partners/documents/';
-                        const fileFoler = tmpFile.id.substring(0, 2);
-                        tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
-                        tmpFile.deleteFile();
-                    } else {
-                        throw new Error('File wasn\'t uploaded');
-                    }
+                    DocumentHelper.transferDocumentFromTemp(element.id, element.title, partner);
                 });
             }
 
