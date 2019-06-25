@@ -7,6 +7,7 @@ import i18n from "i18next";
 import fs from "fs";
 import ApiController from "./apiController";
 import config from "../config/config";
+import { captureException } from "@sentry/node";
 import userIsNotActivated from "../exceptions/userIsNotActivated";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import BadActivationLink from "../exceptions/badActivationLink";
@@ -181,14 +182,11 @@ class UserController {
             if (user.emailVerifiedAt == null) {
                 // get activation user hash
                 const secret: string = process.env.ACTIVATION_SECRET || '123fds';
-                const hash = CryptoJS.AES.encrypt(user.email, secret);
-                return res.status(412).json({
-                    success:false,
-                    error: {
-                        message: i18n.t('userIsNotActivated')
-                    },
+                const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
+                return res.json({
+                    success:false, 
+                    error:{message:i18n.t('userIsNotActivated')}, 
                     data: {
-                        message: i18n.t('userIsNotActivated'),
                         repeatHash: hash
                     }
                 });
@@ -207,6 +205,8 @@ class UserController {
             
             ApiController.success(responseData, res);
         } catch (error) {
+            console.log(error);
+            captureException(error);
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
