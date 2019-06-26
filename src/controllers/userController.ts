@@ -360,7 +360,7 @@ class UserController {
 
             // work with company details
             if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
-                putPartnerStepInformation(req, res, next);
+                //putPartnerStepInformation(req, res, next);
                 let userCompany = await UserHelper.getUserPartner(user.id);
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
                 if (userCompany) {
