@@ -39,7 +39,7 @@ class PartnerHelper {
         let partnerData: any = {};
         PartnerHelper.partnerFields.forEach((field)=>{
             console.log(field, companyData[field]);
-            if (companyData[field] && companyData[field]!== null) {
+            if ((companyData[field] && companyData[field]!== null)||companyData[field]== '') {
                 partnerData[field] = companyData[field];
             }
         })
