@@ -56,7 +56,8 @@
     "sequelize-typescript": "^1.0.0-alpha.9",
     "swagger-ui-express": "^4.0.2",
     "tsoa": "^2.3.8",
-    "typescript": "^2.8.1"
+    "typescript": "^2.8.1",
+    "web3": "^1.0.0-beta.55"
   },
   "devDependencies": {
     "concurrently": "^3.5.1",

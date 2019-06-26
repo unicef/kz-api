@@ -38,6 +38,7 @@ class PartnerHelper {
     static getPartnerDataFromRequest = (companyData: any): {} => {
         let partnerData: any = {};
         PartnerHelper.partnerFields.forEach((field)=>{
+            console.log(field, companyData[field]);
             if (companyData[field] && companyData[field]!== null) {
                 partnerData[field] = companyData[field];
             }
