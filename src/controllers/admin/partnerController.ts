@@ -48,7 +48,6 @@ class AdminPartnerController {
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
                 // create new partner
                 partnerData["assistId"] = user.id;
-                console.log(partnerData);
                 partner = await Partner.create(partnerData);
             } else {
                 partner = await Partner.findOne({
@@ -57,8 +56,9 @@ class AdminPartnerController {
                     }
                 });
                 if (partner) {
-                    partner.authorisedId = user.id;
-                    partner.save();
+                    let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
+                    partnerData['authorisedId'] = user.id;
+                    partner.update(partnerData);
                 }
             }
             // working with documents 
