@@ -181,6 +181,14 @@ class PartnerController {
                 if (authPerson == null) {
                     throw new PartnerWithoutAuthorised();
                 }
+                const authPersonalData = await UserPersonalData.findOne({
+                    where: {
+                        userId: authPerson.id
+                    }
+                });
+                if (authPersonalData == null) {
+                    throw new PartnerWithoutAuthorised();
+                }
                 // get authorised person data
                 const authorisedData: any = {
                     firstNameEn: req.body.authorisedPerson.firstNameEn,
@@ -190,7 +198,7 @@ class PartnerController {
                     occupationEn: req.body.authorisedPerson.occupationEn,
                     occupationRu: req.body.authorisedPerson.occupationRu
                 }
-                await authPerson.update(authorisedData);
+                await authPersonalData.update(authorisedData);
             }
 
             return ApiController.success({
