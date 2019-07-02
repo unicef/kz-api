@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import cryptoRandomString from "crypto-random-string";
-import Sequelize from "sequelize";
+import Sequelize, { QueryTypes } from "sequelize";
 import stream from "stream";
 import i18n from "i18next";
 import fs from "fs";
@@ -28,7 +28,7 @@ import PartnerHelper from "../helpers/partnerHelper";
 import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthorised";
 import UserHelper from "../helpers/userHelper";
 import DocumentHelper from "../helpers/documentHelper";
-import sequelize = require("sequelize");
+import sequelize from "../services/sequelize";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -48,13 +48,9 @@ class PartnerController {
 
         
         if (!req.query.key || req.query.key == 'companies') {
-            // countries
-            let companies: Partner[]|null = await Partner.findAll({
-                where: {
-                    authorisedId: null
-                },
-                attributes: ['id', ['nameEn', 'title']]
-            });
+            let companies = await sequelize.query('select p."id" as "id", p."nameEn" as "title" from users u left join partners p on u."partnerId" = p."id" left join users_has_roles uhr on u."id" = uhr."userId" left join (select us."id" as "usId", pa."id" as "parId" from users us left join partners pa on us."partnerId" = pa."id" left join users_has_roles ushr on us."id" = ushr."userId" where ushr."roleId" = \'' + Role.partnerAuthorisedId + '\') ap on ap."parId" = p.id where uhr."roleId" = \'' + Role.partnerAssistId + '\' and (ap."usId" is null)',
+            {type: QueryTypes.SELECT});
+            
             responseData['companies'] = companies;
         }
         
