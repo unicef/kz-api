@@ -20,7 +20,6 @@ const upload = multer({
 
 // get all users
 router.get("/properties", PartnerController.getPartnerProperties);
-router.post("/", [checkAuthToken, postPartner], PartnerController.createPartner);
 router.put("/", [checkAuthToken], PartnerController.updatePartner);
 router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerById);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], PartnerController.uploadingDocument);

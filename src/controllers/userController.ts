@@ -34,6 +34,9 @@ import UserNotfind from "../exceptions/userNotFind";
 import mailer from "../services/mailer";
 import ResetPasswordMail from "../mails/resetPasswordMail";
 import ActivationLinkMail from "../mails/activationLinkMail";
+import AuthorisedUserHelper from "../helpers/authorisedUserHelper";
+import sequelize from "../services/sequelize";
+import DocumentHelper from "../helpers/documentHelper";
 
 class UserController {
     // get users list
@@ -80,7 +83,7 @@ class UserController {
             responseData.showForm = true;
         }
         if (user.hasRole('ra') || user.hasRole('ap')) {
-            const partner = await UserHelper.getUserPartner(user.id);
+            const partner = await UserHelper.getUserPartner(user);
             if (partner == null || partner.statusId == Partner.partnerStatusNew) {
                 responseData.showForm = true;
             }
@@ -270,7 +273,7 @@ class UserController {
             ]
         });
         if (user && user.personalData) {
-            const company = await UserHelper.getUserPartner(user.id);
+            const company = await UserHelper.getUserPartner(user);
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -360,69 +363,42 @@ class UserController {
 
             // work with company details
             if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
-                //putPartnerStepInformation(req, res, next);
-                let userCompany = await UserHelper.getUserPartner(user.id);
+                // putPartnerStepInformation(req, res, next);
+
+                let userCompany = await UserHelper.getUserPartner(user);
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
-                if (userCompany) {
-                    await userCompany.update(partnerData);
-                } else {
-                    if (user.hasRole(Role.partnerAssistId)) {
-                        partnerData["assistId"] = user.id;
-                    } else {
-                        partnerData["authorisedId"] = user.id;
-                    }
-                    userCompany = await Partner.create(partnerData);
-                }
 
-                // working with authorisedPerson information
                 if (user.hasRole(Role.partnerAssistId)) {
-                    let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
-                    if (userCompany.authorisedId !== null) {
-                        // update authorised person information
-                        let authorisedPerson = await User.findOne({
-                            where: {
-                                id: userCompany.authorisedId
-                            },
-                            include: [User.associations.personalData]
-                        });
-                        if (authorisedPerson) {
-                            authorisedPerson.personalData.update(authorisedData);
-                        }
+                    // assist doesn't have partner
+                    if (userCompany == null) {
+                        // create partner 
+                        userCompany = await Partner.create(partnerData);
+                        // working with authorised
+                        let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
                     } else {
-                        // create authorised person remotely
-                        let authorisedPerson = await User.generateUser(req.body.company.authorisedPerson.email);
-                        // add role to user
-                        const role = await Role.findByPk(Role.partnerAuthorisedId);
-                        authorisedPerson.addRole(role);
-            
-                        // working with user data
-                        authorisedData['userId'] = authorisedPerson.id;
-                        const userPersonalData = await UserPersonalData.create(authorisedData);
-
-                        userCompany.authorisedId = authorisedPerson.id;
-                        userCompany.save();
+                        // update user company information and update authorised data
+                        await userCompany.update(partnerData);
+                        let authorisedPerson = await PartnerHelper.getPartnerAuthorised(userCompany);
+                        if (authorisedPerson) {
+                            // update authorised person
+                            let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
+                            authorisedPerson.personalData.update(authorisedData);
+                        } else {
+                            let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                        }
                     }
+                } else {
+                    // this is authorised
+                    if (userCompany == null) {
+                        throw new Error('Authorised person(id:'+user.id+') without company')
+                    }
+                    await userCompany.update(partnerData);
                 }
+                
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                     req.body.documents.forEach(async (element: any) => {
-                        const tmpFile = await TmpFile.findByPk(element.id);
-                        if (tmpFile) {
-                            const partnerDocument = await PartnerDocument.create({
-                                partnerId: userCompany.id,
-                                userId: tmpFile.userId,
-                                title: element.title,
-                                filename: tmpFile.getFullFilename(),
-                                size: tmpFile.size
-                            });
-                            const documentsFolder = __dirname + '/../../assets/partners/documents/';
-                            const fileFoler = tmpFile.id.substring(0, 2);
-                            tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
-                            tmpFile.deleteFile();
-                        } else {
-                            console.log('File wasn\'t uploaded');
-                            throw new Error('Fuck You');
-                        }
+                        await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany);
                     });
                 }
 

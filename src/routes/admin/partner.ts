@@ -10,6 +10,7 @@ const router = Router();
 // get all users
 router.post("/", [checkAdminRole, postAdminPartner], AdminPartnerController.createPartner);
 router.put("/", [checkAdminRole, putAdminPartner], AdminPartnerController.updatePartner);
+router.get("/list", [], AdminPartnerController.getPartnersList);
 
 
 export default router;

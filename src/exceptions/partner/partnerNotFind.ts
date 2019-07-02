@@ -1,4 +1,4 @@
-import HttpException from "./httpException";
+import HttpException from "../httpException";
 import i18n from "i18next";
 
 class PartnerNotFind extends HttpException {

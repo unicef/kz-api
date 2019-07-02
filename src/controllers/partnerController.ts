@@ -19,15 +19,16 @@ import UserPersonalData from "../models/userPersonalData";
 import { Resolver } from "dns";
 import TmpFile from "../models/tmpFile";
 import HttpException from "../exceptions/httpException";
-import PartnerNotFind from "../exceptions/partnerNotFind";
+import PartnerNotFind from "../exceptions/partner/partnerNotFind";
 import BadPermissions from "../exceptions/badPermissions";
 import PartnerDocument from "../models/partnerDocument";
 import putPartnerInformation from "../requests/partner/putPartnerInformation";
 import BadValidationException from "../exceptions/badValidationException";
 import PartnerHelper from "../helpers/partnerHelper";
-import PartnerWithoutAuthorised from "../exceptions/partnerWithoutAuthorised";
+import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthorised";
 import UserHelper from "../helpers/userHelper";
 import DocumentHelper from "../helpers/documentHelper";
+import sequelize = require("sequelize");
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -85,78 +86,11 @@ class PartnerController {
         return ;
     }
 
-    static createPartner = async (req: Request, res: Response) => {
-        // creating authorised person
-        const passwordSalt: string = cryptoRandomString(10);
-        const randPassword: string = cryptoRandomString(10);
-        try {
-            let authorizePerson = await User.create({
-                email: req.body.authorised.email,
-                password: User.generatePassword(passwordSalt, randPassword),
-                passwordSalt: passwordSalt
-            });
-            const role = await Role.findByPk('ap');
-            authorizePerson.addRole(role);
-
-            let authorizePersonalData = UserPersonalData.create({
-                userId: authorizePerson.id,
-                firstNameEn: req.body.authorised.firstNameEn,
-                firstNameRu: req.body.authorised.firstNameRu,
-                lastNameEn: req.body.authorised.lastNameEn,
-                lastNameRu: req.body.authorised.lastNameRu,
-                occupationEn: req.body.authorised.occupationEn,
-                occupationRu: req.body.authorised.occupationRu
-            });
-
-            const partner = await Partner.create({
-                statusId: Partner.partnerStatusFilled,
-                assistId: req.user.id,
-                authorisedId: authorizePerson.id,
-                nameEn: req.body.nameEn,
-                nameRu: req.body.nameRu,
-                tradeNameEn: req.body.tradeNameEn,
-                tradeNameRu: req.body.tradeNameRu,
-                license: req.body.license,
-                countryId: req.body.countryId,
-                ceoFirstNameEn: req.body.ceoFirstNameEn,
-                ceoFirstNameRu: req.body.ceoFirstNameRu,
-                ceoLastNameEn: req.body.ceoLastNameEn,
-                ceoLastNameRu: req.body.ceoLastNameRu,
-                establishmentYear: req.body.establishmentYear,
-                employersCount: req.body.employersCount,
-                areaOfWorkId: req.body.areaOfWorkId,
-                ownershipId: req.body.ownershipId,
-                partnerTypeId: req.body.partnerTypeId,
-                csoTypeId: req.body.csoTypeId,
-                tel: req.body.tel,
-                website: req.body.website,
-                cityEn: req.body.cityEn,
-                cityRu: req.body.cityRu,
-                addressEn: req.body.addressEn,
-                addressRu: req.body.addressRu,
-                zip: req.body.zip,
-            })
-
-            ApiController.success({
-                message: i18n.t('successPartnerCreation'),
-                partnerId: partner.id
-            }, res);
-            return ;
-        } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
-        }
-    }
-
     static updatePartner = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const partnerId = req.body.company.id;
             const user = req.user;
-            const userPartner = await UserHelper.getUserPartner(user.id);
+            const userPartner = await UserHelper.getUserPartner(user);
 
             if ((!user.hasRole('ra') && !user.hasRole('ap')) || userPartner==null || userPartner.id!==partnerId) {
                 throw new BadPermissions();
@@ -177,19 +111,10 @@ class PartnerController {
 
             if (user.hasRole('ra')) {
                 // update authorised person information
-                const authPerson = await User.findByPk(partner.authorisedId);
+                const authPerson = await PartnerHelper.getPartnerAuthorised(partner);
                 if (authPerson == null) {
                     throw new PartnerWithoutAuthorised();
                 }
-                const authPersonalData = await UserPersonalData.findOne({
-                    where: {
-                        userId: authPerson.id
-                    }
-                });
-                if (authPersonalData == null) {
-                    throw new PartnerWithoutAuthorised();
-                }
-                // get authorised person data
                 const authorisedData: any = {
                     firstNameEn: req.body.authorisedPerson.firstNameEn,
                     firstNameRu: req.body.authorisedPerson.firstNameRu,
@@ -198,7 +123,7 @@ class PartnerController {
                     occupationEn: req.body.authorisedPerson.occupationEn,
                     occupationRu: req.body.authorisedPerson.occupationRu
                 }
-                await authPersonalData.update(authorisedData);
+                authPerson.personalData.update(authorisedData);
             }
 
             return ApiController.success({
@@ -217,7 +142,7 @@ class PartnerController {
     static updateDocuments = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = req.user;
-            const partner = await UserHelper.getUserPartner(user.id);
+            const partner = await UserHelper.getUserPartner(user);
     
             if (partner == null) {
                 throw new PartnerNotFind();
@@ -255,9 +180,11 @@ class PartnerController {
                 Partner.associations.partnerType,
                 Partner.associations.csoType
             ]
-        })
-
+        });
+        
         if (partner) {
+            await partner.getAssistId();
+            await partner.getAuthorisedId();
             ApiController.success(partner, res);
         } else {
             ApiController.failed(404, 'Partner didn\'t find', res);
@@ -292,6 +219,8 @@ class PartnerController {
             if (partner == null) {
                 throw new PartnerNotFind();
             }
+            await partner.getAssistId();
+            await partner.getAuthorisedId();
             if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
                 throw new BadPermissions();
             }
@@ -339,6 +268,8 @@ class PartnerController {
             if (partner == null) {
                 throw new PartnerNotFind();
             }
+            await partner.getAssistId();
+            await partner.getAuthorisedId();
             if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
                 throw new BadPermissions();
             }
@@ -385,6 +316,8 @@ class PartnerController {
             if (partner == null) {
                 throw new PartnerNotFind();
             }
+            await partner.getAssistId();
+            await partner.getAuthorisedId();
             if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
                 throw new BadPermissions();
             }

@@ -17,8 +17,10 @@ import HttpException from "../../exceptions/httpException";
 import TmpFile from "../../models/tmpFile";
 import PartnerDocument from "../../models/partnerDocument";
 import UserNotfind from "../../exceptions/userNotFind";
-import PartnerNotFind from "../../exceptions/partnerNotFind";
+import PartnerNotFind from "../../exceptions/partner/partnerNotFind";
 import DocumentHelper from "../../helpers/documentHelper";
+import sequelize from "../../services/sequelize";
+import { throws } from "assert";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -47,8 +49,9 @@ class AdminPartnerController {
             if (req.body.user.role.id == 'ra') {
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
                 // create new partner
-                partnerData["assistId"] = user.id;
                 partner = await Partner.create(partnerData);
+                user.partnerId = partner.id;
+                user.save();
             } else {
                 partner = await Partner.findOne({
                     where: {
@@ -57,29 +60,15 @@ class AdminPartnerController {
                 });
                 if (partner) {
                     let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
-                    partnerData['authorisedId'] = user.id;
                     partner.update(partnerData);
                 }
+                user.partnerId = partner.id;
+                user.save();
             }
             // working with documents 
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                 req.body.documents.forEach(async (element: any) => {
-                    const tmpFile = await TmpFile.findByPk(element.id);
-                    if (tmpFile) {
-                        const partnerDocument = await PartnerDocument.create({
-                            partnerId: partner.id,
-                            userId: tmpFile.userId,
-                            title: element.title,
-                            filename: tmpFile.getFullFilename(),
-                            size: tmpFile.size
-                        });
-                        const documentsFolder = __dirname + '/../../assets/partners/documents/';
-                        const fileFoler = tmpFile.id.substring(0, 2);
-                        tmpFile.copyTo(documentsFolder+fileFoler, tmpFile.getFullFilename());
-                        tmpFile.deleteFile();
-                    } else {
-                        throw new Error('File wasn\'t uploaded');
-                    }
+                    await DocumentHelper.transferDocumentFromTemp(element.id, element.title, partner);
                 });
             }
 
@@ -144,6 +133,54 @@ class AdminPartnerController {
             }
             return;
         }
+    }
+
+    static getPartnersList = async (req: Request, res: Response) => {
+        let page = 1;
+        const pageCount = 25;
+        let responseData = {};
+        if (req.query.page !== undefined) {
+            page = req.query.page
+        }
+        let searchInstanse = '';
+
+        // get partners ids
+        const partnersQuery: Array<{userId: number}>|null = await sequelize.query('SELECT "userId" FROM users_has_roles WHERE "roleId" = \'' + Role.partnerAssistId + '\' OR "roleId" = \'' + Role.partnerAuthorisedId  + '\' GROUP BY "userId"', {
+            type: Sequelize.QueryTypes.SELECT
+        });
+        
+        if (partnersQuery == null || partnersQuery.length < 1) {
+            // partners count = 0
+            responseData = {partners: []};
+
+            return ApiController.success(responseData, res);
+        }
+
+        const lastPage = Math.ceil(partnersQuery.length / pageCount);
+        if (page>lastPage) {
+            page = lastPage;
+        }
+
+        let usersIds = partnersQuery.map(a => a.userId);
+        if (req.query.search) {
+            const idSearch = +req.query.search ? +req.query.search : 0;
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\' OR p."nameEn" LIKE \'%'+ req.query.search +'%\')';
+        }
+
+        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NOT NULL THEN \'active\' ELSE \'not active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstNameEn" as "firstName", upd."lastNameEn" as "lastName", r."title" as "role", p."nameEn" as "company", p."statusId" as "companyStatus" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE users."id" IN (' + usersIds.join(', ') + ')' + searchInstanse + ' ORDER BY users."id" ASC';
+        const offset = pageCount * (page-1);
+
+        query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;
+
+        const partners = await sequelize.query(query,{type: Sequelize.QueryTypes.SELECT});
+
+        responseData = {
+            partners: partners,
+            currentPage: page,
+            lastPage: lastPage
+        }
+
+        return ApiController.success(responseData, res);
     }
 }
 

@@ -1,6 +1,7 @@
 import { Request } from "express";
 import Partner from "../models/partner";
 import Sequelize from "sequelize";
+import User from "../models/user";
 
 class UserHelper {
     static userPersonalFields = [
@@ -27,18 +28,16 @@ class UserHelper {
         return userData;
     }
 
-    static getUserPartner = async (userId: number): Promise<Partner|null> => {
-        const Op = Sequelize.Op;
-        let partner: Partner|null = await Partner.findOne({
-            where: {
-                [Op.or]: [{assistId: userId}, {authorisedId: userId}]
-            }
-        });
-        if (partner) {
-            return partner;
-        } else {
+    static getUserPartner = async (user: User): Promise<Partner|null> => {
+        if (user.partnerId == null) {
+            return null;
+        } 
+        const partner = await Partner.findByPk(user.partnerId);
+        if (partner == null) {
             return null;
         }
+
+        return partner;
     }
 }
 

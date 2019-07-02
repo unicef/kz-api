@@ -19,6 +19,7 @@ class User extends Model {
     public passwordSalt!: string;
     public isBlocked!: boolean;
     public showSeed!: boolean;
+    public partnerId!: number;
 
     // timestamps!
     public emailVerifiedAt!: Date;
@@ -200,6 +201,11 @@ User.init(
         },
         lastLogin: {
             type: new DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null
+        },
+        partnerId: {
+            type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: null
         }

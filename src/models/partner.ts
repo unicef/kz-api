@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, QueryTypes, Sequelize } from "sequelize";
 import sequelize from "../services/sequelize";
 import Role from "./role";
 import SHA1 from "crypto-js/sha256";
@@ -12,6 +12,7 @@ import AreaOfWork from "./areaOfWork";
 import CompanyOwnership from "./companyOwnership";
 import PartnerType from "./partnerType";
 import CSOType from "./csoType";
+import PartnerHelper from "../helpers/partnerHelper";
 
 class Partner extends Model {
     static partnerStatusNew = 'new';
@@ -22,8 +23,8 @@ class Partner extends Model {
 
     public id!: number;
     public statusId!: string;
-    public assistId!: number;
-    public authorisedId!: number;
+    public assistId!: number|null;
+    public authorisedId!: number|null;
     public nameEn!: string;
     public nameRu!: string;
     public tradeNameEn!: string;
@@ -50,6 +51,38 @@ class Partner extends Model {
     public readonly createdAt!: Date; 
     public readonly updatedAt!: Date;
 
+    async getAssistId() {
+        const assistantIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAssistId + '\' AND users."partnerId" = ' + this.id + ' LIMIT 1', 
+        {type: QueryTypes.SELECT});
+
+        if (assistantIds.length > 0) {
+            // get assistant
+            let assistantId = assistantIds.map(a => a.id);
+
+            this.assistId = assistantId[0];
+        } else {
+            this.assistId = null;
+        }
+
+    }
+
+    async getAuthorisedId() {
+        const authorisedIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + this.id + ' LIMIT 1', 
+        {type: QueryTypes.SELECT});
+
+        if (authorisedIds.length > 0) {
+            // get assistant
+            let authorisedId = authorisedIds.map(a => a.id);
+
+            this.authorisedId = authorisedId[0];
+        } else {
+            this.authorisedId = null;
+        }
+    }
+
+    // static findByPk = async () => {
+
+    // }
 }
 
 Partner.init(
@@ -59,19 +92,20 @@ Partner.init(
             autoIncrement: true,
             primaryKey: true
         },
+        assistId: {
+            type: DataTypes.VIRTUAL,
+            allowNull: true,
+            defaultValue: null
+        },
+        authorisedId: {
+            type: DataTypes.VIRTUAL,
+            allowNull: true,
+            defaultValue: null
+        },
         statusId: {
             type: new DataTypes.STRING(20),
             allowNull: false,
             defaultValue: Partner.partnerStatusNew
-        },
-        assistId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        authorisedId: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            defaultValue: null
         },
         nameEn: {
             type: new DataTypes.STRING(255),
@@ -195,14 +229,6 @@ Partner.init(
     }
 )
 
-Partner.belongsTo(User, {
-    foreignKey: 'assistId',
-    as: 'assistant'
-});
-Partner.belongsTo(User, {
-    foreignKey: 'authorisedId',
-    as: 'authorised'
-});
 Partner.belongsTo(Country, {
     foreignKey: 'countryId',
     as: 'country'

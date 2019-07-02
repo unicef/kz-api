@@ -326,3 +326,87 @@
 <!-- tabs:end -->
 
 <hr>
+
+# Get partners list
+
+#### Request
+
+**URL: `GET: /admin/partner/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        "partners": [
+			{
+				"email": "uscipassist@maildrop.cc",
+				"id": 12,
+				"userStatus": "not active",
+				"createdAt": "2019-06-04 08:99:51",
+				"firstName": "Partner",
+				"lastName": "Assistant",
+				"role": "Responsible assistant",
+				"company": "First partner",
+				"companyStatus": "filled"
+			},
+			{
+				"email": "uscipauthorised@maildrop.cc",
+				"id": 13,
+				"userStatus": "active",
+				"createdAt": "2019-06-04 08:99:37",
+				"firstName": "Headpartner",
+				"lastName": "Authorised",
+				"role": "Authorised person",
+				"company": "First partner",
+				"companyStatus": "filled"
+			}
+		],
+		"currentPage": 1,
+		"lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
