@@ -32,9 +32,6 @@ class AdminPartnerController {
             }
 
             // creating user
-            const passwordSalt: string = cryptoRandomString(10);
-            const password: string = cryptoRandomString(12);
-
             const user = await User.generateUser(req.body.user.email);
             // add role to user
             const role = await Role.findByPk(req.body.user.role.id);

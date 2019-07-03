@@ -30,6 +30,10 @@
     - [Set new or update existing translation](localization.md?id=set-new-or-update-existing-translation "Set new or update existing translation")
 
 - Admin
-    - [Create new partner account](admin_partner.md?id=create-new-partner-account "Create new partner")
-    - [Update partner account](admin_partner.md?id=update-partner-account "Update partner")
-    - [Get partners list](admin_partner.md?id=get-partners-list "Get partners list")
+    - partner
+        - [Create new partner account](admin_partner.md?id=create-new-partner-account "Create new partner")
+        - [Update partner account](admin_partner.md?id=update-partner-account "Update partner")
+        - [Get partners list](admin_partner.md?id=get-partners-list "Get partners list")
+    - unicef
+        - [Get unicef properties](admin_unicef.md?id=get-unicef-static-properties "Get UNICEF static properties")
+        - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
