@@ -21,6 +21,18 @@ class Role extends Model {
 
         return roles;
     }
+
+    static getUnicefRoles = async () => {
+        const Op = Sequelize.Op;
+
+        let roles: Role[]|null = await Role.findAll({
+            where: {
+                [Op.or]: [{id: 'ro'}, {id: 'bo'}, {id: 'dr'}, {id: 'om'}]
+            }
+        });
+        
+        return roles;
+    }
 }
 
 Role.init(
