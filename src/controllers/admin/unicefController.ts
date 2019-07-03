@@ -5,7 +5,7 @@ import ApiController from "../apiController";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
-        const roles = Role.getUnicefRoles();
+        const roles = await Role.getUnicefRoles();
 
         const responseData = {
             roles: roles
