@@ -283,6 +283,7 @@ class UserController {
                 lastNameRu: user.personalData.lastNameRu,
                 occupationEn: user.personalData.occupationEn,
                 occupationRu: user.personalData.occupationRu,
+                status: user.status,
                 roles: user.roles,
                 tel: user.personalData.tel,
                 mobile: user.personalData.mobile,

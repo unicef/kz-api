@@ -29,6 +29,17 @@ class User extends Model {
     public readonly roles!: [];
     public personalData!: UserPersonalData;
 
+    get status() {
+        const isActive: boolean = this.emailVerifiedAt!=null?true:false;
+        const isBlocked = this.isBlocked;
+        if (!isActive) {
+            return 'not active';
+        } else if (isBlocked) {
+            return 'blocked';
+        }
+        return 'active';
+    }
+
     public setPassword = (password: string): boolean => {
         const passwordSalt = cryptoRandomString(10);
         const userPassword = User.generatePassword(passwordSalt, password);
