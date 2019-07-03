@@ -140,7 +140,7 @@ class AdminPartnerController {
         const pageCount = 25;
         let responseData = {};
         if (req.query.page !== undefined) {
-            page = req.query.page
+            page = parseInt(req.query.page);
         }
         let searchInstanse = '';
 
