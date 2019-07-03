@@ -40,7 +40,7 @@ const putUnicefUser = (req: Request, res: Response, next: NextFunction) => {
                 role: Joi.object().keys({
                     id: Joi.string().max(6),
                     title: Joi.string().max(255),
-                }).required()
+                }).pattern(/./, Joi.any()).required()
             }).pattern(/./, Joi.any())
         }).pattern(/./, Joi.any()),
         querySchema: null
