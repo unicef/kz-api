@@ -37,3 +37,4 @@
     - unicef
         - [Get unicef properties](admin_unicef.md?id=get-unicef-static-properties "Get UNICEF static properties")
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
+        - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")

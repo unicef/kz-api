@@ -7,6 +7,7 @@ import UserAlreadyExists from "../../exceptions/userAlreadyExists";
 import UnicefHelper from "../../helpers/unicefHelper";
 import UserPersonalData from "../../models/userPersonalData";
 import HttpException from "../../exceptions/httpException";
+import UserNotfind from "../../exceptions/userNotFind";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -44,6 +45,38 @@ class AdminUnicefController {
             }, res);
         } catch (error) {
             console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static update = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findByPk(req.body.user.id);
+            if (user == null) {
+                throw new UserNotfind(400, 116, i18n.t('adminUserNotFind'), 'User with id:' + req.body.user.id + ' not find');
+            }
+
+            // get user request data
+            let userData = UnicefHelper.getUnicefDataFromRequest(req.body.user);
+            const userPersonalData = await UserPersonalData.findOne({
+                where: {
+                    userId: user.id
+                }
+            });
+            if (userPersonalData == null) {
+                throw new UserNotfind(400, 116, i18n.t('userPersonalDataNotFind'), 'User personal data not find');
+            }
+            await userPersonalData.update(userData);
+
+            return ApiController.success({
+                message: i18n.t('adminSuccessUnicefUpdate')
+            }, res);
+        } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
