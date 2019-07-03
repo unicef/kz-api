@@ -10,6 +10,7 @@ import putUserPasswordManual from "../requests/user/putUserPasswordManual";
 import getUserById from "../requests/user/getUserById";
 import postForgotPassword from "../requests/user/postForgotPassword";
 import repeatActivationLink from "../requests/user/repeatActivationLink";
+import patchUserPassword from "../requests/user/patchUserPassword";
 
 const router = Router();
 
@@ -22,7 +23,7 @@ router.patch("/seed", [checkAuthToken], UserController.changeShowSeedFlag);
 router.put("/information", [checkAuthToken, putUserInformation], UserController.setUserPersonalData);
 router.get("/", [checkAuthToken, getUserById], UserController.getUserById);
 router.put("/password", [putUserPasswordManual], UserController.setUserPassword);
-//router.patch("/password", UserController.setUserPassword);
+router.patch("/password", [checkAuthToken, patchUserPassword],UserController.setNewPassword);
 router.put("/info/step", [checkAuthToken], UserController.saveUserStepForm);
 router.post("/forgot", [postForgotPassword], UserController.forgotPassword);
 

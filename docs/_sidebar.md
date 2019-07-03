@@ -7,6 +7,7 @@
     - [Me](user.md?id=get-authenticated-user-information "Get auth user")
     - [Set user information](user.md?id=set-user-information "Update user personal data")
     - [Set user password manualy](user.md?id=set-user-password-manualy "Set user password manualy")
+    - [Set new user password](user.md?id=set-new-user-password "Set new user password")
     - [Seed phrase showed](user.md?id=set-show-seed-phrase-flag "Set showSeed flag to false")
     - [Forgot password](user.md?id=send-forgot-password-mail "Send forgot password mail")
     - [Get user information](user.md?id=get-user-information "Get user information by user id")

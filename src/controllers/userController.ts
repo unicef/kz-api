@@ -37,6 +37,7 @@ import ActivationLinkMail from "../mails/activationLinkMail";
 import AuthorisedUserHelper from "../helpers/authorisedUserHelper";
 import sequelize from "../services/sequelize";
 import DocumentHelper from "../helpers/documentHelper";
+import WrongOldPassword from "../exceptions/user/wrongOldPassword";
 
 class UserController {
     // get users list
@@ -344,6 +345,30 @@ class UserController {
             }
             return;
         }  
+    }
+
+    static setNewPassword = async (req: Request, res: Response) => {
+        try {
+            // check old password
+            const user = req.user;
+            const oldPassword = req.body.currentPassword;
+            const newPassword = req.body.password;
+            if (!user.checkPassword(oldPassword)) {
+                throw new WrongOldPassword();
+            }
+
+            user.setNewPassword(newPassword);
+            return ApiController.success({
+                message: i18n.t('passwordSuccessfullyChanged')
+            }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
     }
 
     static saveUserStepForm = async (req: Request, res: Response, next: NextFunction) => {

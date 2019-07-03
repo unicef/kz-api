@@ -374,6 +374,68 @@ Set user password after registration from admin panel
 ```
 
 <!-- tabs:end -->
+<hr>
+
+
+# Set new user password
+Set new user password from personal cabinet
+
+#### Request
+
+**URL: `PATCH: /user/password`**
+
+**Body Params:**
+
+?> **currentPassword** - old user password (required)<br/>
+**password** - new user password (required)<br/>
+**passwordConfirmation** - new password confirmation (required)<br/>
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+<hr>
 
 
 # Set show seed phrase flag
