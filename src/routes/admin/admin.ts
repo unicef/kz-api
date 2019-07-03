@@ -7,7 +7,7 @@ import router from "./partner";
 
 const routes = Router();
 
+routes.use("/unicef", unicef);
 routes.use("/partner", partner);
-router.use("/unicef", unicef);
 
 export default routes;

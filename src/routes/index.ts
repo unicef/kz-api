@@ -16,12 +16,12 @@ routes.options("/", (req: Request, res: Response) => {
     res.status(200).json({success:true}).send();
     return ;
 })
+routes.use("/admin", admin);
 routes.get("/test-blockchain", BlockchainController.testBlockchain)
 routes.get("/me", checkAuthToken, UserController.getMe);
 routes.use("/localization", localization);
 routes.use("/user", user);
 routes.use("/file", file);
 routes.use("/partner", partner);
-routes.use("/admin", admin);
 
 export default routes;
