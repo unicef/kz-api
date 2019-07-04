@@ -21,6 +21,8 @@ import PartnerNotFind from "../../exceptions/partner/partnerNotFind";
 import DocumentHelper from "../../helpers/documentHelper";
 import sequelize from "../../services/sequelize";
 import { throws } from "assert";
+import PartnerAlreadyBlocked from "../../exceptions/partner/partnerAlreadyBlocked";
+import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -178,6 +180,68 @@ class AdminPartnerController {
         }
 
         return ApiController.success(responseData, res);
+    }
+
+    static block = async (req: Request, res: Response) => {
+        try {
+            let roleId = Role.partnerAuthorisedId;
+            const user = await User.findOne({
+                where: {
+                    id: req.body.userId
+                }, 
+                include: [
+                    User.associations.roles
+                ]
+            });
+            
+            if (user == null) {
+                throw new UserNotfind();
+            }
+            if (user.emailVerifiedAt == null) {
+                throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
+            }
+            if (user.isBlocked) {
+                throw new PartnerAlreadyBlocked();
+            }
+            if (!user.hasRole(Role.partnerAssistId) && !user.hasRole(Role.partnerAuthorisedId)) {
+                throw new UserNotfind();
+            }
+            
+            const newUserEmail = req.body.email;
+            const isUserExists = await User.isUserExists(newUserEmail);
+            if (isUserExists) {
+                throw new UserAlreadyExists();
+            }
+            // blocking partner process
+            const newUser = await User.generateUser(newUserEmail);
+
+            // add role to user
+            if (user.hasRole(Role.partnerAssistId)) {
+                roleId = Role.partnerAssistId;
+            }
+            const role = await Role.findByPk(roleId);
+            newUser.addRole(role);
+            newUser.partnerId = user.partnerId;
+            newUser.save();
+
+            user.partnerId = null;
+            user.isBlocked = true;
+            user.save();
+
+            const responseData = {
+                message: i18n.t('partnerBlockedSuccess'),
+                newUserId: newUser.id
+            };
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
     }
 }
 

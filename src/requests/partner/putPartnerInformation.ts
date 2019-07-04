@@ -96,10 +96,6 @@ const putPartnerInformation = (req: Request, res: Response, next: NextFunction) 
         }).pattern(/./, Joi.any())
     };
 
-    console.log(req.body.company);
-    console.log(req.body.authorisedPerson);
-
-
     validationRules.company.validate(req.body.company, (err: any, value: any) => {
         if (err) {
             throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');

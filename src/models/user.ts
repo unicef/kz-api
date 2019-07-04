@@ -164,6 +164,9 @@ class User extends Model {
 
     public hasRole = (roleId: string): boolean => {
         let hasRole = false;
+        if (this.roles == undefined) {
+            throw new Error('User has roles not possible because you need to include roles into user query section');
+        }
         this.roles.forEach((role: Role) => {
             if (role.id == roleId) {
                 hasRole = true;

@@ -34,6 +34,8 @@
         - [Create new partner account](admin_partner.md?id=create-new-partner-account "Create new partner")
         - [Update partner account](admin_partner.md?id=update-partner-account "Update partner")
         - [Get partners list](admin_partner.md?id=get-partners-list "Get partners list")
+        - [Block partner account](admin_partner.md?id=block-partner-account "Block partner account")
+        
     - unicef
         - [Get unicef properties](admin_unicef.md?id=get-unicef-static-properties "Get UNICEF static properties")
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
