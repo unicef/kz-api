@@ -274,6 +274,16 @@ class UserController {
             ]
         });
         if (user && user.personalData) {
+            // working with roles
+            let roles: Role[] = [];
+            let isAdmin = false;
+            user.roles.forEach((role: Role, index: number) => {
+                if (role.id == Role.adminRoleId) {
+                    isAdmin = true;
+                } else {
+                    roles.push(role);
+                }
+            })
             const company = await UserHelper.getUserPartner(user);
             let responseData: any = {
                 email: user.email,
@@ -284,7 +294,8 @@ class UserController {
                 occupationEn: user.personalData.occupationEn,
                 occupationRu: user.personalData.occupationRu,
                 status: user.status,
-                roles: user.roles,
+                roles: roles,
+                isAdmin: isAdmin,
                 tel: user.personalData.tel,
                 mobile: user.personalData.mobile,
                 id: user.id,
