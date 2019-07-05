@@ -41,7 +41,7 @@ const putPartnerInformation = (req: Request, res: Response, next: NextFunction) 
             ceoLastNameEn: Joi.string().max(255).required(),
             ceoLastNameRu: Joi.string().max(255).required(),
             establishmentYear: Joi.number().max(new Date().getFullYear()).required(),
-            employersCount: Joi.number().required(),
+            employersCount: Joi.number().min(1).required(),
             areaOfWork: Joi.object().keys({
                 id: Joi.number(),
                 title: Joi.string().max(255),

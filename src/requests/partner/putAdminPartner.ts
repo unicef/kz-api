@@ -58,7 +58,7 @@ const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 ceoLastNameEn: Joi.string().max(255).allow('').allow(null),
                 ceoLastNameRu: Joi.string().max(255).allow('').allow(null),
                 establishmentYear: Joi.number().max(new Date().getFullYear()).allow(null),
-                employersCount: Joi.number().allow(null),
+                employersCount: Joi.number().min(1).allow(null),
                 areaOfWork: Joi.object().keys({
                     id: Joi.number(),
                     title: Joi.string().max(255),

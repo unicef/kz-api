@@ -37,7 +37,7 @@ const postPartner = (req: Request, res: Response, next: NextFunction) => {
             ceoLastNameEn: Joi.string().max(255).required(),
             ceoLastNameRu: Joi.string().max(255).required(),
             establishmentYear: Joi.number().max(new Date().getFullYear()).required(),
-            employersCount: Joi.number().required(),
+            employersCount: Joi.number().min(1).required(),
             areaOfWorkId: Joi.number().required(),
             ownershipId: Joi.number().required(),
             partnerTypeId: Joi.number().required(),
