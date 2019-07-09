@@ -10,6 +10,7 @@ const router = Router();
 router.get("/properties", [checkAdminRole], AdminUnicefController.getProperties);
 router.post("/", [checkAdminRole, postUnicefUser], AdminUnicefController.create);
 router.put("/", [checkAdminRole, putUnicefUser], AdminUnicefController.update);
-router.patch("/block", [checkAdminRole, patchPartnerBlocking], AdminUnicefController.block)
+router.patch("/block", [checkAdminRole, patchPartnerBlocking], AdminUnicefController.block);
+router.get("/list", [checkAdminRole], AdminUnicefController.getUnicefList);
 
 export default router;

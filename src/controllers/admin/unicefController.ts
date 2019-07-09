@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import Sequelize from "sequelize";
 import i18n from "i18next";
 import Role from "../../models/role";
 import ApiController from "../apiController";
@@ -10,6 +11,7 @@ import HttpException from "../../exceptions/httpException";
 import UserNotfind from "../../exceptions/userNotFind";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import BadRole from "../../exceptions/user/badRole";
+import sequelize from "../../services/sequelize";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -86,6 +88,54 @@ class AdminUnicefController {
             }
             return;
         }
+    }
+
+    static getUnicefList = async (req: Request, res: Response, next: NextFunction) => {
+        let page = 1;
+        const pageCount = 25;
+        let responseData = {};
+        if (req.query.page !== undefined) {
+            page = parseInt(req.query.page);
+        }
+        let searchInstanse = '';
+
+        // get unicef ids
+        const unicefQuery: Array<{userId: number}>|null = await sequelize.query('SELECT "userId" FROM users_has_roles WHERE "roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\' GROUP BY "userId"', {
+            type: Sequelize.QueryTypes.SELECT
+        });
+        
+        if (unicefQuery == null || unicefQuery.length < 1) {
+            // unicef count = 0
+            responseData = {unicefUsers: []};
+
+            return ApiController.success(responseData, res);
+        }
+
+        const lastPage = Math.ceil(unicefQuery.length / pageCount);
+        if (page>lastPage) {
+            page = lastPage;
+        }
+
+        let usersIds = unicefQuery.map(a => a.userId);
+        if (req.query.search) {
+            const idSearch = +req.query.search ? +req.query.search : 0;
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\')';
+        }
+
+        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstNameEn" as "firstName", upd."lastNameEn" as "lastName", r."title" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ')' + searchInstanse + ' ORDER BY users."id" ASC';
+        const offset = pageCount * (page-1);
+
+        query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;
+
+        const unicefList = await sequelize.query(query,{type: Sequelize.QueryTypes.SELECT});
+
+        responseData = {
+            unicefUsers: unicefList,
+            currentPage: page,
+            lastPage: lastPage
+        }
+
+        return ApiController.success(responseData, res);
     }
 
     static block = async (req: Request, res: Response, next: NextFunction) => {
