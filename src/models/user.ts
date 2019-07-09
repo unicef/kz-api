@@ -177,7 +177,7 @@ class User extends Model {
 
     public isUnicefUser = async () => {
         const userRoles: Array<{roleId: string}> = await sequelize.query(
-            'SELECT "roleId" FROM users_has_roles WHERE userId = ' + this.id, 
+            'SELECT "roleId" FROM users_has_roles WHERE "userId" = ' + this.id, 
             {type: QueryTypes.SELECT}
         );
         if (userRoles.length < 1) {
