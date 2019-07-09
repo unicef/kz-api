@@ -204,7 +204,7 @@ class PartnerController {
                 event(new PartnerRejected(partner, rejectReason));
 
                 const responseData = {
-                    message: i18n.t('successPartnerApprove'),
+                    message: i18n.t('successPartnerReject'),
                     statusId: partner.statusId
                 }
     

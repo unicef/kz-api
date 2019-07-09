@@ -85,7 +85,7 @@ class UserController {
         }
         if (user.hasRole('ra') || user.hasRole('ap')) {
             const partner = await UserHelper.getUserPartner(user);
-            if (partner == null || partner.statusId == Partner.partnerStatusNew) {
+            if (partner == null || partner.statusId == Partner.partnerStatusNew || partner.statusId == Partner.partnerStatusRejected) {
                 responseData.showForm = true;
             }
         }
