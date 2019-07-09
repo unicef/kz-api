@@ -32,10 +32,10 @@ class UnicefHelper {
         return unicefData;
     }
 
-    static getUnicefUserRole = async (user: number|User): string|null => {
+    static getUnicefUserRole = async (user: number|User): Promise<string|null> => {
         let userObj: User|null = null;
         if (typeof user == number) {
-            let userObj = await User.findOne({
+            userObj = await User.findOne({
                 where: {
                     id: user
                 },
@@ -48,12 +48,13 @@ class UnicefHelper {
                 return null;
             }
         } else {
-            let userObj = user;
+            userObj = user;
         }
 
-        let role = null;
-        userObj.roles.forEach(role => {
-            switch (role.id) {
+
+        let role: string|null = null;
+        userObj.roles.forEach((element: Role) => {
+            switch (element.id) {
                 case Role.unicefResponsibleId:
                     role = Role.unicefResponsibleId;
                     break;

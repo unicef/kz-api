@@ -139,64 +139,76 @@ class AdminUnicefController {
     }
 
     static block = async (req: Request, res: Response, next: NextFunction) => {
-        const user = await User.findOne({
-            where: {
-                id: req.body.userId
-            },
-            include:[
-                User.associations.roles
-            ]
-        });
-        if (user == null) {
-            throw new UserNotfind();
-        }
-        if (user.emailVerifiedAt == null || user.isBlocked) {
-            throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
-        }
-        if (!user.isUnicefUser()) {
-            throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
-        }
-
-        const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
-        const newUserEmail = req.body.email;
-        const isUserExists = await User.isUserExists(newUserEmail);
-        if (isUserExists) {
-            const newUser = await User.findOne({
+        try {
+            const user = await User.findOne({
                 where: {
-                    email: newUserEmail
+                    id: req.body.userId
                 },
                 include:[
                     User.associations.roles
                 ]
             });
-            
-            if (newUser) {
-                const newUserRole = await UnicefHelper.getUnicefUserRole(newUser);
-                // check is this user unicef
-                if (userUnicefRole != newUserRole) {
-                    throw new BadRole(400, 234, i18n.t('userBaadRole'), 'User has wrong role');
-                }
+            if (user == null) {
+                throw new UserNotfind();
             }
-
-        } else {
-            // blocking partner process
-            const newUser = await User.generateUser(newUserEmail);
-
-            // add role to user
-            const role = await Role.findByPk(userUnicefRole);
-            newUser.addRole(role);
-            newUser.save();
+            if (user.emailVerifiedAt == null || user.isBlocked) {
+                throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
+            }
+            const isUnicef = await user.isUnicefUser();
+            if (!isUnicef) {
+                throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
+            }
+    
+            const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
+            const newUserEmail = req.body.email;
+            const isUserExists = await User.isUserExists(newUserEmail);
+            let newUser: User|null = null;
+            if (isUserExists) {
+                newUser = await User.findOne({
+                    where: {
+                        email: newUserEmail
+                    },
+                    include:[
+                        User.associations.roles
+                    ]
+                });
+                
+                if (newUser) {
+                    const newUserRole = await UnicefHelper.getUnicefUserRole(newUser);
+                    // check is this user unicef
+                    if (userUnicefRole != newUserRole) {
+                        throw new BadRole(400, 234, i18n.t('userBadRole'), 'User has wrong role');
+                    }
+                }
+    
+            } else {
+                // blocking partner process
+                newUser = await User.generateUser(newUserEmail);
+                // add role to user
+                const role = await Role.findByPk(userUnicefRole);
+                newUser.addRole(role);
+                await newUser.save();
+            }
+            // TODO: give all projects to new user
+    
+            user.isBlocked = true;
+            await user.save();
+    
+            const responseData = {
+                message: i18n.t('unicefBlockedSuccess'),
+                newUserId: newUser.id
+            };
+    
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
-        // TODO: give all projects to new user
-
-        user.isBlocked = true;
-        user.save();
-        const responseData = {
-            message: i18n.t('unicefBlockedSuccess'),
-            newUserId: newUser.id
-        };
-
-        return ApiController.success(responseData, res);
     }
 }
 

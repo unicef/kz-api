@@ -184,17 +184,18 @@ class User extends Model {
             return false;
         }
         
+        let isUnicefRole = false;
         userRoles.forEach((element) => {
             switch (element.roleId) {
                 case Role.unicefResponsibleId:
                 case Role.unicefBudgetId:
                 case Role.unicefDeputyId:
                 case Role.unicefOperationId:
-                    return true;
+                    isUnicefRole = true;
             }
         })
 
-        return false;
+        return isUnicefRole;
     }
 }
 
