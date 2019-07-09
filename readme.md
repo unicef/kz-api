@@ -1,3 +1,4 @@
+TEST
 # UNICEF blockchain API test files
 
 ## Installation
