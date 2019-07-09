@@ -98,9 +98,13 @@ class AdminUnicefController {
             page = parseInt(req.query.page);
         }
         let searchInstanse = '';
+        if (req.query.search) {
+            const idSearch = +req.query.search ? +req.query.search : 0;
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\')';
+        }
 
         // get unicef ids
-        const unicefQuery: Array<{userId: number}>|null = await sequelize.query('SELECT "userId" FROM users_has_roles WHERE "roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\' GROUP BY "userId"', {
+        const unicefQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" WHERE users_has_roles."roleId" = \'' + Role.unicefResponsibleId + '\' OR users_has_roles."roleId" = \'' + Role.unicefBudgetId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefDeputyId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefOperationId  + '\'' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
             type: Sequelize.QueryTypes.SELECT
         });
         
@@ -117,10 +121,6 @@ class AdminUnicefController {
         }
 
         let usersIds = unicefQuery.map(a => a.userId);
-        if (req.query.search) {
-            const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\')';
-        }
 
         let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstNameEn" as "firstName", upd."lastNameEn" as "lastName", r."title" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ') AND ("roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' ORDER BY users."id" ASC';
         const offset = pageCount * (page-1);

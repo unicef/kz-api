@@ -135,8 +135,13 @@ class AdminPartnerController {
         }
         let searchInstanse = '';
 
+        if (req.query.search) {
+            const idSearch = +req.query.search ? +req.query.search : 0;
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\' OR p."nameEn" LIKE \'%'+ req.query.search +'%\')';
+        }
+
         // get partners ids
-        const partnersQuery: Array<{userId: number}>|null = await sequelize.query('SELECT "userId" FROM users_has_roles WHERE "roleId" = \'' + Role.partnerAssistId + '\' OR "roleId" = \'' + Role.partnerAuthorisedId  + '\' GROUP BY "userId"', {
+        const partnersQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE users_has_roles."roleId" = \'' + Role.partnerAssistId + '\' OR users_has_roles."roleId" = \'' + Role.partnerAuthorisedId  + '\'' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
             type: Sequelize.QueryTypes.SELECT
         });
         
@@ -153,10 +158,6 @@ class AdminPartnerController {
         }
 
         let usersIds = partnersQuery.map(a => a.userId);
-        if (req.query.search) {
-            const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\' OR p."nameEn" LIKE \'%'+ req.query.search +'%\')';
-        }
 
         let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstNameEn" as "firstName", upd."lastNameEn" as "lastName", r."title" as "role", p."nameEn" as "company", p."statusId" as "companyStatus" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE users."id" IN (' + usersIds.join(', ') + ')' + searchInstanse + ' ORDER BY users."id" ASC';
         const offset = pageCount * (page-1);
