@@ -32,6 +32,7 @@ import sequelize from "../services/sequelize";
 import BadRole from "../exceptions/user/badRole";
 import event from "../services/event";
 import PartnerApproved from "../events/partnerApproved";
+import PartnerRejected from "../events/partnerRejected";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -159,6 +160,48 @@ class PartnerController {
                 await partner.save();
 
                 event(new PartnerApproved(partner));
+
+                const responseData = {
+                    message: i18n.t('successPartnerApprove'),
+                    statusId: partner.statusId
+                }
+    
+                return ApiController.success(responseData, res);
+            }
+
+            throw new PartnerNotFind();
+        } catch(error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static reject = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user.isAdmin() && !req.user.isUnicefUser()) {
+                throw new BadRole(403, 330, i18n.t('accessDenied'), "User needs to be admin or UNICEF role");
+            }
+    
+            const partnerId = req.body.id || null;
+            const rejectReason = req.body.reason;
+            if (partnerId == null) {
+                throw new BadValidationException();
+            }
+
+            const partner = await Partner.findOne({
+                where: {
+                    id: partnerId
+                }
+            });
+            if (partner && partner.statusId == Partner.partnerStatusFilled) {
+                partner.statusId = Partner.partnerStatusRejected;
+                await partner.save();
+
+                event(new PartnerRejected(partner, rejectReason));
 
                 const responseData = {
                     message: i18n.t('successPartnerApprove'),
