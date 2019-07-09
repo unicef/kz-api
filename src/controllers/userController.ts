@@ -362,14 +362,14 @@ class UserController {
     static setNewPassword = async (req: Request, res: Response) => {
         try {
             // check old password
-            const user = req.user;
+            const  user = req.user;
             const oldPassword = req.body.currentPassword;
             const newPassword = req.body.password;
             if (!user.checkPassword(oldPassword)) {
                 throw new WrongOldPassword();
             }
 
-            user.setNewPassword(newPassword);
+            user.setPassword(newPassword);
             return ApiController.success({
                 message: i18n.t('passwordSuccessfullyChanged')
             }, res);

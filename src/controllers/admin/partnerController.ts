@@ -128,7 +128,7 @@ class AdminPartnerController {
 
     static getPartnersList = async (req: Request, res: Response) => {
         let page = 1;
-        const pageCount = 25;
+        const pageCount = 15;
         let responseData = {};
         if (req.query.page !== undefined) {
             page = parseInt(req.query.page);
