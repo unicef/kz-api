@@ -139,6 +139,7 @@ class AdminUnicefController {
     }
 
     static block = async (req: Request, res: Response, next: NextFunction) => {
+        console.log('START');
         const user = await User.findOne({
             where: {
                 id: req.body.userId
@@ -147,6 +148,8 @@ class AdminUnicefController {
                 User.associations.roles
             ]
         });
+
+        console.log('START12');
 
         if (user == null) {
             throw new UserNotfind();
@@ -158,9 +161,11 @@ class AdminUnicefController {
             throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
         }
 
+        console.log('START324');
         const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
         const newUserEmail = req.body.email;
         const isUserExists = await User.isUserExists(newUserEmail);
+        console.log('START876');
         if (isUserExists) {
             const newUser = await User.findOne({
                 where: {
@@ -170,7 +175,8 @@ class AdminUnicefController {
                     User.associations.roles
                 ]
             });
-
+            
+            console.log('STARTru34');
             if (newUser) {
                 const newUserRole = await UnicefHelper.getUnicefUserRole(newUser);
                 // check is this user unicef
@@ -178,19 +184,24 @@ class AdminUnicefController {
                     throw new BadRole(400, 234, i18n.t('userBaadRole'), 'User has wrong role');
                 }
             }
+
+            console.log('START34534e');
         } else {
             // blocking partner process
             const newUser = await User.generateUser(newUserEmail);
+
+            console.log('STARTdsf23');
             // add role to user
             const role = await Role.findByPk(userUnicefRole);
             newUser.addRole(role);
             newUser.save();
+            console.log('STARTd32425ed');
         }
         // TODO: give all projects to new user
 
         user.isBlocked = true;
         user.save();
-
+        console.log('STARTdqwekqwo');
         const responseData = {
             message: i18n.t('unicefBlockedSuccess'),
             newUserId: newUser.id
