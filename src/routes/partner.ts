@@ -23,10 +23,11 @@ const upload = multer({
 router.get("/properties", PartnerController.getPartnerProperties);
 router.put("/", [checkAuthToken, putPartnerInformation], PartnerController.updatePartner);
 router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerById);
+router.patch("/approve", [checkAuthToken], PartnerController.approve)
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], PartnerController.uploadingDocument);
 router.get("/document", [checkAuthToken, getPartnerDocuments], PartnerController.downloadDocument);
 router.get("/documents", [checkAuthToken, getPartnerDocuments], PartnerController.getDocuments);
 router.post("/documents", [checkAuthToken, postPartnerDocuments], PartnerController.updateDocuments);
-router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument)
+router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument);
 
 export default router;

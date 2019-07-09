@@ -11,7 +11,7 @@ class BadValidationException extends HttpException {
         const responseStatus: number = status || 400;
         const responseErrorCode: number = errorCode || 129;
         const responseMessage: string = message || i18n.t('validationError');
-        const responseDevMessage: string = devMessage || 'User is blocked.';
+        const responseDevMessage: string = devMessage || 'Validation error.';
         super(responseStatus, responseErrorCode, responseMessage, responseDevMessage);
     }
 }

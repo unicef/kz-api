@@ -29,6 +29,9 @@ import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthor
 import UserHelper from "../helpers/userHelper";
 import DocumentHelper from "../helpers/documentHelper";
 import sequelize from "../services/sequelize";
+import BadRole from "../exceptions/user/badRole";
+import event from "../services/event";
+import PartnerApproved from "../events/partnerApproved";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -126,6 +129,47 @@ class PartnerController {
                 message: i18n.t('successPartnerSaving')
             }, res);
         } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static approve = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.user.isAdmin() && !req.user.isUnicefUser()) {
+                throw new BadRole(403, 330, i18n.t('accessDenied'), "User needs to be admin or UNICEF role");
+            }
+    
+            const partnerId = req.body.id || null;
+            if (partnerId == null) {
+                throw new BadValidationException();
+            }
+
+            const partner = await Partner.findOne({
+                where: {
+                    id: partnerId
+                }
+            });
+            if (partner && partner.statusId == Partner.partnerStatusFilled) {
+                partner.statusId = Partner.partnerStatusApproved;
+                await partner.save();
+
+                event(new PartnerApproved(partner));
+
+                const responseData = {
+                    message: i18n.t('successPartnerApprove'),
+                    statusId: partner.statusId
+                }
+    
+                return ApiController.success(responseData, res);
+            }
+
+            throw new PartnerNotFind();
+        } catch(error) {
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
