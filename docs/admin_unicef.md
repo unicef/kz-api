@@ -186,3 +186,80 @@ Get select properties for unicef creating form
 <!-- tabs:end -->
 
 <hr>
+
+# Block unicef account
+Blocking unicef account and creating new account with same role
+
+#### Request
+
+**URL: `PATCH: /admin/unicef/block`**
+
+**Body params:**
+
+?> **userId** - id of blocking user (required)<br/>
+**email** - email of new user (required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+		"message": "Success message",
+		"newUserId": 23
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>

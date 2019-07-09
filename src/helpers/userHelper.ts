@@ -39,6 +39,7 @@ class UserHelper {
 
         return partner;
     }
+
 }
 
 export default UserHelper;

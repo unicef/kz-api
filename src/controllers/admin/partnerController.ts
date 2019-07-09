@@ -1,27 +1,19 @@
 import { Request, Response } from "express";
-import cryptoRandomString from "crypto-random-string";
 import Sequelize from "sequelize";
-import fs from "fs";
 import i18n from "i18next";
 import User from "../../models/user";
 import UserHelper from "../../helpers/userHelper";
 import UserAlreadyExists from "../../exceptions/userAlreadyExists";
 import Role from "../../models/role";
 import UserPersonalData from "../../models/userPersonalData";
-import event from "../../services/event";
-import UserRegisteredRemotely from "../../events/userRegisteredRemotely";
 import PartnerHelper from "../../helpers/partnerHelper";
 import Partner from "../../models/partner";
 import ApiController from "../apiController";
 import HttpException from "../../exceptions/httpException";
-import TmpFile from "../../models/tmpFile";
-import PartnerDocument from "../../models/partnerDocument";
 import UserNotfind from "../../exceptions/userNotFind";
 import PartnerNotFind from "../../exceptions/partner/partnerNotFind";
 import DocumentHelper from "../../helpers/documentHelper";
 import sequelize from "../../services/sequelize";
-import { throws } from "assert";
-import PartnerAlreadyBlocked from "../../exceptions/partner/partnerAlreadyBlocked";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 
 class AdminPartnerController {
@@ -197,11 +189,8 @@ class AdminPartnerController {
             if (user == null) {
                 throw new UserNotfind();
             }
-            if (user.emailVerifiedAt == null) {
+            if (user.emailVerifiedAt == null || user.isBlocked) {
                 throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
-            }
-            if (user.isBlocked) {
-                throw new PartnerAlreadyBlocked();
             }
             if (!user.hasRole(Role.partnerAssistId) && !user.hasRole(Role.partnerAuthorisedId)) {
                 throw new UserNotfind();

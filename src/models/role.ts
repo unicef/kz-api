@@ -6,6 +6,10 @@ class Role extends Model {
     static adminRoleId = 'a';
     static partnerAssistId = 'ra';
     static partnerAuthorisedId = 'ap';
+    static unicefResponsibleId = 'ro';
+    static unicefBudgetId = 'bo';
+    static unicefDeputyId = 'dr';
+    static unicefOperationId = 'om';
 
     public id!: string;
     public title!: string;

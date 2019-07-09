@@ -17,7 +17,7 @@ import PartnerHelper from "../helpers/partnerHelper";
 class Partner extends Model {
     static partnerStatusNew = 'new';
     static partnerStatusFilled = 'filled';
-    static partnerStatusApproved = 'approved';
+    static partnerStatusApproved = 'trusted';
     static partnerStatusRejected = 'rejected';
     static partnerStatusBlocked = 'blocked';
 

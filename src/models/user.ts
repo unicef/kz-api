@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, QueryTypes } from "sequelize";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import Role from "./role";
@@ -173,6 +173,28 @@ class User extends Model {
             }
         })
         return hasRole;
+    }
+
+    public isUnicefUser = async () => {
+        const userRoles: Array<{roleId: string}> = await sequelize.query(
+            'SELECT "roleId" FROM users_has_roles WHERE userId = ' + this.id, 
+            {type: QueryTypes.SELECT}
+        );
+        if (userRoles.length < 1) {
+            return false;
+        }
+        
+        userRoles.forEach((element) => {
+            switch (element.roleId) {
+                case Role.unicefResponsibleId:
+                case Role.unicefBudgetId:
+                case Role.unicefDeputyId:
+                case Role.unicefOperationId:
+                    return true;
+            }
+        })
+
+        return false;
     }
 }
 

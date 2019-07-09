@@ -8,6 +8,8 @@ import UnicefHelper from "../../helpers/unicefHelper";
 import UserPersonalData from "../../models/userPersonalData";
 import HttpException from "../../exceptions/httpException";
 import UserNotfind from "../../exceptions/userNotFind";
+import UserIsNotActivated from "../../exceptions/userIsNotActivated";
+import BadRole from "../../exceptions/user/badRole";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -84,6 +86,67 @@ class AdminUnicefController {
             }
             return;
         }
+    }
+
+    static block = async (req: Request, res: Response, next: NextFunction) => {
+        const user = await User.findOne({
+            where: {
+                id: req.body.userId
+            },
+            include:[
+                User.associations.roles
+            ]
+        });
+
+        if (user == null) {
+            throw new UserNotfind();
+        }
+        if (user.emailVerifiedAt == null || user.isBlocked) {
+            throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
+        }
+        if (!user.isUnicefUser()) {
+            throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
+        }
+
+        const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
+        const newUserEmail = req.body.email;
+        const isUserExists = await User.isUserExists(newUserEmail);
+        if (isUserExists) {
+            const newUser = await User.findOne({
+                where: {
+                    email: newUserEmail
+                },
+                include:[
+                    User.associations.roles
+                ]
+            });
+
+            if (newUser) {
+                const newUserRole = UnicefHelper.getUnicefUserRole(newUser);
+                // check is this user unicef
+                if (userUnicefRole != newUserRole) {
+                    throw new BadRole(400, 234, i18n.t('userBaadRole'), 'User has wrong role');
+                }
+            }
+        } else {
+            // blocking partner process
+            const newUser = await User.generateUser(newUserEmail);
+            // add role to user
+            const role = await Role.findByPk(userUnicefRole);
+            newUser.addRole(role);
+            newUser.save();
+        }
+        // TODO: give all projects to new user
+
+        user.isBlocked = true;
+        user.save();
+
+        const responseData = {
+            message: i18n.t('unicefBlockedSuccess'),
+            newUserId: newUser.id
+        };
+
+        return ApiController.success(responseData, res);
     }
 }
 

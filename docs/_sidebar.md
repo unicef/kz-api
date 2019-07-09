@@ -36,7 +36,8 @@
         - [Get partners list](admin_partner.md?id=get-partners-list "Get partners list")
         - [Block partner account](admin_partner.md?id=block-partner-account "Block partner account")
         
-    - unicef
+    - UNICEF
         - [Get unicef properties](admin_unicef.md?id=get-unicef-static-properties "Get UNICEF static properties")
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
+        - [Block UNICEF account](admin_partner.md?id=block-unicef-account "Block unicef account")
