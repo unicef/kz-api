@@ -172,7 +172,7 @@ class AdminUnicefController {
             });
 
             if (newUser) {
-                const newUserRole = UnicefHelper.getUnicefUserRole(newUser);
+                const newUserRole = await UnicefHelper.getUnicefUserRole(newUser);
                 // check is this user unicef
                 if (userUnicefRole != newUserRole) {
                     throw new BadRole(400, 234, i18n.t('userBaadRole'), 'User has wrong role');
