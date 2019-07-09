@@ -104,7 +104,7 @@ class AdminUnicefController {
         }
 
         // get unicef ids
-        const unicefQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" WHERE users_has_roles."roleId" = \'' + Role.unicefResponsibleId + '\' OR users_has_roles."roleId" = \'' + Role.unicefBudgetId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefDeputyId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefOperationId  + '\'' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
+        const unicefQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" WHERE (users_has_roles."roleId" = \'' + Role.unicefResponsibleId + '\' OR users_has_roles."roleId" = \'' + Role.unicefBudgetId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefDeputyId  + '\' OR users_has_roles."roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
             type: Sequelize.QueryTypes.SELECT
         });
         
