@@ -130,7 +130,7 @@ class AdminUnicefController {
         const unicefList = await sequelize.query(query,{type: Sequelize.QueryTypes.SELECT});
 
         responseData = {
-            unicefUsers: unicefList,
+            users: unicefList,
             currentPage: page,
             lastPage: lastPage
         }
