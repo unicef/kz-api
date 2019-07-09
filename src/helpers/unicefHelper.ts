@@ -51,20 +51,25 @@ class UnicefHelper {
             let userObj = user;
         }
 
+        let role = null;
         userObj.roles.forEach(role => {
             switch (role.id) {
                 case Role.unicefResponsibleId:
-                    return Role.unicefResponsibleId;
+                    role = Role.unicefResponsibleId;
+                    break;
                 case Role.unicefBudgetId:
-                    return Role.unicefBudgetId;
+                    role = Role.unicefBudgetId;
+                    break;
                 case Role.unicefDeputyId:
-                    return Role.unicefDeputyId;
+                    role = Role.unicefDeputyId;
+                    break;
                 case Role.unicefOperationId:
-                    return Role.unicefOperationId;
+                    role = Role.unicefOperationId;
+                    break;
             }
         });
 
-        return null;
+        return role;
     }
 
 }
