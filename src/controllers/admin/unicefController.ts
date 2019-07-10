@@ -191,6 +191,17 @@ class AdminUnicefController {
                 // add role to user
                 const role = await Role.findByPk(userUnicefRole);
                 newUser.addRole(role);
+                UserPersonalData.create({
+                    userId: newUser.id,
+                    firstNameEn: '',
+                    firstNameRu: '',
+                    lastNameEn: '',
+                    lastNameRu: '',
+                    occupationEn: '',
+                    occupationRu: '',
+                    tel: '',
+                    mobile: ''
+                });
                 await newUser.save();
             }
             // TODO: give all projects to new user

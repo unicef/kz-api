@@ -212,6 +212,18 @@ class AdminPartnerController {
             const role = await Role.findByPk(roleId);
             newUser.addRole(role);
             newUser.partnerId = user.partnerId;
+
+            UserPersonalData.create({
+                userId: newUser.id,
+                firstNameEn: '',
+                firstNameRu: '',
+                lastNameEn: '',
+                lastNameRu: '',
+                occupationEn: '',
+                occupationRu: '',
+                tel: '',
+                mobile: ''
+            });
             newUser.save();
 
             user.partnerId = null;
