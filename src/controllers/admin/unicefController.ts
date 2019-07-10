@@ -12,6 +12,7 @@ import UserNotfind from "../../exceptions/userNotFind";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import BadRole from "../../exceptions/user/badRole";
 import sequelize from "../../services/sequelize";
+import BadValidationException from "../../exceptions/badValidationException";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -140,6 +141,7 @@ class AdminUnicefController {
 
     static block = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const newUserEmail = req.body.email;
             const user = await User.findOne({
                 where: {
                     id: req.body.userId
@@ -151,6 +153,9 @@ class AdminUnicefController {
             if (user == null) {
                 throw new UserNotfind();
             }
+            if (user.email == newUserEmail) {
+                throw new BadValidationException(400, 121, i18n.t('blockUserErrorSameUser'), "Bad new user email. Same email with blocking user");
+            }
             if (user.emailVerifiedAt == null || user.isBlocked) {
                 throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
             }
@@ -160,7 +165,6 @@ class AdminUnicefController {
             }
     
             const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
-            const newUserEmail = req.body.email;
             const isUserExists = await User.isUserExists(newUserEmail);
             let newUser: User|null = null;
             if (isUserExists) {
