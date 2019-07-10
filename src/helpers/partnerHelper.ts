@@ -122,7 +122,7 @@ class PartnerHelper {
     }
     
     static isPartnerHasAuthorised = async (partnerId: number): Promise<boolean> => {
-        const authorisedIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND user."partnerId" = ' + partnerId, 
+        const authorisedIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + partnerId, 
         {type: Sequelize.QueryTypes.SELECT});
 
         if (authorisedIds.length < 1) {

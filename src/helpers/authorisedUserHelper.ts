@@ -11,7 +11,7 @@ import { Transaction } from "sequelize/types";
 class AuthorisedUserHelper {
     static createAuthorisedPerson = async (authorisedInputData: any, partner: Partner): Promise<User> => {
         // check if partner allready has authorised person
-        if (PartnerHelper.isPartnerHasAuthorised(partner.id)) {
+        if (await PartnerHelper.isPartnerHasAuthorised(partner.id)) {
             throw new PartnerAlreadyHasAuthorised(400, 211, i18n.t('partnerAlreadyHasAuthorised'), 'Partner (id:' + partner.id + ') already has authorised person');
         }
 

@@ -412,6 +412,8 @@ class UserController {
                         userCompany = await Partner.create(partnerData);
                         // working with authorised
                         let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                        user.partnerId = userCompany.id;
+                        await user.save();
                     } else {
                         // update user company information and update authorised data
                         await userCompany.update(partnerData);
