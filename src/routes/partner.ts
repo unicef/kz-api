@@ -21,7 +21,7 @@ const upload = multer({
 
 // get all users
 router.get("/properties", PartnerController.getPartnerProperties);
-router.put("/", [checkAuthToken, putPartnerInformation], PartnerController.updatePartner);
+router.put("/", [checkAuthToken], PartnerController.updatePartner);
 router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerById);
 router.patch("/approve", [checkAuthToken], PartnerController.approve);
 router.patch("/reject", [checkAuthToken], PartnerController.reject);
