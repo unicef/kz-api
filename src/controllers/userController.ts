@@ -38,6 +38,7 @@ import AuthorisedUserHelper from "../helpers/authorisedUserHelper";
 import sequelize from "../services/sequelize";
 import DocumentHelper from "../helpers/documentHelper";
 import WrongOldPassword from "../exceptions/user/wrongOldPassword";
+import BlockedUserException from "../exceptions/blockedUserException";
 
 class UserController {
     // get users list
@@ -145,8 +146,19 @@ class UserController {
             }) || false;
             // check expires
             let today: Date = new Date();
-            if (!hashModel || today > hashModel.expiredAt) {
+            if (!hashModel) {
                 throw new BadActivationLink();
+            }
+            if (today > hashModel.expiredAt) {
+                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
+                return res.status(412).json({
+                    success:false, 
+                    error:{message:i18n.t('activationLinkExpired')}, 
+                    data: {
+                        repeatHash: hash
+                    }
+                });
             }
             // get activation user
             const user = await User.findByPk(hashModel.userId) || false;
@@ -201,6 +213,9 @@ class UserController {
                         repeatHash: hash
                     }
                 });
+            }
+            if (user.isBlocked) {
+                throw new BlockedUserException();
             }
     
             let token = jwt.sign({userEmail: user.email},
