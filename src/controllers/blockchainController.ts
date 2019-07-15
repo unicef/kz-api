@@ -15,9 +15,6 @@ class BlockchainController {
     static testBlockchain = async (req: Request, res: Response) => {
         //address: '0x885EDf432C58B5296582E02111B0Af9DC7F76D8f',
         //privateKey: '0x7d71773dd35dcdbe4929030c1fc9ea6c742476b318cb345fce32426bea27e65a'
-        const web3 = new Web3(new Web3.providers.HttpProvider('https://ropsten.infura.io/v3/88c40b9c64664183adcf5995a1a9a45b'));
-        const account = web3.version;
-        console.log(account);
         console.log('GOOD'); 
         return res.json({success: true});
     };

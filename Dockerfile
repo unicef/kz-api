@@ -1,4 +1,4 @@
-FROM node:10.15.3-alpine
+FROM node:10.15.3
 EXPOSE 3000 9229 3030
 COPY . /home/app
 WORKDIR /home/app

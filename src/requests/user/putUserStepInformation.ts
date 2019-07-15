@@ -33,7 +33,7 @@ const putUserStepInformation = (req: Request, res: Response, next: NextFunction)
             lastNameRu: Joi.string().max(255).required(),
             occupationEn: Joi.string().max(512).required(),
             occupationRu: Joi.string().max(512).required(),
-            tel: Joi.string().max(20).required(),
+            tel: Joi.string().max(20).allow('').allow(null),
             mobile: Joi.string().max(20).required(),
         }).pattern(/./, Joi.any())
     };

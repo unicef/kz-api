@@ -29,9 +29,9 @@ const putPartnerInformation = (req: Request, res: Response, next: NextFunction) 
         }).keys({
             nameEn: Joi.string().max(255).required(),
             nameRu: Joi.string().max(255).required(),
-            tradeNameEn: Joi.string().max(255).required(),
-            tradeNameRu: Joi.string().max(255).required(),
-            license: Joi.string().max(255).required(),
+            tradeNameEn: Joi.string().max(255).allow('').allow(null),
+            tradeNameRu: Joi.string().max(255).allow('').allow(null),
+            license: Joi.string().max(255).allow('').allow(null),
             country: Joi.object().keys({
                 id: Joi.number(),
                 title: Joi.string().max(255),
@@ -58,8 +58,8 @@ const putPartnerInformation = (req: Request, res: Response, next: NextFunction) 
                 id: Joi.number(),
                 title: Joi.string().max(255),
             }).allow(null),
-            tel: Joi.string().max(20).required(),
-            website: Joi.string().max(124).required(),
+            tel: Joi.string().max(20).allow('').allow(null),
+            website: Joi.string().max(124).allow('').allow(null),
             cityEn: Joi.string().max(255).required(),
             cityRu: Joi.string().max(255).required(),
             addressEn: Joi.string().max(255).required(),
