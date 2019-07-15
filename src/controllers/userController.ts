@@ -484,6 +484,10 @@ class UserController {
                 throw new UserNotfind();
             }
 
+            if (user.isBlocked) {
+                throw new BlockedUserException();
+            }
+
             let mail = new ResetPasswordMail(user);
             mail.send();
 
@@ -515,6 +519,9 @@ class UserController {
     
             if (user == null) {
                 throw new UserNotfind();
+            }
+            if (user.isBlocked) {
+                throw new BlockedUserException();
             }
     
             // sending activation mail again
