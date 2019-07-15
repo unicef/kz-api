@@ -3,6 +3,7 @@ import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
 import i18n from "i18next";
 import BadValidationException from "../../exceptions/badValidationException";
+import Role from "../../models/role";
 
 const putPartnerStepInformation = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
@@ -103,11 +104,13 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
         }
     })
     
-    validationRules.authorisedPerson.validate(req.body.company.authorisedPerson, (err: any, value: any) => {
-        if (err) {
-            throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
-        }
-    })
+    if (!req.user.hasRole(Role.partnerAuthorisedId)) {
+        validationRules.authorisedPerson.validate(req.body.company.authorisedPerson, (err: any, value: any) => {
+            if (err) {
+                throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
+            }
+        })
+    }
 }
 
 const getErrorMessage = (errors: any) => {
