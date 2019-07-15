@@ -10,11 +10,11 @@ const postLogin = (req: Request, res: Response, next: NextFunction) => {
             language: {
                 string: {
                     length: i18n.t('stringLengthValidation'),
-                    min: i18n.t('stringMinValidation'),
-                    base: i18n.t('stringBaseValidation'),
-                    email: i18n.t('stringEmailValidation'),
+                    min: i18n.t('badEmailOrPassword'),
+                    base: i18n.t('badEmailOrPassword'),
+                    email: i18n.t('badEmailOrPassword'),
                     regex: {
-                        base: i18n.t('stringRegexPasswordValidation')
+                        base: i18n.t('badEmailOrPassword')
                     }
                 },
                 any: {
