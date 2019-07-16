@@ -6,7 +6,7 @@ import i18n from "i18next";
 const postLogin = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         bodySchema: Joi.object().options({
-            abortEarly: false,
+            abortEarly: true,
             language: {
                 string: {
                     length: i18n.t('stringLengthValidation'),

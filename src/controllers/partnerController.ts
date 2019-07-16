@@ -250,6 +250,10 @@ class PartnerController {
         }
     }
 
+    static list = async (req: Request, res: Response) => {
+        
+    }
+
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
         const partner = await Partner.findOne({

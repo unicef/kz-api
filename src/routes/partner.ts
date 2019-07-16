@@ -30,5 +30,6 @@ router.get("/document", [checkAuthToken, getPartnerDocuments], PartnerController
 router.get("/documents", [checkAuthToken, getPartnerDocuments], PartnerController.getDocuments);
 router.post("/documents", [checkAuthToken, postPartnerDocuments], PartnerController.updateDocuments);
 router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument);
+router.get("/list", [checkAuthToken], PartnerController.list);
 
 export default router;
