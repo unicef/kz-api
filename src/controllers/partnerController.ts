@@ -37,6 +37,7 @@ import PartnerRejected from "../events/partnerRejected";
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
         let responseData: any = {};
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
         if (!req.query.key || req.query.key == 'roles') {
             // roles
@@ -60,25 +61,25 @@ class PartnerController {
         
         if (!req.query.key || req.query.key == 'areasOfWork') {
             // areas of work
-            let areasOfWork: AreaOfWork[]|null = await AreaOfWork.findAll();
+            let areasOfWork: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM areas_of_work', {type: QueryTypes.SELECT});
             responseData['areasOfWork'] = areasOfWork;
         }
         
         if (!req.query.key || req.query.key == 'ownerships') {
             // company ownerships
-            let companyOwnerships: CompanyOwnership[]|null = await CompanyOwnership.findAll();
+            let companyOwnerships: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM companys_ownerships', {type: QueryTypes.SELECT});
             responseData['ownerships'] = companyOwnerships;
         }
         
         if (!req.query.key || req.query.key == 'partnerTypes') {
             // partner types
-            let partnerTypes: PartnerType[]|null = await PartnerType.findAll();
+            let partnerTypes: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM partner_types', {type: QueryTypes.SELECT});
             responseData['partnerTypes'] = partnerTypes;
         }
         
         if (!req.query.key || req.query.key == 'csoTypes') {
             // CSO types
-            let csoTypes: CSOType[]|null = await CSOType.findAll();
+            let csoTypes: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM cso_types', {type: QueryTypes.SELECT});
             responseData['csoTypes'] = csoTypes;
         }
 
@@ -256,26 +257,32 @@ class PartnerController {
 
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
-        const partner = await Partner.findOne({
-            where: {
-                id: partnerId
-            },
-            include: [
-                Partner.associations.country,
-                Partner.associations.areaOfWork,
-                Partner.associations.ownership,
-                Partner.associations.partnerType,
-                Partner.associations.csoType
-            ]
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        const partner = await sequelize.query('SELECT "partner"."id", "partner"."statusId", "partner"."nameEn", "partner"."nameRu", "partner"."tradeNameEn", "partner"."tradeNameRu", "partner"."license", "partner"."countryId", "partner"."ceoFirstNameEn", "partner"."ceoFirstNameRu", "partner"."ceoLastNameEn", "partner"."ceoLastNameRu", "partner"."establishmentYear", "partner"."employersCount", "partner"."tel", "partner"."website", "partner"."cityEn", "partner"."cityRu", "partner"."addressEn", "partner"."addressRu", "partner"."zip", "partner"."createdAt", "partner"."updatedAt", "country"."id" AS "country.id", "country"."title" AS "country.title", "areaOfWork"."id" AS "areaOfWork.id", "areaOfWork"."title' + lang + '" AS "areaOfWork.title", "ownership"."id" AS "ownership.id", "ownership"."title' + lang + '" AS "ownership.title", "partnerType"."id" AS "partnerType.id", "partnerType"."title' + lang + '" AS "partnerType.title", "csoType"."id" AS "csoType.id", "csoType"."title' + lang + '" AS "csoType.title", autorised."authorisedId" as "authorisedId" FROM "partners" AS "partner" LEFT OUTER JOIN "countries" AS "country" ON "partner"."countryId" = "country"."id" LEFT OUTER JOIN "areas_of_work" AS "areaOfWork" ON "partner"."areaOfWorkId" = "areaOfWork"."id" LEFT OUTER JOIN "companys_ownerships" AS "ownership" ON "partner"."ownershipId" = "ownership"."id" LEFT OUTER JOIN "partner_types" AS "partnerType" ON "partner"."partnerTypeId" = "partnerType"."id" LEFT OUTER JOIN "cso_types" AS "csoType" ON "partner"."csoTypeId" = "csoType"."id" LEFT OUTER JOIN (SELECT users."id" AS "authorisedId", p.id AS partnerId FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + partnerId + ' LIMIT 1) autorised ON authorised."partnerId" = "partner"."id" WHERE "partner"."id" = ' + partnerId, {
+            type: QueryTypes.SELECT
         });
+        return res.json(partner);
+
+        // const partner = await Partner.findOne({
+        //     where: {
+        //         id: partnerId
+        //     },
+        //     include: [
+        //         Partner.associations.country,
+        //         Partner.associations.areaOfWork,
+        //         Partner.associations.ownership,
+        //         Partner.associations.partnerType,
+        //         Partner.associations.csoType
+        //     ]
+        // });
         
-        if (partner) {
-            await partner.getAssistId();
-            await partner.getAuthorisedId();
-            ApiController.success(partner, res);
-        } else {
-            ApiController.failed(404, 'Partner didn\'t find', res);
-        }
+        // if (partner) {
+        //     await partner.getAssistId();
+        //     await partner.getAuthorisedId();
+        //     ApiController.success(partner, res);
+        // } else {
+        //     ApiController.failed(404, 'Partner didn\'t find', res);
+        // }
     }
 
     static uploadingDocument = async (req: Request, res: Response) => {
