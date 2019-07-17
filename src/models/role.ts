@@ -12,7 +12,8 @@ class Role extends Model {
     static unicefOperationId = 'om';
 
     public id!: string;
-    public title!: string;
+    public titleEn!: string;
+    public titleRu!: string;
 
     static getPartnerRoles = async () => {
         const Op = Sequelize.Op;
@@ -46,7 +47,12 @@ Role.init(
             autoIncrement: true,
             primaryKey: true
         },
-        title: {
+        titleEn: {
+            type: new DataTypes.STRING(255),
+            allowNull: false,
+            defaultValue: ''
+        },
+        titleRu: {
             type: new DataTypes.STRING(255),
             allowNull: false,
             defaultValue: ''

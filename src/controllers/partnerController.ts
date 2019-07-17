@@ -1,46 +1,39 @@
 import { Request, Response, NextFunction } from "express";
-import cryptoRandomString from "crypto-random-string";
-import Sequelize, { QueryTypes } from "sequelize";
-import stream from "stream";
+import { QueryTypes } from "sequelize";
 import i18n from "i18next";
 import fs from "fs";
 import mime from "mime-types";
 import ApiController from "./apiController";
-import config from "../config/config";
 import Role from "../models/role";
 import Country from "../models/country";
-import AreaOfWork from "../models/areaOfWork";
-import CompanyOwnership from "../models/companyOwnership";
-import PartnerType from "../models/partnerType";
-import CSOType from "../models/csoType";
-import User from "../models/user";
 import Partner from "../models/partner";
-import UserPersonalData from "../models/userPersonalData";
-import { Resolver } from "dns";
 import TmpFile from "../models/tmpFile";
+import PartnerDocument from "../models/partnerDocument";
 import HttpException from "../exceptions/httpException";
 import PartnerNotFind from "../exceptions/partner/partnerNotFind";
 import BadPermissions from "../exceptions/badPermissions";
-import PartnerDocument from "../models/partnerDocument";
-import putPartnerInformation from "../requests/partner/putPartnerInformation";
 import BadValidationException from "../exceptions/badValidationException";
-import PartnerHelper from "../helpers/partnerHelper";
+import BadRole from "../exceptions/user/badRole";
 import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthorised";
+import putPartnerInformation from "../requests/partner/putPartnerInformation";
+import PartnerHelper from "../helpers/partnerHelper";
 import UserHelper from "../helpers/userHelper";
 import DocumentHelper from "../helpers/documentHelper";
 import sequelize from "../services/sequelize";
-import BadRole from "../exceptions/user/badRole";
 import event from "../services/event";
 import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
+import PartnerRepository from "../repositories/partnerRepository";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
         let responseData: any = {};
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
         if (!req.query.key || req.query.key == 'roles') {
             // roles
-            let roles: Role[]|null = await Role.getPartnerRoles();
+            let roles = await sequelize.query('select "id", "title' + lang + '" as "title" FROM roles WHERE "id"=\'' +Role.partnerAssistId+ '\' OR "id"=\'' +Role.partnerAuthorisedId+ '\'',
+            {type: QueryTypes.SELECT});
             responseData['roles'] = roles;
         }
         
@@ -60,25 +53,25 @@ class PartnerController {
         
         if (!req.query.key || req.query.key == 'areasOfWork') {
             // areas of work
-            let areasOfWork: AreaOfWork[]|null = await AreaOfWork.findAll();
+            let areasOfWork: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM areas_of_work', {type: QueryTypes.SELECT});
             responseData['areasOfWork'] = areasOfWork;
         }
         
         if (!req.query.key || req.query.key == 'ownerships') {
             // company ownerships
-            let companyOwnerships: CompanyOwnership[]|null = await CompanyOwnership.findAll();
+            let companyOwnerships: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM companys_ownerships', {type: QueryTypes.SELECT});
             responseData['ownerships'] = companyOwnerships;
         }
         
         if (!req.query.key || req.query.key == 'partnerTypes') {
             // partner types
-            let partnerTypes: PartnerType[]|null = await PartnerType.findAll();
+            let partnerTypes: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM partner_types', {type: QueryTypes.SELECT});
             responseData['partnerTypes'] = partnerTypes;
         }
         
         if (!req.query.key || req.query.key == 'csoTypes') {
             // CSO types
-            let csoTypes: CSOType[]|null = await CSOType.findAll();
+            let csoTypes: never[] = await sequelize.query('select "id", "title' + lang + '" as "title" FROM cso_types', {type: QueryTypes.SELECT});
             responseData['csoTypes'] = csoTypes;
         }
 
@@ -256,26 +249,12 @@ class PartnerController {
 
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
-        const partner = await Partner.findOne({
-            where: {
-                id: partnerId
-            },
-            include: [
-                Partner.associations.country,
-                Partner.associations.areaOfWork,
-                Partner.associations.ownership,
-                Partner.associations.partnerType,
-                Partner.associations.csoType
-            ]
-        });
-        
-        if (partner) {
-            await partner.getAssistId();
-            await partner.getAuthorisedId();
-            ApiController.success(partner, res);
-        } else {
-            ApiController.failed(404, 'Partner didn\'t find', res);
+        const partner = await PartnerRepository.findPartnerById(partnerId);
+        if (partner == null) {
+            throw new PartnerNotFind();
         }
+        
+        return ApiController.success(partner, res);
     }
 
     static uploadingDocument = async (req: Request, res: Response) => {

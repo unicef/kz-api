@@ -39,6 +39,7 @@ import sequelize from "../services/sequelize";
 import DocumentHelper from "../helpers/documentHelper";
 import WrongOldPassword from "../exceptions/user/wrongOldPassword";
 import BlockedUserException from "../exceptions/blockedUserException";
+import UserRepository from "../repositories/userRepository";
 
 class UserController {
     // get users list
@@ -279,26 +280,9 @@ class UserController {
     static getUserById = async (req: Request, res: Response) => {
         const userId: number = req.query.id;
 
-        const user = await User.findOne({
-            where: {
-                id: userId
-            },
-            include: [
-                User.associations.roles,
-                User.associations.personalData
-            ]
-        });
+        const user = await UserRepository.findUserById(userId);
+        
         if (user && user.personalData) {
-            // working with roles
-            let roles: Role[] = [];
-            let isAdmin = false;
-            user.roles.forEach((role: Role, index: number) => {
-                if (role.id == Role.adminRoleId) {
-                    isAdmin = true;
-                } else {
-                    roles.push(role);
-                }
-            })
             const company = await UserHelper.getUserPartner(user);
             let responseData: any = {
                 email: user.email,
@@ -309,8 +293,8 @@ class UserController {
                 occupationEn: user.personalData.occupationEn,
                 occupationRu: user.personalData.occupationRu,
                 status: user.status,
-                roles: roles,
-                isAdmin: isAdmin,
+                roles: user.roles,
+                isAdmin: user.isAdmin,
                 tel: user.personalData.tel,
                 mobile: user.personalData.mobile,
                 id: user.id,

@@ -3,7 +3,8 @@ import sequelize from "../services/sequelize";
 
 class AreaOfWork extends Model {
     public id!: number;
-    public title!: string;
+    public titleEn!: string;
+    public titleRu!: string;
 }
 
 AreaOfWork.init(
@@ -13,7 +14,12 @@ AreaOfWork.init(
             autoIncrement: true,
             primaryKey: true
         },
-        title: {
+        titleEn: {
+            type: new DataTypes.STRING(255),
+            allowNull: false,
+            defaultValue: ''
+        },
+        titleRu: {
             type: new DataTypes.STRING(255),
             allowNull: false,
             defaultValue: ''
