@@ -16,8 +16,10 @@ import BadValidationException from "../../exceptions/badValidationException";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
-        const roles = await Role.getUnicefRoles();
-
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        //{id: 'ro'}, {id: 'bo'}, {id: 'dr'}, {id: 'om'}
+        let roles = await sequelize.query('select "id", "title' + lang + '" as "title" FROM roles WHERE "id"=\'' +Role.unicefResponsibleId+ '\' OR "id"=\'' +Role.unicefBudgetId+ '\' OR "id"=\'' +Role.unicefDeputyId+ '\' OR "id"=\'' +Role.unicefOperationId+ '\'',
+        {type: Sequelize.QueryTypes.SELECT});
         const responseData = {
             roles: roles
         }
@@ -92,6 +94,7 @@ class AdminUnicefController {
     }
 
     static getUnicefList = async (req: Request, res: Response, next: NextFunction) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let page = 1;
         const pageCount = 15;
         let responseData = {};
@@ -123,7 +126,7 @@ class AdminUnicefController {
 
         let usersIds = unicefQuery.map(a => a.userId);
 
-        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstNameEn" as "firstName", upd."lastNameEn" as "lastName", r."title" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ') AND ("roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' ORDER BY users."id" DESC';
+        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstName'+lang+'" as "firstName", upd."lastName'+lang+'" as "lastName", r."title'+lang+'" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ') AND ("roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' ORDER BY users."id" DESC';
         const offset = pageCount * (page-1);
 
         query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;

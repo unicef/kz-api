@@ -32,7 +32,8 @@ class PartnerController {
 
         if (!req.query.key || req.query.key == 'roles') {
             // roles
-            let roles: Role[]|null = await Role.getPartnerRoles();
+            let roles = await sequelize.query('select "id", "title' + lang + '" as "title" FROM roles WHERE "id"=\'' +Role.partnerAssistId+ '\' OR "id"=\'' +Role.partnerAuthorisedId+ '\'',
+            {type: QueryTypes.SELECT});
             responseData['roles'] = roles;
         }
         
