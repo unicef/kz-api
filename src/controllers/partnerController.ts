@@ -1,38 +1,29 @@
 import { Request, Response, NextFunction } from "express";
-import cryptoRandomString from "crypto-random-string";
-import Sequelize, { QueryTypes } from "sequelize";
-import stream from "stream";
+import { QueryTypes } from "sequelize";
 import i18n from "i18next";
 import fs from "fs";
 import mime from "mime-types";
 import ApiController from "./apiController";
-import config from "../config/config";
 import Role from "../models/role";
 import Country from "../models/country";
-import AreaOfWork from "../models/areaOfWork";
-import CompanyOwnership from "../models/companyOwnership";
-import PartnerType from "../models/partnerType";
-import CSOType from "../models/csoType";
-import User from "../models/user";
 import Partner from "../models/partner";
-import UserPersonalData from "../models/userPersonalData";
-import { Resolver } from "dns";
 import TmpFile from "../models/tmpFile";
+import PartnerDocument from "../models/partnerDocument";
 import HttpException from "../exceptions/httpException";
 import PartnerNotFind from "../exceptions/partner/partnerNotFind";
 import BadPermissions from "../exceptions/badPermissions";
-import PartnerDocument from "../models/partnerDocument";
-import putPartnerInformation from "../requests/partner/putPartnerInformation";
 import BadValidationException from "../exceptions/badValidationException";
-import PartnerHelper from "../helpers/partnerHelper";
+import BadRole from "../exceptions/user/badRole";
 import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthorised";
+import putPartnerInformation from "../requests/partner/putPartnerInformation";
+import PartnerHelper from "../helpers/partnerHelper";
 import UserHelper from "../helpers/userHelper";
 import DocumentHelper from "../helpers/documentHelper";
 import sequelize from "../services/sequelize";
-import BadRole from "../exceptions/user/badRole";
 import event from "../services/event";
 import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
+import PartnerRepository from "../repositories/partnerRepository";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -257,32 +248,12 @@ class PartnerController {
 
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
-        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-        const partner = await sequelize.query('SELECT "partner"."id", "partner"."statusId", "partner"."nameEn", "partner"."nameRu", "partner"."tradeNameEn", "partner"."tradeNameRu", "partner"."license", "partner"."countryId", "partner"."ceoFirstNameEn", "partner"."ceoFirstNameRu", "partner"."ceoLastNameEn", "partner"."ceoLastNameRu", "partner"."establishmentYear", "partner"."employersCount", "partner"."tel", "partner"."website", "partner"."cityEn", "partner"."cityRu", "partner"."addressEn", "partner"."addressRu", "partner"."zip", "partner"."createdAt", "partner"."updatedAt", "country"."id" AS "country.id", "country"."title" AS "country.title", "areaOfWork"."id" AS "areaOfWork.id", "areaOfWork"."title' + lang + '" AS "areaOfWork.title", "ownership"."id" AS "ownership.id", "ownership"."title' + lang + '" AS "ownership.title", "partnerType"."id" AS "partnerType.id", "partnerType"."title' + lang + '" AS "partnerType.title", "csoType"."id" AS "csoType.id", "csoType"."title' + lang + '" AS "csoType.title", autorised."authorisedId" as "authorisedId" FROM "partners" AS "partner" LEFT OUTER JOIN "countries" AS "country" ON "partner"."countryId" = "country"."id" LEFT OUTER JOIN "areas_of_work" AS "areaOfWork" ON "partner"."areaOfWorkId" = "areaOfWork"."id" LEFT OUTER JOIN "companys_ownerships" AS "ownership" ON "partner"."ownershipId" = "ownership"."id" LEFT OUTER JOIN "partner_types" AS "partnerType" ON "partner"."partnerTypeId" = "partnerType"."id" LEFT OUTER JOIN "cso_types" AS "csoType" ON "partner"."csoTypeId" = "csoType"."id" LEFT OUTER JOIN (SELECT users."id" AS "authorisedId", p.id AS partnerId FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + partnerId + ' LIMIT 1) autorised ON authorised."partnerId" = "partner"."id" WHERE "partner"."id" = ' + partnerId, {
-            type: QueryTypes.SELECT
-        });
-        return res.json(partner);
-
-        // const partner = await Partner.findOne({
-        //     where: {
-        //         id: partnerId
-        //     },
-        //     include: [
-        //         Partner.associations.country,
-        //         Partner.associations.areaOfWork,
-        //         Partner.associations.ownership,
-        //         Partner.associations.partnerType,
-        //         Partner.associations.csoType
-        //     ]
-        // });
+        const partner = await PartnerRepository.findPartnerById(partnerId);
+        if (partner == null) {
+            throw new PartnerNotFind();
+        }
         
-        // if (partner) {
-        //     await partner.getAssistId();
-        //     await partner.getAuthorisedId();
-        //     ApiController.success(partner, res);
-        // } else {
-        //     ApiController.failed(404, 'Partner didn\'t find', res);
-        // }
+        return ApiController.success(partner, res);
     }
 
     static uploadingDocument = async (req: Request, res: Response) => {
