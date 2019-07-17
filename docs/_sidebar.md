@@ -41,3 +41,10 @@
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
         - [Block UNICEF account](admin_partner.md?id=block-unicef-account "Block unicef account")
+        
+    - page
+        - [Create page](admin_page.md?id=create-new-page "Create new page")
+        - [Update page](admin_page.md?id=update-page "Update page")
+        - [Pages list](admin_page.md?id=get-pages-list "Get pages list")
+        - [Get page](admin_page.md?id=get-single-page "Get page")
+        
