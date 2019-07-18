@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently -k \"npm run build:watch\" \"npm run start:dev\" \"docsify serve docs -p 3030\"",
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "start:dev": "nodemon --inspect=0.0.0.0:9229 dist/server.js",
     "build": "tsc",
     "build:watch": "tsc -w",

@@ -10,6 +10,7 @@ class Role extends Model {
     static unicefBudgetId = 'bo';
     static unicefDeputyId = 'dr';
     static unicefOperationId = 'om';
+    static donorId = 'd';
 
     public id!: string;
     public titleEn!: string;

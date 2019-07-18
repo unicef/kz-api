@@ -43,6 +43,9 @@
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
         - [Block UNICEF account](admin_partner.md?id=block-unicef-account "Block unicef account")
+          
+    - donor
+        - [Create new donor account](admin_donor.md?id=create-new-donor "Create new donor")
         
     - page
         - [Create page](admin_page.md?id=create-new-page "Create new page")
