@@ -37,10 +37,13 @@ class AdminPageController {
             let responseData = {};
             if (req.query.page !== undefined) {
                 page = parseInt(req.query.page);
+                if (isNaN(page)) {
+                    page = 1;
+                }
             }
             let searchInstanse = '';
     
-            if (req.query.search) {
+            if (req.query.search && req.query.search!=='') {
                 const idSearch = +req.query.search ? +req.query.search : 0;
                 searchInstanse = 'WHERE "id" = ' + idSearch +' OR "key" LIKE \'%'+ req.query.search +'%\' OR "titleRu" LIKE \'%'+ req.query.search +'%\' OR "titleEn" LIKE \'%'+ req.query.search +'%\'';
             }
@@ -119,7 +122,7 @@ class AdminPageController {
 
             await page.update(pageData);
             return ApiController.success({
-                message: i18n.t('successUpdatingPage');
+                message: i18n.t('successUpdatingPage')
             }, res)
 
         } catch (error) {
