@@ -19,7 +19,7 @@ class User extends Model {
     public passwordSalt!: string;
     public isBlocked!: boolean;
     public showSeed!: boolean;
-    public partnerId!: number;
+    public partnerId!: number|null;
 
     // timestamps!
     public emailVerifiedAt!: Date;

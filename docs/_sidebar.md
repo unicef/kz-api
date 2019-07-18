@@ -15,6 +15,7 @@
 
 - Partner
     - [Form properties](partner.md?id=get-partner-static-properties "Get partner properties")
+    - [Get partners list](partner.md?id=get-partners-list "Get partners list for UNICEF user")
     - [Get partner](partner.md?id=get-partner-information "Get partner information")
     - [Update partner information](partner.md?id=update-partner-information "Update partner information")
     - [Update partner documents](partner.md?id=update-partner-documents "Update partner documents")

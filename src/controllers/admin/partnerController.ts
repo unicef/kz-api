@@ -13,8 +13,9 @@ import HttpException from "../../exceptions/httpException";
 import UserNotfind from "../../exceptions/userNotFind";
 import PartnerNotFind from "../../exceptions/partner/partnerNotFind";
 import DocumentHelper from "../../helpers/documentHelper";
-import sequelize from "../../services/sequelize";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
+import Pagination from "../../services/pagination";
+import PartnerRepository from "../../repositories/partnerRepository";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -127,50 +128,14 @@ class AdminPartnerController {
     }
 
     static getPartnersList = async (req: Request, res: Response) => {
-        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-        let page = 1;
-        const pageCount = 15;
-        let responseData = {};
-        if (req.query.page !== undefined) {
-            page = parseInt(req.query.page);
-        }
-        let searchInstanse = '';
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const partners = await PartnerRepository.getAdminList(searchInstanse, pagination);
 
-        if (req.query.search) {
-            const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR p."name' +lang+ '" LIKE \'%'+ req.query.search +'%\')';
-        }
-
-        // get partners ids
-        const partnersQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE (users_has_roles."roleId" = \'' + Role.partnerAssistId + '\' OR users_has_roles."roleId" = \'' + Role.partnerAuthorisedId  + '\')' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
-            type: Sequelize.QueryTypes.SELECT
-        });
-        
-        if (partnersQuery == null || partnersQuery.length < 1) {
-            // partners count = 0
-            responseData = {partners: []};
-
-            return ApiController.success(responseData, res);
-        }
-
-        const lastPage = Math.ceil(partnersQuery.length / pageCount);
-        if (page>lastPage) {
-            page = lastPage;
-        }
-
-        let usersIds = partnersQuery.map(a => a.userId);
-
-        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:ii:ss\') as "createdAt", upd."firstName' +lang+ '" as "firstName", upd."lastName' +lang+ '" as "lastName", r."title' +lang+ '" as "role", p."name' +lang+ '" as "company", p."statusId" as "companyStatus" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE users."id" IN (' + usersIds.join(', ') + ') ORDER BY users."id" DESC';
-        const offset = pageCount * (page-1);
-
-        query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;
-
-        const partners = await sequelize.query(query,{type: Sequelize.QueryTypes.SELECT});
-
-        responseData = {
+        const responseData = {
             partners: partners,
-            currentPage: page,
-            lastPage: lastPage
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
         }
 
         return ApiController.success(responseData, res);

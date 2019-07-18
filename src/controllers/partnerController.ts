@@ -24,6 +24,7 @@ import event from "../services/event";
 import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
+import Pagination from "../services/pagination";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -244,7 +245,17 @@ class PartnerController {
     }
 
     static list = async (req: Request, res: Response) => {
-        
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const partners = await PartnerRepository.getList(searchInstanse, pagination);
+
+        const responseData = {
+            partners: partners,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+
+        return ApiController.success(responseData, res);
     }
 
     static getPartnerById = async (req: Request, res: Response) => {

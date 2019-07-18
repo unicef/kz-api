@@ -96,6 +96,78 @@ Get select properties for partner form
 
 <hr>
 
+# Get partners list
+Get partners list for UNICEF coordinator side
+
+#### Request
+
+**URL: `GET: /partner/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        "partners": [
+            {
+                "id": 1,
+                "name": "First partner",
+                "createdAt": "2019-05-30 12:99:16",
+                "coordinator": "n/a",
+                "programCode": "n/a",
+                "status": "rejected",
+                "areaOfWork": "Adolescent Development and Participation"
+            }
+        ],
+		"currentPage": 1,
+		"lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 # Get partner information
 Get partner data by partner id
 
