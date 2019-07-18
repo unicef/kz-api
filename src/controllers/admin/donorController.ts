@@ -8,6 +8,7 @@ import Role from "../../models/role";
 import DonorHelper from "../../helpers/donorHelper";
 import UserPersonalData from "../../models/userPersonalData";
 import DonorRepository from "../../repositories/donorRepository";
+import UserNotfind from "../../exceptions/userNotFind";
 
 class AdminDonorController {
 
@@ -48,6 +49,43 @@ class AdminDonorController {
             return;
         }
         
+    }
+
+    static update = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findByPk(req.body.id);
+            if (user == null) {
+                throw new UserNotfind(400, 116, i18n.t('adminUserNotFind'), 'User with id:' + req.body.id + ' not find');
+            }
+
+            // get user request data
+            let userData = DonorHelper.getPersonalData(req.body);
+            const userPersonalData = await UserPersonalData.findOne({
+                where: {
+                    userId: user.id
+                }
+            });
+            if (userPersonalData == null) {
+                throw new UserNotfind(400, 116, i18n.t('userPersonalDataNotFind'), 'User personal data not find');
+            }
+            await userPersonalData.update(userData);
+
+            // working with company
+            let companyData: any = DonorHelper.getCompanyData(req.body);
+            const donorCompany = await DonorRepository.saveDonorCompany(user.id, companyData);
+
+
+            return ApiController.success({
+                message: i18n.t('adminSuccessUnicefUpdate')
+            }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
     }
 }
 

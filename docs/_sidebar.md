@@ -46,6 +46,7 @@
           
     - donor
         - [Create new donor account](admin_donor.md?id=create-new-donor "Create new donor")
+        - [Update donor account](admin_donor.md?id=update-donor "Update donor")
         
     - page
         - [Create page](admin_page.md?id=create-new-page "Create new page")

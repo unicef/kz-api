@@ -3,7 +3,7 @@ import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
 import i18n from "i18next";
 
-const postAdminDonor = (req: Request, res: Response, next: NextFunction) => {
+const putAdminDonor = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         bodySchema: Joi.object().options({
             abortEarly: false,
@@ -26,6 +26,7 @@ const postAdminDonor = (req: Request, res: Response, next: NextFunction) => {
                 }
             }
         }).keys({
+            id: Joi.number().required(),
             email: Joi.string().email({ minDomainSegments: 2 }).required(),
             firstNameEn: Joi.string().max(255).allow('').allow(null),
             firstNameRu: Joi.string().max(255).allow('').allow(null),
@@ -44,4 +45,4 @@ const postAdminDonor = (req: Request, res: Response, next: NextFunction) => {
     validationProcess(req, res, next, validationRules);
 }
 
-export default postAdminDonor;
+export default putAdminDonor;

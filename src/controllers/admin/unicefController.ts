@@ -81,7 +81,7 @@ class AdminUnicefController {
             await userPersonalData.update(userData);
 
             return ApiController.success({
-                message: i18n.t('adminSuccessUnicefUpdate')
+                message: i18n.t('adminSuccessDonorUpdate')
             }, res);
         } catch (error) {
             if (error instanceof HttpException) {
