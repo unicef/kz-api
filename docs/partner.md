@@ -288,6 +288,119 @@ Get partner data by partner id
 
 <hr>
 
+# Get partner details
+Get partner data by partner id for UNICEF client side
+
+#### Request
+
+**URL: `GET: /partner/details`**
+
+**URL Params:**
+
+?> **id** - partner id (required)
+
+**Headers:** <br/>
+**`Authorization: Bearer <Auth token>`**<br/>
+**`Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "id": 1,
+        "statusId": "rejected",
+        "name": "First partner",
+        "tradeName": "Great pertner ltd",
+        "license": "ВО434-ЛРА34",
+        "ceoFirstName": "Philip",
+        "ceoLastName": "Kirkorov",
+        "establishmentYear": 1993,
+        "employersCount": 27,
+        "tel": "380734453499",
+        "website": "http://great.partner.org",
+        "city": "Kyiv",
+        "address": "Vakulenchuka str. 54",
+        "zip": "49080",
+        "createdAt": "2019-05-30 12:23:16",
+        "country": "Ukraine",
+        "areaOfWork": "Adolescent Development and Participation",
+        "ownership": "Private owned",
+        "partnerType": "Bilateral/multilateral",
+        "csoType": null,
+        "assistant": {
+            "id": 12,
+            "email": "uscipassist@maildrop.cc",
+            "firstName": "Partner",
+            "lastName": "Assistant",
+            "occupation": "Assist of partner",
+            "tel": "380922831133",
+            "mobile": "380562342234"
+        },
+        "authorised": {
+            "id": 13,
+            "email": "uscipauthorised@maildrop.cc",
+            "firstName": "Headpartner",
+            "lastName": "Authorised",
+            "occupation": "Head of cleaning",
+            "tel": "380943345453",
+            "mobile": "380563334455"
+        }
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 # Update partner information
 Update partner information
 

@@ -245,6 +245,9 @@ class PartnerController {
     }
 
     static list = async (req: Request, res: Response) => {
+        if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
+            throw new BadRole();
+        }
         let pagination = new Pagination(req, 15);
         let searchInstanse = req.query.search?req.query.search:null;
         const partners = await PartnerRepository.getList(searchInstanse, pagination);
@@ -258,9 +261,22 @@ class PartnerController {
         return ApiController.success(responseData, res);
     }
 
+    static details = async (req: Request, res: Response) => {
+        if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
+            throw new BadRole();
+        }
+        const partnerId = req.query.id;
+        const partner = await PartnerRepository.getFullInformation(partnerId);
+        if (partner == null) {
+            throw new PartnerNotFind();
+        }
+        
+        return ApiController.success(partner, res);
+    }
+
     static getPartnerById = async (req: Request, res: Response) => {
         const partnerId = req.query.id;
-        const partner = await PartnerRepository.findPartnerById(partnerId);
+        const partner = await PartnerRepository.findById(partnerId);
         if (partner == null) {
             throw new PartnerNotFind();
         }
