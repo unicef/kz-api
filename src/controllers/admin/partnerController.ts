@@ -138,7 +138,7 @@ class AdminPartnerController {
 
         if (req.query.search) {
             const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstNameEn" LIKE \'%'+ req.query.search +'%\' OR upd."lastNameEn" LIKE \'%'+ req.query.search +'%\' OR p."nameEn" LIKE \'%'+ req.query.search +'%\')';
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR p."name' +lang+ '" LIKE \'%'+ req.query.search +'%\')';
         }
 
         // get partners ids

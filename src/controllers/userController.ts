@@ -5,6 +5,7 @@ import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import i18n from "i18next";
 import fs from "fs";
+import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
 import config from "../config/config";
 import { captureException } from "@sentry/node";
@@ -68,7 +69,7 @@ class UserController {
         responseData.roles = roles;
 
         // get user seed phrase
-        const seedPhrase = 'plot tank rate alarm dysfunctional approve garrulous saw pinch unbecoming zippy direful';
+        const seedPhrase = keystore.generateRandomSeed();
         if (user.showSeed) {
             // generate txt file with seed
             fs.writeFile(__dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt", seedPhrase, (err) => {
