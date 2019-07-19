@@ -42,6 +42,7 @@ import WrongOldPassword from "../exceptions/user/wrongOldPassword";
 import BlockedUserException from "../exceptions/blockedUserException";
 import UserRepository from "../repositories/userRepository";
 import DonorRepository from "../repositories/donorRepository";
+import BadValidationException from "../exceptions/badValidationException";
 
 class UserController {
     // get users list
@@ -269,14 +270,34 @@ class UserController {
     }
 
     static setUserPersonalData = async (req: Request, res: Response) => {
-        for (var key in req.user.personalData.dataValues) {
-            if (req.body[key]) {
-                req.user.personalData[key] = req.body[key];
+        try {
+            for (var key in req.user.personalData.dataValues) {
+                if (req.body[key]) {
+                    req.user.personalData[key] = req.body[key];
+                }
             }
+            if (req.user.hasRole(Role.donorId)) {
+                if (req.body.companyEn && req.body.companyRu) {
+                    const donorsCompany = {
+                        companyEn: req.body.companyEn,
+                        companyRu: req.body.companyRu
+                    }
+                    await DonorRepository.saveDonorCompany(req.user.id, donorsCompany);
+                } else {
+                    throw new BadValidationException(400,129, i18n.t('emptyDonorsCompanyField'), 'Bad donor company fields');
+                }
+            }
+            req.user.personalData.save();
+            
+            return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
-        req.user.personalData.save();
-        
-        return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
     }
 
     static getUserById = async (req: Request, res: Response) => {
