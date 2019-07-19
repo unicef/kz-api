@@ -3,6 +3,7 @@ import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
 import i18n from "i18next";
 import BadValidationException from "../../exceptions/badValidationException";
+import Role from "../../models/role";
 
 const putUserStepInformation = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
@@ -43,6 +44,11 @@ const putUserStepInformation = (req: Request, res: Response, next: NextFunction)
             throw new BadValidationException(400, 129, getErrorMessage(err), 'Validation error');
         }
      })
+     if (req.user.hasRole(Role.donorId)) {
+        if (req.body.user.companyEn==null || req.body.user.companyEn=='' || req.body.user.companyRu==null || req.body.user.companyRu=='') {
+            throw new BadValidationException(400, 129, i18n.t('emptyDonorsCompanyField'), 'Validation error');
+        }
+     }
 }
 
 const getErrorMessage = (errors: any) => {

@@ -19,6 +19,7 @@ class User extends Model {
     public passwordSalt!: string;
     public isBlocked!: boolean;
     public showSeed!: boolean;
+    public showForm!: boolean;
     public partnerId!: number|null;
 
     // timestamps!
@@ -227,6 +228,11 @@ User.init(
             defaultValue: false
         },
         showSeed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+        showForm: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true

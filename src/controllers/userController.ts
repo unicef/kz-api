@@ -58,7 +58,7 @@ class UserController {
             id: user.id,
             email: user.email,
             showSeed: user.showSeed,
-            showForm: false,
+            showForm: user.showForm,
             createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
         }
         // working with rolles
@@ -404,6 +404,13 @@ class UserController {
                 userPersonalInformation = await UserPersonalData.create(reqUserData);
             }
 
+            if (user.hasRole(Role.donorId)) {
+                const donorCompany = {
+                    companyEn: req.body.user.companyEn,
+                    companyRu: req.body.user.companyRu
+                }
+                await DonorRepository.saveDonorCompany(user.id, donorCompany);
+            }
             // work with company details
             if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
                 putPartnerStepInformation(req, res, next);
@@ -450,6 +457,8 @@ class UserController {
                 userCompany.statusId = Partner.partnerStatusFilled;
                 userCompany.save();
             }
+            user.showForm = false;
+            user.save();
             return ApiController.success({message: i18n.t('userDataSavedSuccessfully')}, res);
         } catch (error) {
             console.log(error);
