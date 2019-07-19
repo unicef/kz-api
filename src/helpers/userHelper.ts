@@ -40,6 +40,17 @@ class UserHelper {
         return partner;
     }
 
+    static isRole = (roles: Array<{id:string;title:string;}>, roleId: string) => {
+        let response = false;
+        roles.forEach((role: {id:string; title:string;}) => {
+            if (role.id == roleId) {
+                response = true;
+            }
+        })
+
+        return response;
+    }
+
 }
 
 export default UserHelper;

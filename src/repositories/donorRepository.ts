@@ -23,7 +23,15 @@ class DonorRepository {
             })
             return creteCompany;
         }
+    }
 
+    static getCompanyData = async (userId: number): Promise<{userId:number;companyEn:string;companyRu:string;}|null> => {
+        const userCompany: any = await sequelize.query('SELECT * FROM "donors_companies" WHERE "userId"=' + userId, {
+            type: QueryTypes.SELECT,
+            plain: true
+        });
+
+        return userCompany;
     }
 }
 export default DonorRepository;

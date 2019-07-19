@@ -41,6 +41,7 @@ import DocumentHelper from "../helpers/documentHelper";
 import WrongOldPassword from "../exceptions/user/wrongOldPassword";
 import BlockedUserException from "../exceptions/blockedUserException";
 import UserRepository from "../repositories/userRepository";
+import DonorRepository from "../repositories/donorRepository";
 
 class UserController {
     // get users list
@@ -284,7 +285,6 @@ class UserController {
         const user = await UserRepository.findUserById(userId);
         
         if (user && user.personalData) {
-            const company = await UserHelper.getUserPartner(user);
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -302,10 +302,16 @@ class UserController {
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
                 createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
             }
-            if (company) {
-                responseData['company'] = company.id;
-            } else {
-                responseData['company'] = null;
+            if (UserHelper.isRole(user.roles, Role.partnerAssistId) || UserHelper.isRole(user.roles, Role.partnerAuthorisedId)) {
+                const company = await UserHelper.getUserPartner(user);
+                responseData['company'] = company?company.id:null;
+                
+            } else if (UserHelper.isRole(user.roles, Role.donorId)) {
+                const donorCompany = await DonorRepository.getCompanyData(user.id);
+                if (donorCompany) {
+                    responseData['companyEn'] = donorCompany.companyEn;
+                    responseData['companyRu'] = donorCompany.companyRu;
+                }
             }
 
             ApiController.success(responseData, res);
