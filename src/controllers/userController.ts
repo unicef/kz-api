@@ -251,7 +251,7 @@ class UserController {
         try {
             if (req.user.showSeed) {
                 req.user.showSeed = false;
-                req.user.save();
+                await req.user.save();
             }
     
             const responseData = {

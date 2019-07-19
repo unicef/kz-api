@@ -17,7 +17,6 @@ import BadValidationException from "../../exceptions/badValidationException";
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
         const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-        //{id: 'ro'}, {id: 'bo'}, {id: 'dr'}, {id: 'om'}
         let roles = await sequelize.query('select "id", "title' + lang + '" as "title" FROM roles WHERE "id"=\'' +Role.unicefResponsibleId+ '\' OR "id"=\'' +Role.unicefBudgetId+ '\' OR "id"=\'' +Role.unicefDeputyId+ '\' OR "id"=\'' +Role.unicefOperationId+ '\'',
         {type: Sequelize.QueryTypes.SELECT});
         const responseData = {
