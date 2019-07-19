@@ -262,16 +262,25 @@ class PartnerController {
     }
 
     static details = async (req: Request, res: Response) => {
-        if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
-            throw new BadRole();
+        try {
+            if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
+                throw new BadRole();
+            }
+            const partnerId = req.query.id;
+            const partner = await PartnerRepository.getFullInformation(partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            
+            return ApiController.success(partner, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
-        const partnerId = req.query.id;
-        const partner = await PartnerRepository.getFullInformation(partnerId);
-        if (partner == null) {
-            throw new PartnerNotFind();
-        }
-        
-        return ApiController.success(partner, res);
     }
 
     static getPartnerById = async (req: Request, res: Response) => {

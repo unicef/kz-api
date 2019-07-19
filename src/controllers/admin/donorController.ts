@@ -14,13 +14,16 @@ import Pagination from "../../services/pagination";
 
 class AdminDonorController {
 
+    /**
+     * Get donors list for admin panel
+     */
     static list = async (req: Request, res: Response, next: NextFunction) => {
         let pagination = new Pagination(req, 15);
         let searchInstanse = req.query.search?req.query.search:null;
-        const partners = await DonorRepository.getAdminList(searchInstanse, pagination);
+        const donors = await DonorRepository.getAdminList(searchInstanse, pagination);
 
         const responseData = {
-            donors: partners,
+            donors: donors,
             currentPage: pagination.getCurrentPage(),
             lastPage: pagination.getLastPage()
         }
