@@ -9,6 +9,7 @@ import DonorHelper from "../../helpers/donorHelper";
 import UserPersonalData from "../../models/userPersonalData";
 import DonorRepository from "../../repositories/donorRepository";
 import UserNotfind from "../../exceptions/userNotFind";
+import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 
 class AdminDonorController {
 
@@ -79,6 +80,46 @@ class AdminDonorController {
                 message: i18n.t('adminSuccessDonorUpdate')
             }, res);
         } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static block = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const user = await User.findOne({
+                where: {
+                    id: req.body.userId
+                },
+                include:[
+                    User.associations.roles
+                ]
+            });
+            if (user == null) {
+                throw new UserNotfind();
+            }
+            if (user.emailVerifiedAt == null || user.isBlocked) {
+                throw new UserIsNotActivated(412, 111, i18n.t('adminUserAccountNotActivated'), 'User (id: ' + user.id + ' ) isn\'t activated');
+            }
+            const isDonor = await user.hasRole(Role.donorId);
+            if (!isDonor) {
+                throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
+            }
+    
+            user.isBlocked = true;
+            await user.save();
+    
+            const responseData = {
+                message: i18n.t('donorBlockedSuccess')
+            };
+    
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            console.log(error);
             if (error instanceof HttpException) {
                 error.response(res);
             } else {
