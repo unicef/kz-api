@@ -10,8 +10,23 @@ import UserPersonalData from "../../models/userPersonalData";
 import DonorRepository from "../../repositories/donorRepository";
 import UserNotfind from "../../exceptions/userNotFind";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
+import Pagination from "../../services/pagination";
 
 class AdminDonorController {
+
+    static list = async (req: Request, res: Response, next: NextFunction) => {
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const partners = await DonorRepository.getAdminList(searchInstanse, pagination);
+
+        const responseData = {
+            donors: partners,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+
+        return ApiController.success(responseData, res);
+    }
 
     static create = async (req: Request, res: Response, next: NextFunction) => {
         try {

@@ -10,5 +10,6 @@ const router = Router();
 router.post("/", [checkAdminRole, postAdminDonor], AdminDonorController.create);
 router.put("/", [checkAdminRole, putAdminDonor], AdminDonorController.update);
 router.patch("/block", [checkAdminRole, patchDonorBlock], AdminDonorController.block);
+router.get("/list", [checkAdminRole], AdminDonorController.list);
 
 export default router;

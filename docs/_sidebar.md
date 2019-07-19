@@ -42,12 +42,13 @@
         - [Get unicef properties](admin_unicef.md?id=get-unicef-static-properties "Get UNICEF static properties")
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
-        - [Block UNICEF account](admin_partner.md?id=block-unicef-account "Block unicef account")
+        - [Block UNICEF account](admin_unicef.md?id=block-unicef-account "Block unicef account")
           
     - donor
+        - [Get donors list](admin_donor.md?id=get-donorss-list "Get donors list")
         - [Create new donor account](admin_donor.md?id=create-new-donor "Create new donor")
         - [Update donor account](admin_donor.md?id=update-donor "Update donor")
-        - [Block donor](admin_partner.md?id=block-donor "Block donor account")
+        - [Block donor](admin_donor.md?id=block-donor "Block donor account")
         
     - page
         - [Create page](admin_page.md?id=create-new-page "Create new page")
