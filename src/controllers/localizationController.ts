@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ApiController from "./apiController";
 import config from "../config/config";
 import Translation from '../models/translation';
+import i18n from "i18next";
 
 class LocalizationController {
     /**
@@ -81,7 +82,13 @@ class LocalizationController {
             translation.save();
         }
 
-        res.json({success:true, translation: translation});
+        const responseData = {
+            message: i18n.t('successSavingTranslation'),
+            translation: translation
+        };
+
+        ApiController.success(responseData, res);
+        return ;
     }
 }
 export default LocalizationController;

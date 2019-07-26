@@ -16,4 +16,20 @@ export default class ApiController {
 
         res.status(200).json(responseObj);
     }
+
+    static failed = (status: number, message: string, res: Response, errorCode?: number) => {
+        const code = errorCode || 132;
+        const responseCode = status || 400;
+
+        const errorObj: any = {
+            success: false,
+            error: {
+                status: responseCode,
+                message: message,
+                errorCode: code
+            }
+        }
+        res.status(responseCode).json(errorObj);
+        return;
+    }
 }

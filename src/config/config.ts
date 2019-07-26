@@ -1,10 +1,14 @@
 export default {
-    "APP_NAME": "api.blockchain.dev",
+    "APP_PROTOCOL": "http://",
+    "APP_NAME": "api.uscip.iskytest.com",
     "db" : {
         "host" : "postgres",
         "user" : "blockchain",
         "password" : "testuser",
         "database" : "blockchain"
+    },
+    "mail" : {
+        "from" : '"USCIP 👻" <noreply@uscip.com>'
     },
     "locales" : {
         "en" : {
@@ -15,5 +19,14 @@ export default {
             "code" : "ru",
             "title" : "Русский"
         }
+    },
+    "client" : {
+        "activationRoute" : "/auth/activate-account",
+        "activationExpiredDays" : 1,
+        "setManualPasswordRoute" : "/auth/set-password",
+        "setManualPasswordExpiredDays" : 3,
+    },
+    "jwt" : {
+        "secret" : "uscip_d874nfydbd84nd"
     }
   };

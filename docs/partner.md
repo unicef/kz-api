@@ -1,0 +1,866 @@
+# Get partner static properties
+Get select properties for partner form
+
+#### Request
+
+**URL: `GET: /partner/properties`**
+
+**Query Params:**
+
+?> **key** - key of property (optional)<br/>
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "roles": [
+            {
+                "id": "ra",
+                "title": "Responsible assistant"
+            }
+        ],
+        "countries": [
+            {
+                "id": 1,
+                "code": "AF",
+                "title": "Afghanistan"
+            }
+        ],
+        "areasOfWork": [
+            {
+                "id": 1,
+                "title": "Adolescent Development and Participation"
+            }
+        ],
+        "ownerships": [
+            {
+                "id": 1,
+                "title": "Private owned"
+            }
+        ],
+        "partnerTypes": [
+            {
+                "id": 1,
+                "title": "Bilateral/multilateral"
+            }
+        ],
+        "csoTypes": [
+            {
+                "id": 1,
+                "title": "International NGO"
+            }
+        ]
+    }
+}
+```
+
+#### ** Success Response with key param **
+- Param: key=areasOfWork</br>
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "areasOfWork": [
+            {
+                "id": 1,
+                "title": "Adolescent Development and Participation"
+            }
+        ]
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+<hr>
+
+# Get partners list
+Get partners list for UNICEF coordinator side
+
+#### Request
+
+**URL: `GET: /partner/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        "partners": [
+            {
+                "id": 1,
+                "name": "First partner",
+                "createdAt": "2019-05-30 12:99:16",
+                "coordinator": "n/a",
+                "programCode": "n/a",
+                "status": "rejected",
+                "areaOfWork": "Adolescent Development and Participation"
+            }
+        ],
+		"currentPage": 1,
+		"lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Get partner information
+Get partner data by partner id
+
+#### Request
+
+**URL: `GET: /partner`**
+
+**URL Params:**
+
+?> **id** - partner id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "id": 1,
+        "statusId": "filled",
+        "assistId": 12,
+        "authorisedId": 13,
+        "nameEn": "First test company",
+        "nameRu": "ПТК Первая тестовая компания",
+        "tradeNameEn": "Volognyanskiy and grandsons",
+        "tradeNameRu": "ОАО Воложнянский и внуки",
+        "license": "20385G-3A9-FE321",
+        "countryId": 228,
+        "ceoFirstNameEn": "Vasil",
+        "ceoFirstNameRu": "Василий",
+        "ceoLastNameEn": "Georgemichelov",
+        "ceoLastNameRu": "Жоржмайклов",
+        "establishmentYear": 1996,
+        "employersCount": 27,
+        "areaOfWorkId": 8,
+        "ownershipId": 2,
+        "partnerTypeId": 1,
+        "csoTypeId": null,
+        "tel": "+38093 238 78 78",
+        "website": "https://cukerman.pro",
+        "cityEn": "Dnipro",
+        "cityRu": "Днепр",
+        "addressEn": "Sholokhova str. 25/12",
+        "addressRu": "ул. Шолохова 22, кв. 12",
+        "zip": "49080",
+        "createdAt": "2019-05-30T12:23:16.478Z",
+        "updatedAt": "2019-05-30T12:23:16.478Z",
+        "country": {
+            "id": 228,
+            "code": "UA",
+            "title": "Ukraine"
+        },
+        "areaOfWork": {
+            "id": 8,
+            "title": "Gender Equality"
+        },
+        "ownership": {
+            "id": 2,
+            "title": "State"
+        },
+        "partnerType": {
+            "id": 1,
+            "title": "Bilateral/multilateral"
+        },
+        "csoType": null
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Get partner details
+Get partner data by partner id for UNICEF client side
+
+#### Request
+
+**URL: `GET: /partner/details`**
+
+**URL Params:**
+
+?> **id** - partner id (required)
+
+**Headers:** <br/>
+**`Authorization: Bearer <Auth token>`**<br/>
+**`Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "id": 1,
+        "statusId": "rejected",
+        "name": "First partner",
+        "tradeName": "Great pertner ltd",
+        "license": "ВО434-ЛРА34",
+        "ceoFirstName": "Philip",
+        "ceoLastName": "Kirkorov",
+        "establishmentYear": 1993,
+        "employersCount": 27,
+        "tel": "380734453499",
+        "website": "http://great.partner.org",
+        "city": "Kyiv",
+        "address": "Vakulenchuka str. 54",
+        "zip": "49080",
+        "createdAt": "2019-05-30 12:23:16",
+        "country": "Ukraine",
+        "areaOfWork": "Adolescent Development and Participation",
+        "ownership": "Private owned",
+        "partnerType": "Bilateral/multilateral",
+        "csoType": null,
+        "assistant": {
+            "id": 12,
+            "email": "uscipassist@maildrop.cc",
+            "firstName": "Partner",
+            "lastName": "Assistant",
+            "occupation": "Assist of partner",
+            "tel": "380922831133",
+            "mobile": "380562342234"
+        },
+        "authorised": {
+            "id": 13,
+            "email": "uscipauthorised@maildrop.cc",
+            "firstName": "Headpartner",
+            "lastName": "Authorised",
+            "occupation": "Head of cleaning",
+            "tel": "380943345453",
+            "mobile": "380563334455"
+        }
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Update partner information
+Update partner information
+
+#### Request
+
+**URL: `PUT: /partner`**
+
+**Body Params:**
+
+?> **company**:<br/> 
+    id - company id (required)
+    nameEn - company name in English (required)<br/>
+    nameRu - company name in Russian (required)<br/>
+    tradeNameEn - trade company name in English (required)<br/>
+    tradeNameRu - trade company name in Russian (required)<br/>
+    license - company license number (required)<br/>
+    country - country object {title,id} (required)<br/>
+    ceoFirstNameEn - seo first name in English (required)<br/>
+    ceoFirstNameRu - seo first name in Russian (required)<br/>
+    ceoLastNameEn - seo last name in English (required)<br/>
+    ceoLastNameRu - seo last name in Russian (required)<br/>
+    establishmentYear - establishment year (required)<br/> 
+    employersCount - count of employers (required)<br/> 
+    areaOfWork - area of work object {title,id} (required)<br/> 
+    ownership - company ownership object {title,id} (required)<br/> 
+    partnerType - partner type object {title,id} (required)<br/> 
+    csoType - CSO type object {title,id} (required)<br/> 
+    tel - company phone number (required) <br/> 
+    website - company website (required)<br/>
+    cityEn - company city in English (required)<br/>
+    cityRu - company city in Russian (required)<br/>
+    addressEn - company address in English (required)<br/>
+    addressRu - company address in Russian (required)<br/>
+    zip - postal zip code (required)<br/>
+    **authorisedPerson**:<br/> 
+    firstNameEn - user first name in English (required)<br/>
+    firstNameRu - user first name in Russian (required)<br/>
+    lastNameEn - user last name in English (required)<br/>
+    lastNameRu - user last name in Russian (required)<br/>
+    occupationEn - user occupation in English (required)<br/>
+    occupationRu - user occupation in Russian (required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "success saving message",
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Update partner documents
+
+#### Request
+
+**URL: `POST: /partner/documents`**
+
+?> **documents**: - array of document objects<br/>
+    title -  document title<br/>
+    id - uploaded document id<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message" : "success updated documents"
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Get partner documents
+Get partner documents list
+
+#### Request
+
+**URL: `GET: /partner/documents`**
+
+**URL Params:**
+
+?> **id** - partner id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": [
+        {
+            "href": "http://api.uscip.iskytest.com/document?id=1",
+            "id": 1,
+            "title": "First Test document"
+        },
+        {
+            "href": "http://api.uscip.iskytest.com/document?id=3",
+            "id": 3,
+            "title": "Third Test document"
+        }
+    ]
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+<hr>
+
+# Get single document
+Get partner document
+
+#### Request
+
+**URL: `GET: /partner/document`**
+
+**URL Params:**
+
+?> **id** - document id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```document body
+
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+<hr>
+
+
+# Delete partner document
+Delete partner document
+
+#### Request
+
+**URL: `DELETE: /partner/document`**
+
+**URL Params:**
+
+?> **id** - document id (required)
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "success message"
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+<hr>

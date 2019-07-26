@@ -17,7 +17,7 @@ router.get("/phrase", getPhraseValidate, LocalizationController.getTranslation);
 router.get("/", getAllTranslations, LocalizationController.getAllTranslations);
 
 // set new or update exists phrase
-router.post("/phrase", postNewTranslation, LocalizationController.getAllTranslations);
+router.post("/phrase", postNewTranslation, LocalizationController.saveTranslation);
 
 
 

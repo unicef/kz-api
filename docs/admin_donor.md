@@ -1,0 +1,297 @@
+
+# Get donors list
+
+#### Request
+
+**URL: `GET: /admin/donor/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "donors": [
+            {
+                "email": "andredonor+1@mailinator.com",
+                "id": 39,
+                "userStatus": "blocked",
+                "createdAt": "2019-07-18 01:07:09",
+                "firstName": "",
+                "lastName": "",
+                "company": "Донорская компания лимитед v3"
+            },
+            {
+                "email": "andredonor@mailinator.com",
+                "id": 38,
+                "userStatus": "not active",
+                "createdAt": "2019-07-18 12:55:21",
+                "firstName": "Андрюха",
+                "lastName": "Донор",
+                "company": "Донорская компания лимитед"
+            }
+        ],
+        "currentPage": 1,
+        "lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Create new donor
+
+#### Request
+
+**URL: `POST: /admin/donor`**
+
+**Body Params:**
+
+?> **email** - user email address (required)<br/>
+**firstNameEn** - user first name in English<br/>
+**firstNameRu** - user first name in Russian<br/>
+**lastNameEn** - user last name in English<br/>
+**lastNameRu** - user last name in Russian<br/>
+**occupationEn** - user occupation in English<br/>
+**occupationRu** - user occupation in Russian<br/>
+**tel** - user phone number<br/> 
+**mobile** - user mobile number<br/>
+**companyEn** - donors Company in English(required)<br/>
+**companyRu** - donors Company in Russian(required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message",
+        userId: 34 // userID 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+<hr>
+
+# Update donor
+
+#### Request
+
+**URL: `PUT: /admin/donor`**
+
+**Body Params:**
+
+?> **id** - user id (required)<br/>
+**email** - user email address (required)<br/>
+**firstNameEn** - user first name in English<br/>
+**firstNameRu** - user first name in Russian<br/>
+**lastNameEn** - user last name in English<br/>
+**lastNameRu** - user last name in Russian<br/>
+**occupationEn** - user occupation in English<br/>
+**occupationRu** - user occupation in Russian<br/>
+**tel** - user phone number<br/> 
+**mobile** - user mobile number<br/>
+**companyEn** - donors Company in English(required)<br/>
+**companyRu** - donors Company in Russian(required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+<hr>
+
+# Block donor
+Blocking donor account
+
+#### Request
+
+**URL: `PATCH: /admin/donor/block`**
+
+**Body params:**
+
+?> **userId** - id of blocking user (required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+		"message": "Success message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>

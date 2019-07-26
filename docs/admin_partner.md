@@ -1,0 +1,489 @@
+# Create new partner account
+
+#### Request
+
+**URL: `POST: /admin/partner`**
+
+**Body Params:**
+
+?> **user**:<br/>
+    email - user email address (required)<br/>
+    firstNameEn - user first name in English<br/>
+    firstNameRu - user first name in Russian<br/>
+    lastNameEn - user last name in English<br/>
+    lastNameRu - user last name in Russian<br/>
+    occupationEn - user occupation in English<br/>
+    occupationRu - user occupation in Russian<br/>
+    tel - user phone number<br/> 
+    mobile - user mobile number<br/>
+    role - role object {title,id} (required)<br/>
+**company**:<br/> 
+    nameEn - company name in English (required)<br/>
+    nameRu - company name in Russian (required)<br/>
+    tradeNameEn - trade company name in English<br/>
+    tradeNameRu - trade company name in Russian<br/>
+    license - company license number<br/>
+    country - country objectn{title,id} <br/>
+    ceoFirstNameEn - seo first name in English<br/>
+    ceoFirstNameRu - seo first name in Russian<br/>
+    ceoLastNameEn - seo last name in English<br/>
+    ceoLastNameRu - seo last name in Russian<br/>
+    establishmentYear - establishment year<br/> 
+    employersCount - count of employers<br/> 
+    areaOfWork - area of work object {title,id}<br/> 
+    ownership - company ownership object {title,id}<br/> 
+    partnerType - partner type object {title,id}<br/> 
+    csoType - CSO type object {title,id}<br/> 
+    tel - company phone number<br/> 
+    website - company website<br/>
+    cityEn - company city in English<br/>
+    cityRu - company city in Russian<br/>
+    addressEn - company address in English<br/>
+    addressRu - company address in Russian<br/>
+    zip - postal zip code<br/>
+**documents**: - array of document objects<br/>
+    title -  document title<br/>
+    id - document uploaded id<br/>
+
+#### Request body example:
+```json
+{
+	"user": {
+		"email": "testuscip@mailinator.com",
+		"firstNameEn": "Oleg",
+		"firstNameRu": "Олег",
+		"lastNameEn": "Dyatlov",
+		"lastNameRu": "Дятлов",
+		"occupationEn": "PHP developer",
+		"occupationRu": "Разработчик серверных приложений",
+		"tel": "+38 56 238 10 93",
+		"mobile": "+38 093 587 18 18",
+		"role": {
+			"id": "ra",
+			"title": "Responsible assistant"
+		}
+	},
+	"company": {
+		"nameEn": "First test company",
+		"nameRu": "ПТК Первая тестовая компания",
+		"tradeNameEn": "Volognyanskiy and grandsons",
+		"tradeNameRu": "ОАО Воложнянский и внуки",
+		"license": "20385G-3A9-FE321",
+		"country": {
+			"id": 228,
+			"title": "Ukraine"
+		},
+		"ceoFirstNameEn": "Vasil",
+		"ceoFirstNameRu": "Василий",
+		"ceoLastNameEn": "Georgemichelov",
+		"ceoLastNameRu": "Жоржмайклов",
+		"establishmentYear": 1996,
+		"employersCount": 27,
+		"areaOfWork": {
+			"id": 8,
+			"title": "Gender Equality"
+		},
+		"ownership": {
+			"id": 2,
+			"title": "State"
+		},
+		"partnerType": {
+			"id": 1,
+			"title": "Bilateral/multilateral"
+		},
+		"csoType": null,
+		"tel": "+38093 238 78 78",
+		"website": "https://cukerman.pro",
+		"cityEn": "Dnipro",
+		"cityRu": "Днепр",
+		"addressEn": "Sholokhova str. 25/12",
+		"addressRu": "ул. Шолохова 25, кв. 12",
+		"zip": "49080"
+	},
+	"documents": [
+		{
+			"title": "Регистрация",
+			"docId": "039snnv932mc"
+		},
+		{
+			"title": "Перерегистрация",
+			"docId": "4dkjnv9e32mc"
+		}
+	]
+}
+```
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message",
+        userId: 34, // userID 
+        companyId: 12 // company id
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+
+<!-- tabs:end -->
+
+<hr>
+
+# Update partner account
+
+#### Request
+
+**URL: `PUT: /admin/partner`**
+
+**Body Params:**
+
+?> **user**:<br/> 
+    id - user id (required)<br/>
+    email - user email address (required)<br/>
+    firstNameEn - user first name in English<br/>
+    firstNameRu - user first name in Russian<br/>
+    lastNameEn - user last name in English<br/>
+    lastNameRu - user last name in Russian<br/>
+    occupationEn - user occupation in English<br/>
+    occupationRu - user occupation in Russian<br/>
+    tel - user phone number<br/> 
+    mobile - user mobile number<br/>
+    role - role object {title,id} (required)<br/>
+**company**:<br/> 
+    id - partner id (required)<br/>
+    nameEn - company name in English (required)<br/>
+    nameRu - company name in Russian (required)<br/>
+    tradeNameEn - trade company name in English<br/>
+    tradeNameRu - trade company name in Russian<br/>
+    license - company license number<br/>
+    country - country objectn{title,id} <br/>
+    ceoFirstNameEn - seo first name in English<br/>
+    ceoFirstNameRu - seo first name in Russian<br/>
+    ceoLastNameEn - seo last name in English<br/>
+    ceoLastNameRu - seo last name in Russian<br/>
+    establishmentYear - establishment year<br/> 
+    employersCount - count of employers<br/> 
+    areaOfWork - area of work object {title,id}<br/> 
+    ownership - company ownership object {title,id}<br/> 
+    partnerType - partner type object {title,id}<br/> 
+    csoType - CSO type object {title,id}<br/> 
+    tel - company phone number<br/> 
+    website - company website<br/>
+    cityEn - company city in English<br/>
+    cityRu - company city in Russian<br/>
+    addressEn - company address in English<br/>
+    addressRu - company address in Russian<br/>
+    zip - postal zip code<br/>
+**documents**: - array of document objects<br/>
+    title -  document title<br/>
+    id - document uploaded id<br/>
+
+#### Request body example:
+```json
+{
+	"user": {
+		"id": 23,
+		"email": "testuscip@mailinator.com",
+		"firstNameEn": "Oleg",
+		"firstNameRu": "Олег",
+		"lastNameEn": "Dyatlov",
+		"lastNameRu": "Дятлов",
+		"occupationEn": "PHP developer",
+		"occupationRu": "Разработчик серверных приложений",
+		"tel": "+38 56 238 10 93",
+		"mobile": "+38 093 587 18 18",
+		"role": {
+			"id": "ra",
+			"title": "Responsible assistant"
+		}
+	},
+	"company": {
+		"id": 24
+		"nameEn": "First test company",
+		"nameRu": "ПТК Первая тестовая компания",
+		"tradeNameEn": "Volognyanskiy and grandsons",
+		"tradeNameRu": "ОАО Воложнянский и внуки",
+		"license": "20385G-3A9-FE321",
+		"country": {
+			"id": 228,
+			"title": "Ukraine"
+		},
+		"ceoFirstNameEn": "Vasil",
+		"ceoFirstNameRu": "Василий",
+		"ceoLastNameEn": "Georgemichelov",
+		"ceoLastNameRu": "Жоржмайклов",
+		"establishmentYear": 1996,
+		"employersCount": 27,
+		"areaOfWork": {
+			"id": 8,
+			"title": "Gender Equality"
+		},
+		"ownership": {
+			"id": 2,
+			"title": "State"
+		},
+		"partnerType": {
+			"id": 1,
+			"title": "Bilateral/multilateral"
+		},
+		"csoType": null,
+		"tel": "+38093 238 78 78",
+		"website": "https://cukerman.pro",
+		"cityEn": "Dnipro",
+		"cityRu": "Днепр",
+		"addressEn": "Sholokhova str. 25/12",
+		"addressRu": "ул. Шолохова 25, кв. 12",
+		"zip": "49080"
+	},
+	"documents": [
+		{
+			"title": "Регистрация",
+			"docId": "039snnv932mc"
+		},
+		{
+			"title": "Перерегистрация",
+			"docId": "4dkjnv9e32mc"
+		}
+	]
+}
+```
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        message: "Success message"
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Get partners list
+
+#### Request
+
+**URL: `GET: /admin/partner/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+        "partners": [
+			{
+				"email": "uscipassist@maildrop.cc",
+				"id": 12,
+				"userStatus": "not active",
+				"createdAt": "2019-06-04 08:99:51",
+				"firstName": "Partner",
+				"lastName": "Assistant",
+				"role": "Responsible assistant",
+				"company": "First partner",
+				"companyStatus": "filled"
+			},
+			{
+				"email": "uscipauthorised@maildrop.cc",
+				"id": 13,
+				"userStatus": "active",
+				"createdAt": "2019-06-04 08:99:37",
+				"firstName": "Headpartner",
+				"lastName": "Authorised",
+				"role": "Authorised person",
+				"company": "First partner",
+				"companyStatus": "filled"
+			}
+		],
+		"currentPage": 1,
+		"lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Block partner account
+Blocking partner account and creating new account with same role
+
+#### Request
+
+**URL: `PATCH: /admin/partner/block`**
+
+**Body params:**
+
+?> **userId** - id of blocking user (required)<br/>
+**email** - email of new user (required)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    success: true,
+    error: {},
+    data: {
+		"message": "Success message",
+		"newUserId": 23
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
