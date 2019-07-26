@@ -2,10 +2,10 @@ export default {
     "APP_PROTOCOL": "http://",
     "APP_NAME": "api.uscip.iskytest.com",
     "db" : {
-        "host" : "postgres",
-        "user" : "blockchain",
-        "password" : "testuser",
-        "database" : "blockchain"
+        "host" : "unipgdbdevn01",
+        "user" : "kazblkchndbusr",
+        "password" : "K@zB1KL0ck",
+        "database" : "kazblkchn_db"
     },
     "mail" : {
         "from" : '"USCIP 👻" <noreply@uscip.com>'
