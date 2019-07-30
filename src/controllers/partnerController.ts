@@ -323,7 +323,7 @@ class PartnerController {
             }
             await partner.getAssistId();
             await partner.getAuthorisedId();
-            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin() && !req.user.isUnicefUser()) {
                 throw new BadPermissions();
             }
 
