@@ -426,6 +426,17 @@ class PartnerController {
 
             await partnerDocument.destroy();
 
+            const partnerDocuments = await PartnerDocument.findAll({
+                where: {
+                    partnerId: partner.id
+                }
+            });
+
+            if (partnerDocuments == null || partnerDocuments==undefined) {
+                partner.statusId = Partner.partnerStatusNew;
+                partner.save();
+            }
+
             ApiController.success({
                 message: i18n.t('successDeleteDoc')
             }, res)
