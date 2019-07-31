@@ -88,11 +88,6 @@ class AdminPartnerController {
                 throw new UserNotfind(400, 116, i18n.t('adminUserNotFind'), 'User with id:' + req.body.user.id + ' not find');
             }
 
-            const partner = await Partner.findByPk(req.body.company.id);
-            if (partner == null) {
-                throw new PartnerNotFind(400, 110, i18n.t('adminPartnerNotFind'), 'Partner with id:' + req.body.company.id + ' nod find');
-            }
-
             // get user request data
             let userData = UserHelper.getUserDataFromRequest(req.body.user);
             const userPersonalData = await UserPersonalData.findOne({
@@ -106,7 +101,20 @@ class AdminPartnerController {
             await userPersonalData.update(userData);
             // get partner data from request
             let partnerData = PartnerHelper.getPartnerDataFromRequest(req.body.company);
-            await partner.update(partnerData);
+            let partner: Partner|null = null;
+            if (req.body.company.id) {
+                partner = await Partner.findByPk(req.body.company.id);
+                if (partner == null) {
+                    throw new PartnerNotFind(400, 110, i18n.t('adminPartnerNotFind'), 'Partner with id:' + req.body.company.id + ' nod find');
+                }    
+                await partner.update(partnerData);
+            } else {
+                // create partner and set partner id into user partner id property
+                partner = await Partner.create(partnerData);
+
+                user.partnerId = partner.id;
+                user.save();
+            }
             // working with partner documents
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                 req.body.documents.forEach(async (element: any) => {

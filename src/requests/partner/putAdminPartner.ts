@@ -43,7 +43,7 @@ const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 }).pattern(/./, Joi.any()).required()
             }).pattern(/./, Joi.any()),
             company: Joi.object().keys({
-                id: Joi.number().required(),
+                id: Joi.number().allow('').allow(null),
                 nameEn: Joi.string().max(255).required(),
                 nameRu: Joi.string().max(255).required(),
                 tradeNameEn: Joi.string().max(255).allow('').allow(null),
