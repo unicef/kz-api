@@ -432,6 +432,8 @@ class PartnerController {
                 }
             });
 
+            console.log(partnerDocuments);
+
             if (partnerDocuments == null || partnerDocuments==undefined) {
                 partner.statusId = Partner.partnerStatusNew;
                 partner.save();

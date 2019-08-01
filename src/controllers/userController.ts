@@ -43,6 +43,7 @@ import BlockedUserException from "../exceptions/blockedUserException";
 import UserRepository from "../repositories/userRepository";
 import DonorRepository from "../repositories/donorRepository";
 import BadValidationException from "../exceptions/badValidationException";
+import SetPasswordHashRepository from "../repositories/setPasswordHashRepository";
 
 class UserController {
     // get users list
@@ -369,9 +370,10 @@ class UserController {
             user.save();
     
             hashModel.destroy();
+            const deleteHashes = SetPasswordHashRepository.deleteHashesByUserId(user.id);
     
             const responseData = {
-                message: i18n.t('successUserActivation')
+                message: i18n.t('successUserPasswordSet')
             }
     
             ApiController.success(responseData, res);

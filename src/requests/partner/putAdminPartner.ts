@@ -72,8 +72,8 @@ const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                     title: Joi.string().max(255),
                 }).allow(null),
                 csoType: Joi.object().keys({
-                    id: Joi.number(),
-                    title: Joi.string().max(255),
+                    id: Joi.number().allow(null),
+                    title: Joi.string().max(255).allow(null),
                 }).allow(null),
                 tel: Joi.string().max(20).allow('').allow(null),
                 website: Joi.string().max(124).allow('').allow(null),
