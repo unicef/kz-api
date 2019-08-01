@@ -425,14 +425,14 @@ class PartnerController {
                 throw new BadPermissions();
             }
 
-            const partnerDocuments = await PartnerDocument.findAll({
-                where: {
-                    partnerId: partner.id
-                }
-            });
-            if (partnerDocuments.length == 1) {
-                throw new LastPartnerDocument();
-            }
+            // const partnerDocuments = await PartnerDocument.findAll({
+            //     where: {
+            //         partnerId: partner.id
+            //     }
+            // });
+            // if (partnerDocuments.length == 1) {
+            //     throw new LastPartnerDocument();
+            // }
 
             await partnerDocument.destroy();
 
