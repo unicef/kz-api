@@ -25,6 +25,7 @@ import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
 import Pagination from "../services/pagination";
+import LastPartnerDocument from "../exceptions/document/partnerAlreadyBlocked";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -424,27 +425,29 @@ class PartnerController {
                 throw new BadPermissions();
             }
 
-            await partnerDocument.destroy();
-
             const partnerDocuments = await PartnerDocument.findAll({
                 where: {
                     partnerId: partner.id
                 }
             });
-
-            console.log(partnerDocuments);
-
-            if (partnerDocuments == null || partnerDocuments==undefined) {
-                partner.statusId = Partner.partnerStatusNew;
-                partner.save();
+            if (partnerDocuments.length == 1) {
+                throw new LastPartnerDocument();
             }
+
+            await partnerDocument.destroy();
 
             ApiController.success({
                 message: i18n.t('successDeleteDoc')
             }, res)
 
         } catch (error) {
-
+            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
     }
 }
