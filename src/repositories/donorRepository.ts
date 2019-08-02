@@ -12,7 +12,7 @@ class DonorRepository {
         let searchInstanse = '';
         if (searchPhrase) {
             const idSearch = +searchPhrase ? +searchPhrase : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ searchPhrase +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ searchPhrase +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ searchPhrase +'%\' OR dc."company' +lang+ '" LIKE \'%'+ searchPhrase +'%\')';
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" ILIKE \'%'+ searchPhrase +'%\' OR upd."firstName' +lang+ '" ILIKE \'%'+ searchPhrase +'%\' OR upd."lastName' +lang+ '" ILIKE \'%'+ searchPhrase +'%\' OR dc."company' +lang+ '" ILIKE \'%'+ searchPhrase +'%\')';
         }
 
         const donorsQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" LEFT JOIN donors_companies dc ON dc."userId" = users."id" WHERE users_has_roles."roleId" = \'' + Role.donorId + '\'' + searchInstanse + ' GROUP BY users_has_roles."userId"', {

@@ -103,7 +103,7 @@ class AdminUnicefController {
         let searchInstanse = '';
         if (req.query.search) {
             const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ req.query.search +'%\')';
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" ILIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" ILIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" ILIKE \'%'+ req.query.search +'%\')';
         }
 
         // get unicef ids

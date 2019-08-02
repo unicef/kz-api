@@ -24,7 +24,7 @@ class PartnerRepository {
         let searchInstanse = '';
         if (searchPhrase) {
             const idSearch = +searchPhrase ? +searchPhrase : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ searchPhrase +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ searchPhrase +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ searchPhrase +'%\' OR p."name' +lang+ '" LIKE \'%'+ searchPhrase +'%\')';
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" ILIKE \'%'+ searchPhrase +'%\' OR upd."firstName' +lang+ '" ILIKE \'%'+ searchPhrase +'%\' OR upd."lastName' +lang+ '" ILIKE \'%'+ searchPhrase +'%\' OR p."name' +lang+ '" ILIKE \'%'+ searchPhrase +'%\')';
         }
 
         const partnersQuery: Array<{userId: number}>|null = await sequelize.query('SELECT users_has_roles."userId" as "userId" FROM users_has_roles RIGHT JOIN users ON users_has_roles."userId" = users."id" RIGHT JOIN users_personal_data upd ON users."id" = upd."userId" LEFT JOIN partners p ON p."id" = users."partnerId" WHERE (users_has_roles."roleId" = \'' + Role.partnerAssistId + '\' OR users_has_roles."roleId" = \'' + Role.partnerAuthorisedId  + '\')' + searchInstanse + ' GROUP BY users_has_roles."userId"', {
@@ -53,7 +53,7 @@ class PartnerRepository {
         let searchInstanse = '';
         if (searchPhrase) {
             const idSearch = +searchPhrase ? +searchPhrase : 0;
-            searchInstanse = ' WHERE p."id" = ' + idSearch +' OR p."name' +lang+ '" LIKE \'%'+ searchPhrase +'%\'';
+            searchInstanse = ' WHERE p."id" = ' + idSearch +' OR p."name' +lang+ '" ILIKE \'%'+ searchPhrase +'%\'';
         }
 
         const partnersQuery: Array<{id: number}>|null = await sequelize.query('SELECT p."id" as "id" FROM partners p ' + searchInstanse, {

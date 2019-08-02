@@ -45,7 +45,7 @@ class AdminPageController {
     
             if (req.query.search && req.query.search!=='') {
                 const idSearch = +req.query.search ? +req.query.search : 0;
-                searchInstanse = 'WHERE "id" = ' + idSearch +' OR "key" LIKE \'%'+ req.query.search +'%\' OR "titleRu" LIKE \'%'+ req.query.search +'%\' OR "titleEn" LIKE \'%'+ req.query.search +'%\'';
+                searchInstanse = 'WHERE "id" = ' + idSearch +' OR "key" ILIKE \'%'+ req.query.search +'%\' OR "titleRu" ILIKE \'%'+ req.query.search +'%\' OR "titleEn" ILIKE \'%'+ req.query.search +'%\'';
             }
     
             const pagesQuery: Array<{id: number}>|null = await sequelize.query('SELECT "id" FROM pages ' + searchInstanse, {
