@@ -25,7 +25,6 @@ import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
 import Pagination from "../services/pagination";
-import LastPartnerDocument from "../exceptions/document/partnerAlreadyBlocked";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -408,7 +407,6 @@ class PartnerController {
     static deleteDocument = async (req: Request, res: Response) => {
         try {
             const documentId = req.query.id;
-
             const partnerDocument = await PartnerDocument.findByPk(documentId);
             if (partnerDocument == null) {
                 throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
@@ -424,15 +422,10 @@ class PartnerController {
             if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
                 throw new BadPermissions();
             }
-
-            // const partnerDocuments = await PartnerDocument.findAll({
-            //     where: {
-            //         partnerId: partner.id
-            //     }
-            // });
-            // if (partnerDocuments.length == 1) {
-            //     throw new LastPartnerDocument();
-            // }
+            if (partnerDocument.title == 'Partner Declaration Profile and due Diligence Verification Form') {
+                partner.statusId = Partner.partnerStatusFilled;
+                partner.save();
+            }
 
             await partnerDocument.destroy();
 

@@ -28,7 +28,7 @@ class DonorRepository {
 
         let usersIds = donorsQuery.map(a => a.userId);
 
-        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "status", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:MI:SS\') as "createdAt", upd."firstName' +lang+ '" as "firstName", upd."lastName' +lang+ '" as "lastName", dc."company' +lang+ '" as "company" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN donors_companies dc ON dc."userId" = users."id" WHERE users."id" IN (' + usersIds.join(', ') + ') ORDER BY users."id" DESC';
+        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "status", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", upd."firstName' +lang+ '" as "firstName", upd."lastName' +lang+ '" as "lastName", dc."company' +lang+ '" as "company" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN donors_companies dc ON dc."userId" = users."id" WHERE users."id" IN (' + usersIds.join(', ') + ') ORDER BY users."id" DESC';
 
         query = query + pagination.getLimitOffsetParam();
 
