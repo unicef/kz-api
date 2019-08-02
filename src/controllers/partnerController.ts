@@ -101,6 +101,10 @@ class PartnerController {
                 throw new PartnerNotFind();
             }
             let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
+            
+            if (PartnerHelper.isPartnerDataDifferent(partnerData, partner)) {
+                partnerData.statusId = Partner.partnerStatusFilled;
+            }
             await partner.update(partnerData);
 
             if (user.hasRole('ra')) {

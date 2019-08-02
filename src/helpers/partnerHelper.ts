@@ -61,6 +61,23 @@ class PartnerHelper {
         return partnerData;
     }
 
+    static isPartnerDataDifferent = (companyData: any, partner: Partner) => {
+        let isTextsDiff = PartnerHelper.partnerFields.some((field) => {
+            if (companyData[field] !== partner.get(field)) {
+                return true;
+            }
+            return false;
+        });
+        let isSelectsDiff = PartnerHelper.partnerSelectFields.some((field)=>{
+            if (companyData[field+"Id"] !== partner.get(field+"Id")) {
+                return true;
+            } 
+            return false;
+        });
+
+        return  (isTextsDiff || isSelectsDiff);
+    }
+
     /**
      * Get responsible assistant user from partner object
      */
