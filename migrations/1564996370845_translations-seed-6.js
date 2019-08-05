@@ -50,7 +50,6 @@ exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.validation.field.required', 'Поле является обязательным', 'Field is required')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('myProjects.title', 'Мои проекты', 'My Projects')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('passwordSettings.title', 'Настройка пароля', 'Password settings')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('adminSuccessPartnerSaving', 'Данные партнера сохранены', 'Admin Success Partner Saving')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('companyUsers.title', 'Работники компании', 'Company Employees')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('partnersList.tableHeaders.programCode', 'Код программы', 'Program Code')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('donorsList.tableHeaders.id', 'id', 'id')");
@@ -245,7 +244,6 @@ exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('companyUsers.assistant', 'Проектный координатор', 'Responsible assistant')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.occupation', 'Должность', 'Occupation')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.fields.tradeName', 'Торговое имя', 'Trade name/DBA')");
-    pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('common.btns.changePassword', 'Сменить пароль', 'Change password')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('successDonorCreation', 'Аккаунт донора создан успешно', 'Donor account successfully created')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('adminUserNotFind', 'Пользователь не найден', 'User is not found')");
     pgm.sql("INSERT INTO public.translations (\"key\", ru, en) VALUES('userPersonalDataNotFind', 'Личные данные пользователя не найдены', 'No user personal data found')");
