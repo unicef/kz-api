@@ -3,30 +3,14 @@ import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
 import i18n from "i18next";
 import BadValidationException from "../../exceptions/badValidationException";
+import LocalizationHelper from "../../helpers/localizationHelper";
 import Role from "../../models/role";
 
 const putPartnerStepInformation = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         company: Joi.object().options({
             abortEarly: false,
-            language: {
-                string: {
-                    length: i18n.t('stringLengthValidation'),
-                    min: i18n.t('stringMinValidation'),
-                    max: i18n.t('stringMaxValidation'),
-                    base: i18n.t('stringBaseValidation'),
-                    email: i18n.t('stringEmailValidation'),
-                    regex: {
-                        base: i18n.t('stringRegexPasswordValidation')
-                    }
-                },
-                any: {
-                    required: i18n.t('anyRequiredValidation'),
-                    empty: i18n.t('anyEmptyValidation'),
-                    unknown: i18n.t('anyUnknownValidation'),
-                    allowOnly: i18n.t('anyValidValidation')
-                }
-            }
+            language: LocalizationHelper.getValidationMessages()
         }).keys({
             nameEn: Joi.string().max(255).required(),
             nameRu: Joi.string().max(255).required(),
@@ -69,24 +53,7 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
         }).pattern(/./, Joi.any()),
         authorisedPerson: Joi.object().options({
             abortEarly: false,
-            language: {
-                string: {
-                    length: i18n.t('stringLengthValidation'),
-                    min: i18n.t('stringMinValidation'),
-                    max: i18n.t('stringMaxValidation'),
-                    base: i18n.t('stringBaseValidation'),
-                    email: i18n.t('stringEmailValidation'),
-                    regex: {
-                        base: i18n.t('stringRegexPasswordValidation')
-                    }
-                },
-                any: {
-                    required: i18n.t('anyRequiredValidation'),
-                    empty: i18n.t('anyEmptyValidation'),
-                    unknown: i18n.t('anyUnknownValidation'),
-                    allowOnly: i18n.t('anyValidValidation')
-                }
-            }
+            language: LocalizationHelper.getValidationMessages()
         }).keys({
             email: Joi.string().email({ minDomainSegments: 2 }),
             firstNameEn: Joi.string().max(255).required(),
