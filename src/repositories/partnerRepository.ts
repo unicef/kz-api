@@ -3,6 +3,7 @@ import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import Pagination from "../services/pagination";
 import Role from "../models/role";
+import PartnerHelper from "../helpers/partnerHelper";
 
 class PartnerRepository {
     
@@ -14,6 +15,12 @@ class PartnerRepository {
             nest: true,
             plain: true
         });
+
+        if (partner!==null) {
+            PartnerHelper.partnerSelectFields.forEach((key) => {
+                partner[key] = partner[key]['id'] == null?null:partner[key];
+            })
+        }
         
         return partner;
     }

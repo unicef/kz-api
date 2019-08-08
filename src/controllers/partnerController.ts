@@ -288,13 +288,22 @@ class PartnerController {
     }
 
     static getPartnerById = async (req: Request, res: Response) => {
-        const partnerId = req.query.id;
-        const partner = await PartnerRepository.findById(partnerId);
-        if (partner == null) {
-            throw new PartnerNotFind();
+        try {
+            const partnerId = req.query.id;
+            const partner = await PartnerRepository.findById(partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            
+            return ApiController.success(partner, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
-        
-        return ApiController.success(partner, res);
     }
 
     static uploadingDocument = async (req: Request, res: Response) => {

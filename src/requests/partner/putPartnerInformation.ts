@@ -47,7 +47,7 @@ const putPartnerInformation = (req: Request, res: Response, next: NextFunction) 
             cityRu: Joi.string().max(255).required(),
             addressEn: Joi.string().max(255).required(),
             addressRu: Joi.string().max(255).required(),
-            zip: Joi.string().max(20).required(),
+            zip: Joi.string().max(20).allow('').allow(null),
         }).pattern(/./, Joi.any()),
         authorisedPerson: Joi.object().options({
             abortEarly: false,
