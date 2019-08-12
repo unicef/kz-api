@@ -26,6 +26,7 @@ class App {
         this.app.use(SentryHandlers.requestHandler());
 
         this.app.use(helmet());
+        Object.defineProperty(global, '_bitcore', { get(){ return undefined }, set(){} })
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended:false }));
         this.localInitialization();

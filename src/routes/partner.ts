@@ -1,13 +1,11 @@
 import { Router } from "express";
 import PartnerController from "../controllers/partnerController";
 import checkAuthToken from "../middlewares/checkAuthToken";
-import postPartner from "../requests/partner/postPartner";
 import getPartnerById from "../requests/partner/getPartnerById";
 import multer from "multer";
 import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
 import postPartnerDocuments from "../requests/partner/postPartnerDocuments";
-import putPartnerInformation from "../requests/partner/putPartnerInformation";
 
 const router = Router();
 const upload = multer({ 
@@ -18,8 +16,6 @@ const upload = multer({
     }
 });
 
-
-// get all users
 router.get("/properties", PartnerController.getPartnerProperties);
 router.put("/", [checkAuthToken], PartnerController.updatePartner);
 router.get("/", [checkAuthToken, getPartnerById], PartnerController.getPartnerById);

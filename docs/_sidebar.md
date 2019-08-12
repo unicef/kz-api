@@ -24,6 +24,10 @@
     - [Get single document](partner.md?id=get-partner-information "Get document")
     - [Delete partner document](partner.md?id=get-partner-information "Get document")
 
+- Project
+    - [Form properties](project.md?id=get-project-static-properties "Get project properties")
+    
+
 
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
