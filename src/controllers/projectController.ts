@@ -20,25 +20,7 @@ import BadRole from "../exceptions/user/badRole";
 class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
-        const user = {
-            id: 1,
-            firstNameEn: "Nikolas",
-            firstNameRu: "Николай",
-            lastNameEn: "Kage",
-            lastNameRu: "Кейдж"
-        };
-        const project = {
-            id: 10101010
-        };
-        const event = {
-            action: "created",
-            data: {
-                field: "title",
-                value: "Title title title"
-            }
-        };
-
-        const history = await HistoryRepository.create(user, project, event);
+        const history = await HistoryRepository.getList();
 
         return ApiController.success({ history: history }, res);
     }
