@@ -11,7 +11,7 @@ class MongoDB {
             const mongoHost: string = Config.get("MONGO_HOST", 'localhost');
             const mongoPort: string = Config.get("MONGO_PORT", 27017);
             const mongoUrl: string = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort;
-            const mongoConnect = await MongoClient.connect(mongoUrl);
+            const mongoConnect = await MongoClient.connect(mongoUrl, {useNewUrlParser: true});
 
             MongoDB.connection = mongoConnect;
             return MongoDB.connection;
