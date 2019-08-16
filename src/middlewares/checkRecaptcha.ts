@@ -3,14 +3,15 @@ import { RecaptchaV2  } from "express-recaptcha";
 import BadRecaptchaException from "../exceptions/badRecaptchaException";
 import HttpException from "../exceptions/httpException";
 import ApiController from "../controllers/apiController";
+import Config from "../services/config";
 
 export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) => {
-    const recaptchaSite: string = process.env.RECAPTCHA_SITE || '';
-    const recaptchaSecret: string = process.env.RECAPTCHA_SECRET || '';
+    const recaptchaSite: string = Config.get("RECAPTCHA_SITE", "");
+    const recaptchaSecret: string = Config.get("RECAPTCHA_SECRET", "");
     const recaptcha = new RecaptchaV2(recaptchaSite, recaptchaSecret);
     try {
         recaptcha.verify(req, (error, data) => {
-            if (error && process.env.NODE_ENV=='production') {
+            if (error && Config.get("NODE_ENV", "dev")!=="dev") {
                 throw new BadRecaptchaException();
             }
             next();

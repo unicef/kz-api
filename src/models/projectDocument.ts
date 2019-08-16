@@ -2,27 +2,30 @@ import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize"
 import Config from "../services/config";
 
-class PartnerDocument extends Model {
-    static documentsRoute = '/partner/document';
+class ProjectDocument extends Model {
+    static documentsRoute = '/project/document';
+    static documentsFolder = __dirname + '/../../assets/projects/documents/';
+    
     public id!: number;
-    public partnerId!: number;
+    public projectId!: number;
     public userId!: number;
     public title!: string;
     public filename!: string;
     public size!: number;
+    public hash!: string|null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
     get href() {
         const protocol = Config.get("APP_PROTOCOL", 'http://');
         const appName = Config.get("APP_NAME", 'api.local.com');
-        return protocol + appName + PartnerDocument.documentsRoute + '?id=' + this.id;
+        return protocol + appName + ProjectDocument.documentsRoute + '?id=' + this.id;
     }
 
     public getFilePath = () => {
         const fileFoler = this.filename.substring(0, 2);
 
-        return 'assets/partners/documents/' + fileFoler + '/' + this.filename;
+        return 'assets/projects/documents/' + fileFoler + '/' + this.filename;
     }
 
     public getPublicFilename = () => {
@@ -45,14 +48,14 @@ class PartnerDocument extends Model {
     }
 }
 
-PartnerDocument.init(
+ProjectDocument.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
-        partnerId: {
+        projectId: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
@@ -71,14 +74,19 @@ PartnerDocument.init(
         size: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        hash: {
+            type: new DataTypes.STRING(255),
+            allowNull: true,
+            defaultValue: null
         }
     },
     {
-        tableName: 'partner_documents',
-        modelName: 'partnerDocument',
+        tableName: 'project_documents',
+        modelName: 'projectDocument',
         timestamps: true,
         sequelize: sequelize
     }
 )
 
-export default PartnerDocument;
+export default ProjectDocument;

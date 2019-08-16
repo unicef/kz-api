@@ -7,7 +7,7 @@ import i18n from "i18next";
 import fs from "fs";
 import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
-import config from "../config/config";
+import Config from "../services/config";
 import { captureException } from "@sentry/node";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import BadActivationLink from "../exceptions/badActivationLink";
@@ -69,7 +69,7 @@ class UserController {
 
             responseData.seed = {
                 phrase: seedPhrase,
-                link: 'http://' + config.APP_NAME + '/file?id=' + user.id
+                link: 'http://' + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
             }
         }
         // showForm flag
@@ -147,7 +147,7 @@ class UserController {
                 throw new BadActivationLink();
             }
             if (today > hashModel.expiredAt) {
-                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
                 const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
                 return res.status(412).json({
                     success:false, 
@@ -197,7 +197,7 @@ class UserController {
             // check user activation 
             if (user.emailVerifiedAt == null) {
                 // get activation user hash
-                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
                 const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
                 return res.status(412).json({
                     success:false, 
@@ -212,7 +212,7 @@ class UserController {
             }
     
             let token = jwt.sign({userEmail: user.email},
-                config.jwt.secret,
+                Config.get('JWT_SECRET', 'jwt_default'),
                 { expiresIn: '24h'});
             
             event(new UserLoggedIn(user));
@@ -519,7 +519,7 @@ class UserController {
     static repeatActivationLink = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const repeatHash = req.body.repeatHash;
-            const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+            const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
             const userEmail = CryptoJS.AES.decrypt(repeatHash, secret).toString(CryptoJS.enc.Utf8);
     
             const user = await User.findOne({

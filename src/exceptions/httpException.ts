@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { captureException } from "@sentry/node";
+import Config from "../services/config";
 /**
  * Http Exception class
  */
@@ -49,7 +50,7 @@ class HttpException extends Error {
                 errorCode: this.errorCode,
                 message: this.message,
             };
-        if (process.env.NODE_ENV == 'development') {
+        if (Config.get("NODE_ENV", "dev") == "dev") {
             errorObj['devMessage'] = this.devMessage;
         }
 

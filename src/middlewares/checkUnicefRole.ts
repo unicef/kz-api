@@ -1,19 +1,18 @@
 import { Request, Response, NextFunction } from "express";
-import config from "../config/config";
+import Config from "../services/config";
 import i18n from "i18next";
 import jwt from "jsonwebtoken";
 import AuthRequiredException from "../exceptions/authRequiredException";
 import BadTokenException from "../exceptions/badTokenException";
 import User from "../models/user";
 import BlockedUserException from "../exceptions/blockedUserException";
-import AdminRoleException from "../exceptions/adminRoleException";
 import HttpException from "../exceptions/httpException";
 import ApiController from "../controllers/apiController";
 import BadRole from "../exceptions/user/badRole";
 
 export const checkUnicefRole = (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jwtSecret = config.jwt.secret;
+        const jwtSecret = Config.get('JWT_SECRET', 'jwt_default');
         let token: string|boolean = req.headers['authorization'] || false;
     
         if (!token) {

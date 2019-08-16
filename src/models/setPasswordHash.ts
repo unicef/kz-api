@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
-import config from "../config/config";
+import Config from "../services/config";
 
 class SetPasswordHash extends Model {
     public id!: number;
@@ -11,7 +11,7 @@ class SetPasswordHash extends Model {
     static getExpiredDate = () => {
         var today = new Date();
         var expiredDate = new Date();
-        expiredDate.setDate(today.getDate()+config.client.setManualPasswordExpiredDays);
+        expiredDate.setDate(today.getDate()+Config.get("SET_PASSWORD_LIFE_DAYS", 3));
         
         return expiredDate;
     }

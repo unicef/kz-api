@@ -2,6 +2,8 @@ FROM node:10.15.3
 EXPOSE 3000 9229 3030
 COPY . /home/app
 WORKDIR /home/app
+RUN apt-get update
+RUN apt-get install lsof
 RUN npm install -g typescript
 RUN npm install -g concurrently
 RUN npm install -g docsify-cli

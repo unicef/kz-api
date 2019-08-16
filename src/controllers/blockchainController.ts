@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
-import config from "../config/config";
 import i18n from "i18next";
 import Web3 from 'web3';
 import {Eth} from 'web3-eth';

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ApiController from "./apiController";
-import config from "../config/config";
+import Config from "../services/config";
 import Translation from '../models/translation';
 import i18n from "i18next";
 
@@ -12,7 +12,8 @@ class LocalizationController {
      * @param res 
      */
     static getAvailableLocales = async (req: Request, res: Response) => {
-        ApiController.success(config.locales, res);
+        const locales = Config.get('locales', {"en" : {"code" : "en","title" : "English"}});
+        ApiController.success(locales, res);
     };
     
     /**
@@ -58,7 +59,7 @@ class LocalizationController {
         let createdNew: boolean = false;
         const key: string = req.body.key;
         const defaults: {[key: string] : string} = {};
-        const locales = config.locales;
+        const locales = Config.get('locales', {"en" : {"code" : "en","title" : "English"}});
 
         // set defaults translation values
         for (let key in locales) {
