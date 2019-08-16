@@ -1,9 +1,9 @@
 class SettingHelper {
 
-    static getKZTRate = () => {
-        const kztRate = 384.57;
+    static getUSDRate = () => {
+        const usdRate = 384.57;
 
-        return kztRate;
+        return usdRate;
     }
 
 }

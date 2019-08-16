@@ -17,8 +17,8 @@ class ProjectController {
                 responseData['programmes'] = programmes;
             }
             if (!req.query.key || req.query.key == 'KZTRate') {
-                const kztRate: number = SettingHelper.getKZTRate();
-                responseData['KZTRate'] = kztRate;
+                const usdRate: number = SettingHelper.getUSDRate();
+                responseData['usdRate'] = usdRate;
             }
             if (!req.query.key || req.query.key == 'sections') {
                 const sections = await SectionRepository.findAll();
