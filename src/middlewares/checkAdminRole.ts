@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import config from "../config/config";
-import i18n from "i18next";
+import Config from "../services/config";
 import jwt from "jsonwebtoken";
 import AuthRequiredException from "../exceptions/authRequiredException";
 import BadTokenException from "../exceptions/badTokenException";
@@ -12,7 +11,7 @@ import ApiController from "../controllers/apiController";
 
 export const checkAdminRole = (req: Request, res: Response, next: NextFunction) => {
     try {
-        const jwtSecret = config.jwt.secret;
+        const jwtSecret: string = Config.get('JWT_SECRET', 'jwt_default');
         let token: string|boolean = req.headers['authorization'] || false;
     
         if (!token) {

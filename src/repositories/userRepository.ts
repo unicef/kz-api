@@ -43,7 +43,7 @@ class UserRepository {
         const query = `SELECT u."id", upd."firstName${LANG}" || ' ' || upd."lastName${LANG}" as "name" FROM users u ` +
                       `LEFT JOIN users_has_roles uhr ON u."id" = uhr."userId" `+
                       `LEFT JOIN users_personal_data upd ON u.id = upd."userId" ` + 
-                      `WHERE uhr."roleId" = '${roleId}' ORDER BY u."id" ASC`;
+                      `WHERE uhr."roleId" = '${roleId}' AND u."isBlocked" = false AND u."emailVerifiedAt" IS NOT NULL ORDER BY u."id" ASC`;
     
         const users = await sequelize.query(query,{type: QueryTypes.SELECT});
         return users;

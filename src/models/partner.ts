@@ -1,18 +1,11 @@
 import { Model, DataTypes, QueryTypes, Sequelize } from "sequelize";
 import sequelize from "../services/sequelize";
 import Role from "./role";
-import SHA1 from "crypto-js/sha256";
-import cryptoRandomString from "crypto-random-string";
-import ActivationHash from "./activationHash";
-import config from "../config/config";
-import UserPersonalData from "./userPersonalData";
-import User from "./user";
 import Country from "./country";
 import AreaOfWork from "./areaOfWork";
 import CompanyOwnership from "./companyOwnership";
 import PartnerType from "./partnerType";
 import CSOType from "./csoType";
-import PartnerHelper from "../helpers/partnerHelper";
 
 class Partner extends Model {
     static partnerStatusNew = 'new';

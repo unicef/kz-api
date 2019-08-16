@@ -306,27 +306,6 @@ class PartnerController {
         }
     }
 
-    static uploadingDocument = async (req: Request, res: Response) => {
-        try {
-            const tmpFile = await TmpFile.create({
-                id: req.file.filename,
-                userId: req.user.id,
-                originalName: req.file.originalname,
-                mimeType: req.file.mimetype,
-                size: req.file.size
-            });
-            ApiController.success({id: tmpFile.id}, res);
-            return;
-        } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
-        }
-    }
-
     static getDocuments = async (req: Request, res: Response) => {
         try {
             const partnerId = req.query.id;

@@ -4,6 +4,7 @@ services:
     build: .
     depends_on:
       - postgres
+      - mongo
     ports:
       - "3000:3000"
       - "3030:3030"
@@ -17,3 +18,15 @@ services:
       - ../postgredata:/var/lib/postgresql/data
     ports:
       - 5432:5432
+  mongo:
+    image: mongo
+    ports:
+    - "27017:27017"
+    restart: always
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_INITDB_DATABASE=history
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - ../.mongodata:/data/db

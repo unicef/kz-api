@@ -1,5 +1,5 @@
 import User from "../models/user";
-import config from "../config/config";
+import Config from "../services/config";
 import Mail from "./mail";
 
 // Sending activation link to User email
@@ -12,7 +12,7 @@ class SetManualPasswordLink extends Mail {
 
     constructor (user: User) {
         super();
-        this.from = config.mail.from;
+        this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = user.email;
         this.subject = "Hello! ✔ You was registered on USCIP system. Only one step left";
         this.template = 'setManualPasswordLink';

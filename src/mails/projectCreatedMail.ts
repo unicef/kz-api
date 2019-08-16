@@ -1,28 +1,27 @@
 import User from "../models/user";
 import Config from "../services/config";
 import Mail from "./mail";
-import Partner from "../models/partner";
+import Project from "../models/project";
 
-// Sending activation link to User email
-class SuccessApprovingMail extends Mail {
+class ProjectCreatedMail extends Mail {
     public from?:string;
     public to?:string;
     public subject?:string;
     public template?:string;
     public mailData?: any;
 
-    constructor (user: User, partner: Partner) {
+    constructor (user: User, project: Project) {
         super();
         this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = user.email;
-        this.subject = "Hello! ✔ Your company was approved";
-        this.template = 'successPartnerApproving';
+        this.subject = "Project was created";
+        this.template = 'projectCreated';
 
         this.mailData = {
             user: user,
-            partner: partner
+            project: project
         };
     }
 }
 
-export default SuccessApprovingMail;
+export default ProjectCreatedMail;
