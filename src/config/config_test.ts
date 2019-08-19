@@ -9,7 +9,7 @@ export default {
     "DB_DATABASE": "blockchain",
     "MONGO_USER": "root",
     "MONGO_PASSWORD": "admin",
-    "MONGO_HOST": "mongo",
+    "MONGO_HOST": "127.0.0.1",
     "MONGO_PORT": 27017,
     "MONGO_DATABASE": "history",
     "EMAIL_HOST": "smtp.gmail.com",
