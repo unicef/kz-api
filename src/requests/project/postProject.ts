@@ -18,7 +18,8 @@ const postProject = (req: Request, res: Response, next: NextFunction) => {
             programme: Joi.object().keys({
                 id: Joi.number().allow(null),
                 title: Joi.string().max(255).allow(null),
-            }).required(),
+                code: Joi.string().max(255).allow(null),
+            }).pattern(/./, Joi.any()).required(),
             deadline: Joi.string().max(25).required(),
             ice: Joi.number().required(),
             usdRate: Joi.number().required(),
