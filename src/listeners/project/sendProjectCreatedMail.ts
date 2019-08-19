@@ -2,6 +2,7 @@ import Listener from "../listener";
 import ProjectWasCreated from "../../events/projectWasCreated";
 import ProjectCreatedMail from "../../mails/projectCreatedMail";
 import ProjectOfficerAssignedMail from "../../mails/projectOfficerAssignedMail";
+import User from "../../models/user";
 
 
 class SendProjectCreatedMail extends Listener {
@@ -14,8 +15,11 @@ class SendProjectCreatedMail extends Listener {
         createMail.send();
         
         // set as responsible officer
-        let officerMail = new ProjectOfficerAssignedMail(user, project);
-        officerMail.send();
+        const officer = await User.findByPk(project.officerId);
+        if (officer) {
+            let officerMail = new ProjectOfficerAssignedMail(officer, project);
+            officerMail.send();
+        }
         
         return ;
     }
