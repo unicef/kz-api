@@ -3,6 +3,7 @@ import User from "../models/user";
 import Project from "../models/project";
 import ProjectDocument from "../models/projectDocument";
 import saveUploadDocsHistory from "../listeners/project/saveUploadDocsHistory";
+import generateDocsHash from "../listeners/project/generateDocsHash";
 
 class ProjectDocumentsUploaded extends Event {
     public project: Project;
@@ -18,6 +19,7 @@ class ProjectDocumentsUploaded extends Event {
 
     public listeners = [
         saveUploadDocsHistory,
+        generateDocsHash
     ];
 }
 
