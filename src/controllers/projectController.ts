@@ -16,6 +16,9 @@ import ProjectDocument from "../models/projectDocument";
 import ProjectDocumentsUploaded from "../events/projectDocumentsUploaded";
 import User from "../models/user";
 import BadRole from "../exceptions/user/badRole";
+import BadValidationException from "../exceptions/badValidationException";
+import ProjectRepository from "../repositories/projectRepository";
+import ProjectNotFound from "../exceptions/project/projectNotFound";
 
 class ProjectController {
 
@@ -81,7 +84,7 @@ class ProjectController {
 
             // working with documents
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
-                let docsArray: Array<ProjectDocument>|[] = [];
+                let docsArray: Array<ProjectDocument> | [] = [];
                 req.body.documents.forEach(async (element: any) => {
                     let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
                     if (doc) {
@@ -106,5 +109,31 @@ class ProjectController {
             return;
         }
     }
+
+    static getInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const projectId = req.query.id || false;
+            if (!projectId) {
+                throw new BadValidationException(400, 112, i18n.t('projectSuccessfullyCreated'), 'id param is required');
+            }
+
+            // get project info
+            const project = await ProjectRepository.findById(projectId);
+
+            if (project === null) {
+                throw new ProjectNotFound();
+            }
+
+            return ApiController.success({ project: project }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
+
 export default ProjectController;

@@ -53,3 +53,216 @@ Get select properties for project form
     }
 }
 ```
+<!-- tabs:end -->
+
+<hr>
+
+# Create project 
+
+#### Request
+
+**URL: `POST: /project`**
+
+**Body Params:**
+
+?> **titleEn** - project English title (required)<br/>
+**titleRu** - project Russian title (required)<br/>
+ **programme**:<br/> 
+    id - programme id (required)<br/>
+    title - programme title<br/>
+    code - programme code<br/>
+**deadline** - date of deadline YYYY-MM-DD format (required)<br/>
+**ice** - project budget in KZT (required)<br/>
+**usdRate** - usd exchange rate (required)<br/>
+**officer**: (responsible officer object)<br/> 
+    id - user id (required)<br/>
+    name - user name<br/>
+**section**: (project section object)<br/> 
+    id - section id (required)<br/>
+    title - section title<br/>
+**descriptionEn** - project English description (required)<br/>
+**descriptionRu** - project Russian description (required)<br/>
+**documents**: - array of document objects<br/>
+    title -  document title<br/>
+    id - uploaded document id<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "projectSuccessfullyCreated",
+        "projectId": 36
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
+# Get project details
+Get project data for edit form
+
+#### Request
+
+**URL: `GET: /partner`**
+
+**URL Params:**
+
+?> **id** - project id (required)
+
+**Headers:** <br/>
+**`Authorization: Bearer <Auth token>`**<br/>
+**`Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "project": {
+            "id": 36,
+            "status": "Created",
+            "titleEn": "First project",
+            "titleRu": "Первый проект",
+            "type": "SSFA",
+            "projectCode": "SSFA_KAZ_2019_36",
+            "deadline": "2019-09-19",
+            "ice": "400500.00",
+            "usdRate": "308.32",
+            "descriptionEn": "My first project description",
+            "descriptionRu": "Мой первый проект с описанием",
+            "createdAt": "2019-Aug-19",
+            "programme": {
+                "id": 15,
+                "title": "IMPROVED EFFECTIVENESS OF TSA",
+                "code": "2390/A0/05/881/001/003"
+            },
+            "officer": {
+                "id": 14,
+                "name": "FirstCoordinator"
+            },
+            "section": {
+                "id": 7,
+                "title": "Education"
+            }
+        }
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>

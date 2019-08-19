@@ -27,6 +27,7 @@ const middleCheckAdminUnicefRoles = acceptRoles([
 router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], ProjectController.create);
 router.get("/test", ProjectController.testing);
 router.get("/properties", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getProperties);
+router.get("/", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getInfo);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
 
 export default router;
