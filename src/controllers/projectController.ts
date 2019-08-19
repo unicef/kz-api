@@ -134,6 +134,47 @@ class ProjectController {
             return;
         }
     }
+
+    static getDocuments = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const projectId = req.query.id || false;
+            if (!projectId) {
+                throw new BadValidationException(400, 112, i18n.t('projectSuccessfullyCreated'), 'id param is required');
+            }
+            const isProjectExists = await ProjectRepository.isProjectExists(projectId);
+            if (!isProjectExists) {
+                throw new ProjectNotFound();
+            }
+
+            // get project documents
+            const projectDocuments = await ProjectDocument.findAll({
+                where: {
+                    projectId: projectId
+                }
+            })
+
+            let responseData: any = [];
+
+            if (projectDocuments instanceof Array && projectDocuments.length>0) {
+                projectDocuments.forEach((element) => {
+                    responseData.push({
+                        href: element.href,
+                        id: element.id,
+                        title: element.title
+                    })
+                })
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default ProjectController;

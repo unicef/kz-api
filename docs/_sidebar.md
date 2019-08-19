@@ -28,6 +28,7 @@
     - [Form properties](project.md?id=get-project-static-properties "Get project properties")
     - [Create project](project.md?id=create-project "Create project")
     - [Get project details](project.md?id=get-project-details "Get project")
+    - [Get project documents](project.md?id=get-project-documents "Get project documents")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

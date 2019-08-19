@@ -30,6 +30,21 @@ class ProjectRepository {
         return project;
     }
 
+    static isProjectExists = async (projectId: number) => {
+        const query = `SELECT projects.id FROM projects WHERE projects."id"=${projectId}`;
+
+        const project = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (project) {
+            return true;
+        } 
+        return false;
+    }
+    
 }
 
 export default ProjectRepository;

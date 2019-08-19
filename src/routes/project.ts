@@ -28,6 +28,7 @@ router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], Pro
 router.get("/test", ProjectController.testing);
 router.get("/properties", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getProperties);
 router.get("/", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getInfo);
+router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
 
 export default router;
