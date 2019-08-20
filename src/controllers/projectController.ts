@@ -21,6 +21,7 @@ import ProjectRepository from "../repositories/projectRepository";
 import ProjectNotFound from "../exceptions/project/projectNotFound";
 import ProjectDocumentNotFound from "../exceptions/project/projectDocumentNotFound";
 import BadProjectStatus from "../exceptions/project/badProjectStatus";
+import ProjectDocumentDeleted from "../events/projectDocumentDeleted";
 
 class ProjectController {
 
@@ -200,9 +201,15 @@ class ProjectController {
                 }
             });
 
+            if (project === null) {
+                throw new ProjectNotFound();
+            }
+
             if (project && project.statusId !== Project.CREATED_STATUS_ID) {
                 throw new BadProjectStatus();
             }
+
+            event(new ProjectDocumentDeleted(req.user, project, projectDoc));
 
             // delete project document
             projectDoc.destroy();
