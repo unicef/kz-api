@@ -7,6 +7,7 @@ import checkAuthToken from "../middlewares/checkAuthToken";
 import { acceptRoles } from "../middlewares/acceptRoles";
 import Role from "../models/role";
 import FileController from "../controllers/fileController";
+import putProject from "../requests/project/putProject";
 
 const router = Router();
 const upload = multer({ 
@@ -25,6 +26,7 @@ const middleCheckAdminUnicefRoles = acceptRoles([
 ]);
 
 router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], ProjectController.create);
+router.put("/", [checkAuthToken, middleCheckAdminUnicefRoles, putProject], ProjectController.update);
 router.get("/test", ProjectController.testing);
 router.get("/properties", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getProperties);
 router.get("/", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getInfo);

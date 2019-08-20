@@ -22,6 +22,8 @@ import ProjectNotFound from "../exceptions/project/projectNotFound";
 import ProjectDocumentNotFound from "../exceptions/project/projectDocumentNotFound";
 import BadProjectStatus from "../exceptions/project/badProjectStatus";
 import ProjectDocumentDeleted from "../events/projectDocumentDeleted";
+import NeedAnotherProjectType from "../exceptions/project/needAnotherProjectType";
+import ProjectWasUpdated from "../events/projectWasUpdated";
 
 class ProjectController {
 
@@ -77,7 +79,7 @@ class ProjectController {
                 ]
             });
 
-            if (officer == null || !officer.hasRole(Role.unicefResponsibleId)) {
+            if (officer == null || !officer.hasRole(Role.unicefResponsibleId) || officer.isBlocked || officer.emailVerifiedAt===null) {
                 throw new BadRole(400, 235, i18n.t('badResponsibleOfficerUser'), 'Creation project> Bad responsible officer user')
             }
 
@@ -128,6 +130,58 @@ class ProjectController {
             }
 
             return ApiController.success({ project: project }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static update = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const projectId = req.body.id;
+            const project = await Project.findByPk(projectId);
+
+            if (project === null) {
+                throw new ProjectNotFound();
+            }
+            // system can edit the project only in the status created
+            if (project.statusId !== Project.CREATED_STATUS_ID) {
+                throw new BadProjectStatus();
+            }
+            // get project data from request
+            const projectData = ProjectHelper.getProjectData(req.body);
+            // If the project budget requires type changes
+            if (projectData.type !== project.type) {
+                throw new NeedAnotherProjectType();
+            }
+            if (projectData.officerId !== project.officerId) {
+                // check if officer user has needed role
+                const officer = await User.findOne({
+                    where: {
+                        id: projectData.officerId
+                    },
+                    include: [
+                        User.associations.roles,
+                        User.associations.personalData
+                    ]
+                });
+    
+                if (officer == null || !officer.hasRole(Role.unicefResponsibleId) || officer.isBlocked || officer.emailVerifiedAt===null) {
+                    throw new BadRole(400, 235, i18n.t('badResponsibleOfficerUser'), 'Creation project> Bad responsible officer user')
+                }
+            }
+
+            Project.afterUpdate((prj, opt) => {
+                event(new ProjectWasUpdated(req.user, project, prj._previousDataValues, prj.dataValues, opt.fields));
+            });
+
+            await project.update(projectData);
+
+            return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

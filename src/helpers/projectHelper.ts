@@ -36,8 +36,10 @@ class ProjectHelper {
         })
 
         projectData.statusId = "Created";
+        parseFloat(projectData.ice);
+        parseFloat(projectData.usdRate);
         const usdBudget = projectData.ice / projectData.usdRate;
-        projectData.type = usdBudget <= 50000 ? "SSFA" : "PCA";
+        projectData.type = usdBudget <= 50000 ? Project.PROJECT_SSFA_TYPE : Project.PROJECT_PCA_TYPE;
         projectData.deadline = new Date(data.deadline);
 
         return projectData;

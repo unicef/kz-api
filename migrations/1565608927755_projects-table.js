@@ -2,7 +2,7 @@ exports.shorthands = undefined;
 
 exports.up = (pgm) => {
     pgm.createType("project_type", ["SSFA", "PCA"]);
-    pgm.createType("project_status", ["Created", "In progress", "Completed", "Terminated"]);
+    pgm.createType("project_status", ["Created", "In progress", "Completed", "Project termination"]);
     pgm.createTable("projects", {
         id: "id",
         statusId: {

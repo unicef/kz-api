@@ -1,14 +1,18 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
+import event from "../services/event";
+import ProjectWasUpdated from "../events/projectWasUpdated";
 
 class Project extends Model {
-    
     static DEFAULT_STATUS: string = 'Created';
     static CREATED_STATUS_ID: string = 'Created';
     static IN_PROGRESS_STATUS_ID: string = 'In progress';
     static COMPLETED_STATUS_ID: string = 'Completed';
-    static TERMINATED_STATUS_ID: string = 'Terminated';
+    static TERMINATION_STATUS_ID: string = 'Project termination';
+
+    static PROJECT_PCA_TYPE = 'PCA';
+    static PROJECT_SSFA_TYPE = 'SSFA';
 
     public id!: number;
     public statusId!: string;
@@ -65,11 +69,11 @@ Project.init(
             allowNull: false
         },
         ice: {
-            type: DataTypes.FLOAT,
+            type: new DataTypes.FLOAT({precision: 14, scale: 2}),
             allowNull: false
         },
         usdRate: {
-            type: DataTypes.FLOAT,
+            type: new DataTypes.NUMBER({precision: 14, scale: 2}),
             allowNull: false
         },
         officerId: {

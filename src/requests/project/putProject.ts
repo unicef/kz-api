@@ -3,12 +3,13 @@ import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
 import LocalizationHelper from "../../helpers/localizationHelper";
 
-const postProject = (req: Request, res: Response, next: NextFunction) => {
+const putProject = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         bodySchema: Joi.object().options({
             abortEarly: false,
             language: LocalizationHelper.getValidationMessages()
         }).keys({
+            id: Joi.number().required(),
             titleEn: Joi.string().max(255).required(),
             titleRu: Joi.string().max(255).required(),
             programme: Joi.object().keys({
@@ -42,4 +43,4 @@ const postProject = (req: Request, res: Response, next: NextFunction) => {
     validationProcess(req, res, next, validationRules);
 }
 
-export default postProject;
+export default putProject;
