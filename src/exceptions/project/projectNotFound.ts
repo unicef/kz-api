@@ -8,7 +8,7 @@ class ProjectNotFound extends HttpException {
      * @param message 
      */
     constructor(status?: number, errorCode?: number, message?: string, devMessage?: string) {
-        const responseStatus: number = status || 400;
+        const responseStatus: number = status || 404;
         const responseErrorCode: number = errorCode || 110;
         const responseMessage: string = message || i18n.t('projectNotFoundError');
         const responseDevMessage: string = devMessage || 'Project not found';

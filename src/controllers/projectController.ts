@@ -19,6 +19,8 @@ import BadRole from "../exceptions/user/badRole";
 import BadValidationException from "../exceptions/badValidationException";
 import ProjectRepository from "../repositories/projectRepository";
 import ProjectNotFound from "../exceptions/project/projectNotFound";
+import ProjectDocumentNotFound from "../exceptions/project/projectDocumentNotFound";
+import BadProjectStatus from "../exceptions/project/badProjectStatus";
 
 class ProjectController {
 
@@ -114,7 +116,7 @@ class ProjectController {
         try {
             const projectId = req.query.id || false;
             if (!projectId) {
-                throw new BadValidationException(400, 112, i18n.t('projectSuccessfullyCreated'), 'id param is required');
+                throw new BadValidationException(400, 112, i18n.t('projectIdRequired'), 'id param is required');
             }
 
             // get project info
@@ -139,7 +141,7 @@ class ProjectController {
         try {
             const projectId = req.query.id || false;
             if (!projectId) {
-                throw new BadValidationException(400, 112, i18n.t('projectSuccessfullyCreated'), 'id param is required');
+                throw new BadValidationException(400, 112, i18n.t('projectIdRequired'), 'id param is required');
             }
             const isProjectExists = await ProjectRepository.isProjectExists(projectId);
             if (!isProjectExists) {
@@ -166,6 +168,46 @@ class ProjectController {
             }
 
             return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static deleteDocument = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const projectDocId = req.query.id || false;
+            if (!projectDocId) {
+                throw new BadValidationException(400, 112, i18n.t('documentIdRequired'), 'id param is required');
+            }
+
+            const projectDoc = await ProjectDocument.findOne({
+                where: {
+                    id: projectDocId
+                }
+            });
+            if (projectDoc === null) {
+                throw new ProjectDocumentNotFound();
+            }
+            const projectId = projectDoc.projectId;
+            const project = await Project.findOne({
+                where: {
+                    id: projectId
+                }
+            });
+
+            if (project && project.statusId !== Project.CREATED_STATUS_ID) {
+                throw new BadProjectStatus();
+            }
+
+            // delete project document
+            projectDoc.destroy();
+
+            return ApiController.success({message: i18n.t('successProjectDocDelete')}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

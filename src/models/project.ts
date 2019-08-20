@@ -5,6 +5,10 @@ import Sequelize from "sequelize";
 class Project extends Model {
     
     static DEFAULT_STATUS: string = 'Created';
+    static CREATED_STATUS_ID: string = 'Created';
+    static IN_PROGRESS_STATUS_ID: string = 'In progress';
+    static COMPLETED_STATUS_ID: string = 'Completed';
+    static TERMINATED_STATUS_ID: string = 'Terminated';
 
     public id!: number;
     public statusId!: string;
