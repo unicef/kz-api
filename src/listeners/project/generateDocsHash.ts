@@ -12,7 +12,9 @@ class GenerateDocsHash extends Listener {
 
         if (documents.length > 0) {
             documents.forEach((doc) => {
+                console.log('DOC STARTQQQ::::', doc);
                 const hash = this.generateDocHash(doc);
+                console.log('HSASHHHSASH::::', hash);
                 doc.hash = hash;
                 doc.save();
             })
