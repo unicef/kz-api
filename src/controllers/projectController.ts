@@ -194,10 +194,12 @@ class ProjectController {
                 let docsArray: Array<ProjectDocument> | [] = [];
                 req.body.documents.forEach(async (element: any) => {
                     let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
+                    console.log("DOCUMENT!!!", doc);
                     if (doc) {
                         docsArray.push(doc);
                     }
                 });
+                console.log('DOC_ARRAY', docsArray);
                 event(new ProjectDocumentsUploaded(req.user, project, docsArray));
             }
 

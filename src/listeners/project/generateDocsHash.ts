@@ -7,7 +7,7 @@ import ProjectDocument from "../../models/projectDocument";
 class GenerateDocsHash extends Listener {
     public handle = async (event: ProjectDocumentsUploaded) => {
         const documents = event.documents;
-
+        console.log("LISTENER DOCS!!!!!", documents);
         if (documents.length > 0) {
             documents.forEach((doc) => {
                 let fd = fs.createReadStream(doc.getFilePath());

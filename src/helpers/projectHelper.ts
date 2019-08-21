@@ -49,7 +49,7 @@ class ProjectHelper {
         return projectData;
     }
 
-    static transferProjectDocument = async (tmpId: number, documentTitle: string, project: Project) => {
+    static transferProjectDocument = async (tmpId: number, documentTitle: string, project: Project): Promise<ProjectDocument> => {
         const tmpFile = await TmpFile.findByPk(tmpId);
         if (tmpFile) {
             const fileFoler = tmpFile.id.substring(0, 2);
