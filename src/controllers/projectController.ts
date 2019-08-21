@@ -31,6 +31,7 @@ import PartnerProjectsLimit from "../exceptions/project/partnerProjectsLimit";
 import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
 import ProjectHasTranches from "../exceptions/project/projectHasTranches";
 import ProjectTranche from "../models/projectTranche";
+import GenerateDocsHash from "../listeners/project/generateDocsHash";
 
 class ProjectController {
 
