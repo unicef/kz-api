@@ -55,16 +55,8 @@ class ProjectHelper {
             const fileFoler = tmpFile.id.substring(0, 2);
             const fullPathToSave = ProjectDocument.documentsFolder + fileFoler;
             tmpFile.copyTo(fullPathToSave, tmpFile.getFullFilename());
-            console.log("PROJECT DOCUMENT!!!!", {
-                partnerId: project.id,
-                userId: tmpFile.userId,
-                title: documentTitle,
-                filename: tmpFile.getFullFilename(),
-                size: tmpFile.size,
-                hash: null
-            });
             const projectDocument = await ProjectDocument.create({
-                partnerId: project.id,
+                projectId: project.id,
                 userId: tmpFile.userId,
                 title: documentTitle,
                 filename: tmpFile.getFullFilename(),
