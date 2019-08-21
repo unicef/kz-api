@@ -887,7 +887,7 @@ Get partners list for assign for project
         "partners": [
             {
                 "id": 1,
-                "nameRu": "Первый партнер"
+                "name": "Первый партнер"
             }
         ]
     }

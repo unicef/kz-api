@@ -212,10 +212,12 @@ Get project data for edit form
                 "id": 14,
                 "name": "FirstCoordinator"
             },
+            "partnerName" : "",
             "section": {
                 "id": 7,
                 "title": "Education"
-            }
+            },
+            "assistName": ""
         }
     }
 }
@@ -448,4 +450,132 @@ Delete project document
 }
 ```
 <!-- tabs:end -->
+<hr>
+
+# Selecting IP ino project
+
+#### Request
+
+**URL: `POST: /project/progress`**
+
+**Body Params:**
+
+?> **id** - project id (required)<br/>
+**partner**:<br/> 
+    id - selected partner id (required)<br/>
+    name - selected partner name<br/>
+**documents**: - array of document objects<br/>
+    title -  document title<br/>
+    id - uploaded document id<br/>
+**tranches**: - array of traches objects<br/>
+    from -  date string<br/>
+    to -  date string<br/>
+    amount - amount of tranche<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "message": "IPSuccessfullySelected",
+        "project": {
+            "id": 36,
+            "status": "In progress",
+            "titleEn": "First project edit",
+            "titleRu": "Первый проект редактирование",
+            "type": "SSFA",
+            "partnerId": 1,
+            "projectCode": "SSFA_KAZ_2019_36",
+            "deadline": "2019-09-19",
+            "ice": "400501.24",
+            "usdRate": "309.12",
+            "descriptionEn": "My first project description edit",
+            "descriptionRu": "Мой первый проект с описанием редактироввание",
+            "createdAt": "2019-Aug-19",
+            "programme": {
+                "id": 15,
+                "title": "IMPROVED EFFECTIVENESS OF TSA",
+                "code": "2390/A0/05/881/001/003"
+            },
+            "officer": {
+                "id": 14,
+                "name": "FirstCoordinator"
+            },
+            "partnerName": "First partner",
+            "section": {
+                "id": 7,
+                "title": "Education"
+            },
+            "assistantName": "Partner Assistant"
+        }
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
 <hr>
