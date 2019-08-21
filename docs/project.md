@@ -452,7 +452,7 @@ Delete project document
 <!-- tabs:end -->
 <hr>
 
-# Selecting IP ino project
+# Selecting IP into project
 
 #### Request
 
