@@ -13,7 +13,6 @@ import Project from "../models/project";
 import event from "../services/event";
 import ProjectWasCreated from "../events/projectWasCreated";
 import ProjectDocument from "../models/projectDocument";
-import ProjectDocumentsUploaded from "../events/projectDocumentsUploaded";
 import User from "../models/user";
 import BadRole from "../exceptions/user/badRole";
 import BadValidationException from "../exceptions/badValidationException";
@@ -31,7 +30,8 @@ import PartnerProjectsLimit from "../exceptions/project/partnerProjectsLimit";
 import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
 import ProjectHasTranches from "../exceptions/project/projectHasTranches";
 import ProjectTranche from "../models/projectTranche";
-import GenerateDocsHash from "../listeners/project/generateDocsHash";
+import ProjectPartnerAssigned from "../events/projectPartnerAssigned";
+import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 
 class ProjectController {
 
@@ -237,7 +237,7 @@ class ProjectController {
             }
             const inputTranches: any = req.body.tranches;
             const tranchesData = await ProjectHelper.getTranchesData(project, inputTranches);
-            const Tranches = await ProjectTranche.bulkCreate(tranchesData);
+            const tranches = await ProjectTranche.bulkCreate(tranchesData);
             // working with documents
             const inputDocs = req.body.documents;
             const isDocsValid = await ProjectHelper.validateDocumentsData(project, inputDocs);
@@ -251,6 +251,8 @@ class ProjectController {
             project.statusId = Project.IN_PROGRESS_STATUS_ID;
             project.partnerId = partner.id;
             await project.save();
+            event(new ProjectPartnerAssigned(req.user, project, partner));
+            event(new ProjectTranchesInstalled(req.user, project, tranches));
 
             const responseProject = await ProjectRepository.findById(project.id);
 
