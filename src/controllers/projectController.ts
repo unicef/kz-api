@@ -181,6 +181,18 @@ class ProjectController {
 
             await project.update(projectData);
 
+            // working with documents
+            if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                let docsArray: Array<ProjectDocument> | [] = [];
+                req.body.documents.forEach(async (element: any) => {
+                    let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
+                    if (doc) {
+                        docsArray.push(doc);
+                    }
+                });
+                event(new ProjectDocumentsUploaded(req.user, project, docsArray));
+            }
+
             return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
         } catch (error) {
             if (error instanceof HttpException) {
