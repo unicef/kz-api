@@ -7,14 +7,14 @@ import generateDocsHash from "../listeners/project/generateDocsHash";
 
 class ProjectDocumentsUploaded extends Event {
     public project: Project;
-    public user: User;
-    public documents: Array<ProjectDocument>|[];
+    public userId: number;
+    public document: ProjectDocument;
 
-    constructor(user: User, project: Project, projectDocs: Array<ProjectDocument>|[]) {
+    constructor(userId: number, project: Project, projectDoc: ProjectDocument) {
         super();
-        this.user = user;
+        this.userId= userId;
         this.project = project;
-        this.documents = projectDocs;
+        this.document = projectDoc;
     }
 
     public listeners = [

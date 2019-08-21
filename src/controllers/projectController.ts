@@ -97,14 +97,9 @@ class ProjectController {
 
             // working with documents
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
-                let docsArray: Array<ProjectDocument> | [] = [];
                 req.body.documents.forEach(async (element: any) => {
                     let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
-                    if (doc) {
-                        docsArray.push(doc);
-                    }
                 });
-                event(new ProjectDocumentsUploaded(req.user, project, docsArray));
             }
 
             const responseData = {
@@ -191,16 +186,9 @@ class ProjectController {
 
             // working with documents
             if (req.body.documents instanceof Array && req.body.documents.length > 0) {
-                let docsArray: Array<ProjectDocument> | [] = [];
                 req.body.documents.forEach(async (element: any) => {
                     let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
-                    console.log("DOCUMENT!!!", doc);
-                    if (doc) {
-                        docsArray.push(doc);
-                    }
                 });
-                console.log('DOC_ARRAY', docsArray);
-                event(new ProjectDocumentsUploaded(req.user, project, docsArray));
             }
 
             return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
@@ -255,14 +243,9 @@ class ProjectController {
             const isDocsValid = await ProjectHelper.validateDocumentsData(project, inputDocs);
 
             if (isDocsValid) {
-                let docsArray: Array<ProjectDocument> | [] = [];
                 inputDocs.forEach(async (element: any) => {
                     let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
-                    if (doc) {
-                        docsArray.push(doc);
-                    }
                 });
-                event(new ProjectDocumentsUploaded(req.user, project, docsArray));
             }
             // change project status
             project.statusId = Project.IN_PROGRESS_STATUS_ID;
@@ -280,12 +263,6 @@ class ProjectController {
             }
             return;
         }
-        // request body
-
-        // partnerId
-        // docs
-        // tranches
-
     }
 
     static getDocuments = async (req: Request, res: Response, next: NextFunction) => {

@@ -5,17 +5,17 @@ import ProjectDocumentsUploaded from "../../events/projectDocumentsUploaded";
 
 class SaveUploadDocsHistory extends Listener {
     public handle = async (event: ProjectDocumentsUploaded) => {
-        const user = event.user;
+        const userId = event.userId;
         const project = event.project;
-        const docs = event.documents;
+        const doc = event.document;
 
         const historyData = {
-            userId: user.id,
+            userId: userId,
             projectId: project.id,
             event: {
                 action: ProjectHistoryHelper.UPLOAD_DOCS_EVENT_KEY,
                 data: {
-                    docs: docs,
+                    doc: doc,
                 }
             }
         }

@@ -4,8 +4,9 @@ import ProjectDocument from "../models/projectDocument";
 import TmpFileNotFound from "../exceptions/tmpFileNotFound";
 import BadValidationException from "../exceptions/badValidationException";
 import i18n from "i18next";
-import { number } from "@hapi/joi";
 import ProjectTranche from "../models/projectTranche";
+import ProjectDocumentsUploaded from "../events/projectDocumentsUploaded";
+import event from "../services/event";
 
 class ProjectHelper {
 
@@ -63,6 +64,7 @@ class ProjectHelper {
                 size: tmpFile.size,
                 hash: null
             });
+            event(new ProjectDocumentsUploaded(tmpFile.userId, project, projectDocument));
 
             tmpFile.deleteFile();
             return projectDocument;
