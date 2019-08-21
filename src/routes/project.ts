@@ -9,6 +9,7 @@ import Role from "../models/role";
 import FileController from "../controllers/fileController";
 import putProject from "../requests/project/putProject";
 import postProgress from "../requests/project/postProgress";
+import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
 
 const router = Router();
 const upload = multer({ 
@@ -33,6 +34,7 @@ router.get("/properties", [checkAuthToken, middleCheckAdminUnicefRoles], Project
 router.get("/", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
 router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);
+router.get("/document", [checkAuthToken, getPartnerDocuments], ProjectController.downloadDocument);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
 router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.deleteDocument);
 

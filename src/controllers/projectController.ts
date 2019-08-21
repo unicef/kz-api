@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
+import fs from "fs";
+import mime from "mime-types";
 import ApiController from "./apiController";
 import HttpException from "../exceptions/httpException";
 import ProgrammeRepository from "../repositories/programmeRepository";
@@ -344,6 +346,43 @@ class ProjectController {
             projectDoc.destroy();
 
             return ApiController.success({message: i18n.t('successProjectDocDelete')}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    
+    static downloadDocument = async (req: Request, res: Response) => {
+        try {
+            const documentId = req.query.id;
+
+            const projectDocument = await ProjectDocument.findByPk(documentId);
+            if (projectDocument == null) {
+                throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
+            }
+    
+            const filePath = projectDocument.getFilePath();
+            const fileBuffer = fs.readFileSync(filePath);
+
+            const base64 = Buffer.from(fileBuffer).toString('base64');
+            const contentType = mime.contentType(projectDocument.getPublicFilename());
+            if (contentType) {
+                const responseData = {
+                        filename : projectDocument.getPublicFilename(),
+                        contentType: contentType,
+                        doc: base64
+                    };
+                ApiController.success(responseData, res);
+                return ;
+            } else {
+                ApiController.failed(500, 'document wasn\'t found', res);
+                return ;
+            }
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
