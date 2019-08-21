@@ -426,7 +426,22 @@ class PartnerController {
             }, res)
 
         } catch (error) {
-            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    // Get list of available partners for assigning to project
+    static availableList = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partners = await PartnerRepository.findAvailable();
+
+            return ApiController.success({partners: partners}, res);
+        } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
             } else {

@@ -864,3 +864,63 @@ Delete partner document
 ```
 <!-- tabs:end -->
 <hr>
+
+# Get available partners list
+Get partners list for assign for project
+
+#### Request
+
+**URL: `GET: /partner/available`**
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "partners": [
+            {
+                "id": 1,
+                "nameRu": "Первый партнер"
+            }
+        ]
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>

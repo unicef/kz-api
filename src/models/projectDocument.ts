@@ -5,6 +5,10 @@ import Config from "../services/config";
 class ProjectDocument extends Model {
     static documentsRoute = '/project/document';
     static documentsFolder = __dirname + '/../../assets/projects/documents/';
+
+    static SSFA_REQUIRED_DOC_TITLE = 'Non PRC submission form';
+    static PCA_REQUIRED_DOC_TITLE = 'Annex G';
+    static IN_PROGRESS_REQUIRED_DOCS = ['Annex C','ICE'];
     
     public id!: number;
     public projectId!: number;

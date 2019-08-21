@@ -7,6 +7,8 @@ import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
 import postPartnerDocuments from "../requests/partner/postPartnerDocuments";
 import FileController from "../controllers/fileController";
+import { acceptRoles } from "../middlewares/acceptRoles";
+import Role from "../models/role";
 
 const router = Router();
 const upload = multer({ 
@@ -16,6 +18,13 @@ const upload = multer({
         fileSize: 5242880
     }
 });
+const middleCheckAdminUnicefRoles = acceptRoles([
+    Role.adminRoleId, 
+    Role.unicefResponsibleId, 
+    Role.unicefBudgetId, 
+    Role.unicefDeputyId, 
+    Role.unicefOperationId
+]);
 
 router.get("/properties", PartnerController.getPartnerProperties);
 router.put("/", [checkAuthToken], PartnerController.updatePartner);
@@ -29,5 +38,6 @@ router.post("/documents", [checkAuthToken, postPartnerDocuments], PartnerControl
 router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument);
 router.get("/list", [checkAuthToken], PartnerController.list);
 router.get("/details", [checkAuthToken, getPartnerById], PartnerController.details);
+router.get("/available", [checkAuthToken, middleCheckAdminUnicefRoles], PartnerController.availableList)
 
 export default router;

@@ -24,6 +24,13 @@ import BadProjectStatus from "../exceptions/project/badProjectStatus";
 import ProjectDocumentDeleted from "../events/projectDocumentDeleted";
 import NeedAnotherProjectType from "../exceptions/project/needAnotherProjectType";
 import ProjectWasUpdated from "../events/projectWasUpdated";
+import Partner from "../models/partner";
+import PartnerNotFind from "../exceptions/partner/partnerNotFind";
+import PartnerNotTrusted from "../exceptions/partner/partnerNotTrusted";
+import PartnerProjectsLimit from "../exceptions/project/partnerProjectsLimit";
+import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
+import ProjectHasTranches from "../exceptions/project/projectHasTranches";
+import ProjectTranche from "../models/projectTranche";
 
 class ProjectController {
 
@@ -202,6 +209,80 @@ class ProjectController {
             }
             return;
         }
+    }
+
+    static progress = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partnerId = req.body.partner.id;
+            // check partner
+            const partner = await Partner.findOne({where:{id:partnerId}});
+            if (partner === null) {
+                throw new PartnerNotFind();
+            }
+            // check partner status
+            if (partner.statusId !== Partner.partnerStatusApproved) {
+                throw new PartnerNotTrusted();
+            }
+            // get partner projects and count it
+            const partnerProjects = await partner.getProjects();
+            if (partnerProjects.length >= Partner.PROJECTS_LIMIT) {
+                throw new PartnerProjectsLimit();
+            }
+            // working with project
+            const projectId = req.body.id;
+            const project = await Project.findByPk(projectId);
+            if (project === null) {
+                throw new ProjectNotFound();
+            }
+            if (project.statusId != Project.CREATED_STATUS_ID) {
+                throw new BadProjectStatus();
+            }
+
+            // working with tranches
+            // get project tranches
+            const projectTranches = await ProjectTrancheRepository.findByProjectId(projectId);
+            if (projectTranches.length > 0) {
+                throw new ProjectHasTranches();
+            }
+            const inputTranches: any = req.body.tranches;
+            const tranchesData = await ProjectHelper.getTranchesData(project, inputTranches);
+            const Tranches = await ProjectTranche.bulkCreate(tranchesData);
+            // working with documents
+            const inputDocs = req.body.documents;
+            const isDocsValid = await ProjectHelper.validateDocumentsData(project, inputDocs);
+
+            if (isDocsValid) {
+                let docsArray: Array<ProjectDocument> | [] = [];
+                inputDocs.forEach(async (element: any) => {
+                    let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
+                    if (doc) {
+                        docsArray.push(doc);
+                    }
+                });
+                event(new ProjectDocumentsUploaded(req.user, project, docsArray));
+            }
+            // change project status
+            project.statusId = Project.IN_PROGRESS_STATUS_ID;
+            project.partnerId = partner.id;
+            await project.save();
+
+            const responseProject = await ProjectRepository.findById(project.id);
+
+            return ApiController.success({ message: i18n.t('IPSuccessfullySelected'), project: responseProject }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+        // request body
+
+        // partnerId
+        // docs
+        // tranches
+
     }
 
     static getDocuments = async (req: Request, res: Response, next: NextFunction) => {

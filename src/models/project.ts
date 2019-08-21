@@ -3,6 +3,7 @@ import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import event from "../services/event";
 import ProjectWasUpdated from "../events/projectWasUpdated";
+import ProjectTranche from "./projectTranche";
 
 class Project extends Model {
     static DEFAULT_STATUS: string = 'Created';
@@ -107,5 +108,10 @@ Project.init(
         sequelize: sequelize
     }
 )
+
+Project.belongsToMany(ProjectTranche, {
+    through: ProjectTranche,
+    otherKey: 'projectId'
+});
 
 export default Project;

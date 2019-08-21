@@ -4,6 +4,7 @@ import sequelize from "../services/sequelize";
 import Pagination from "../services/pagination";
 import Role from "../models/role";
 import PartnerHelper from "../helpers/partnerHelper";
+import Partner from "../models/partner";
 
 class PartnerRepository {
     
@@ -92,6 +93,23 @@ class PartnerRepository {
         });
         
         return partner;
+    }
+
+    // get partners list for assigning into project
+    static findAvailable = async () => {
+        const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        const query = `SELECT partners."id", partners."name${LANG}" as "name"
+        FROM partners
+        LEFT JOIN projects ON projects."partnerId"=partners."id"
+        WHERE partners."statusId" = '${Partner.partnerStatusApproved}'
+        GROUP BY partners."id"
+        HAVING COUNT(projects."id") < ${Partner.PROJECTS_LIMIT}`
+
+        const partners = await sequelize.query(query, {
+            type: QueryTypes.SELECT
+        })
+
+        return partners;
     }
 }
 export default PartnerRepository;

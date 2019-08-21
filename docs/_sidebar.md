@@ -23,6 +23,7 @@
     - [Get partner documents](partner.md?id=get-partner-information "Get partner documents list")
     - [Get single document](partner.md?id=get-partner-information "Get document")
     - [Delete partner document](partner.md?id=get-partner-information "Get document")
+    - [Get available partners list](partner.md?id=get-available-partners-list "Get available partners list")
 
 - Project
     - [Form properties](project.md?id=get-project-static-properties "Get project properties")
