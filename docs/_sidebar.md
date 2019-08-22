@@ -51,6 +51,9 @@
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
         - [Block UNICEF account](admin_unicef.md?id=block-unicef-account "Block unicef account")
+
+    - Project
+        - [Terminate project](admin_project.md?id=terminate-project "Terminate project")
           
     - donor
         - [Get donors list](admin_donor.md?id=get-donorss-list "Get donors list")

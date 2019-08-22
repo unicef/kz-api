@@ -16,6 +16,7 @@ class ProjectHistoryHelper {
     static SET_IP_EVENT_KEY: string = 'set_ip';
     static SET_TRANCHES_EVENT_KEY: string = 'set_tranches';
     static ADD_LINK_EVENT_KEY: string = 'add_link';
+    static SET_TERMINATED_STATUS: string = 'terminated';
 
     
 }

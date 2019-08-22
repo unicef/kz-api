@@ -1,6 +1,7 @@
 import { QueryTypes } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
+import Project from "../models/project";
 
 class ProjectRepository {
 
@@ -77,7 +78,7 @@ class ProjectRepository {
 
         const query = `SELECT projects."id", projects."title${LANG}", projects."type", projects."programmeId", projects."deadline", projects."ice", projects."usdRate", projects."officerId", projects."sectionId", projects."description${LANG}" 
         FROM projects
-        WHERE projects."partnerId" = ${partnerId};`;
+        WHERE projects."partnerId" = ${partnerId} AND projects."statusId" = ${Project.IN_PROGRESS_STATUS_ID};`;
 
         const projects = await sequelize.query(query, {
             type: QueryTypes.SELECT
