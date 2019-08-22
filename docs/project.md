@@ -669,3 +669,84 @@ Delete project document
 <!-- tabs:end -->
 
 <hr>
+
+# Get project links
+Get project links list
+
+#### Request
+
+**URL: `GET: /project/links`**
+
+**URL Params:**
+
+?> **projectId** - project id (required)
+
+**Headers:** <br/>
+**`Authorization: Bearer <Auth token>`**<br/>
+**`Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "links": [
+            {
+                "href": "http://google.com",
+                "title": "http://google.com"
+            }
+        ]
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>

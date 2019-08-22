@@ -12,6 +12,7 @@ import putProject from "../requests/project/putProject";
 import postProgress from "../requests/project/postProgress";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
 import postLink from "../requests/projectLink/postlink";
+import getProjectLinks from "../requests/projectLink/getProjectLinks";
 
 const router = Router();
 const upload = multer({ 
@@ -55,5 +56,6 @@ router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], Projec
 
 // links routes block
 router.post("/link", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, postLink], ProjectLinkController.create);
+router.get("/links", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getProjectLinks], ProjectLinkController.projectLinksList)
 
 export default router;
