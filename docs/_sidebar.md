@@ -54,7 +54,8 @@
 
     - Project
         - [Terminate project](admin_project.md?id=terminate-project "Terminate project")
-          
+        - [Delete project](admin_project.md?id=delete-project "Delete project")
+        
     - donor
         - [Get donors list](admin_donor.md?id=get-donorss-list "Get donors list")
         - [Create new donor account](admin_donor.md?id=create-new-donor "Create new donor")

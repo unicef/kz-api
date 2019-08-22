@@ -1,4 +1,5 @@
 import { Model, DataTypes } from "sequelize";
+import fs from "fs";
 import sequelize from "../services/sequelize"
 import Config from "../services/config";
 
@@ -49,6 +50,12 @@ class ProjectDocument extends Model {
         } else {
             return extension;
         }
+    }
+
+    public deleteFile = async () => {
+        fs.unlinkSync(this.getFilePath());
+
+        return await this.destroy();
     }
 }
 

@@ -28,6 +28,17 @@ class HistoryRepository {
         const history = collection.find();
         return history.toArray();
     }
+
+    static deleteByProjectId = async (projectId: number) => {
+        const mongoDatabase: string = Config.get("MONGO_DATABASE", 'db');
+        const mongoConnect: MongoClient = await MongoDB.getMongoConnection();
+
+        const db = mongoConnect.db(mongoDatabase);
+        const collection = db.collection(HistoryRepository.COLLECTION);
+
+        const delFlag = collection.deleteMany({ "projectId" : projectId });
+        return delFlag;
+    }
 }
 
 interface HistoryData {

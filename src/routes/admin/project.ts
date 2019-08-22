@@ -4,6 +4,7 @@ import patchProjectTermination from "../../requests/project/patchProjectTerminat
 import checkAuthToken from "../../middlewares/checkAuthToken";
 import { acceptRoles } from "../../middlewares/acceptRoles";
 import Role from "../../models/role";
+import deleteProject from "../../requests/project/deleteProject";
 
 const router = Router();
 
@@ -15,5 +16,6 @@ const middleCheckAdminRole = acceptRoles([
 
 // get all users
 router.patch("/terminate", [checkAuthToken, middleCheckAdminRole, patchProjectTermination], AdminProjectController.terminate);
+router.delete("/", [checkAuthToken, middleCheckAdminRole, deleteProject], AdminProjectController.delete);
 
 export default router;

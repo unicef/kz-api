@@ -6,9 +6,10 @@ import ProjectNotFound from "../../exceptions/project/projectNotFound";
 import BadProjectStatus from "../../exceptions/project/badProjectStatus";
 import ProjectTranche from "../../models/projectTranche";
 import event from "../../services/event";
-import ProjectWasCreated from "../../events/projectWasCreated";
 import ProjectWasTerminated from "../../events/projectWasTerminated";
 import i18n from "i18next";
+import ProjectDocument from "../../models/projectDocument";
+import HistoryRepository from "../../repositories/historyRepository";
 
 class AdminProjectController {
     
@@ -43,6 +44,49 @@ class AdminProjectController {
             const responseData = {
                 message: i18n.t('successProjectTermination')
             }
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static delete = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+            const project = await Project.findByPk(projectId);
+            if (project === null) {
+                throw new ProjectNotFound();
+            }
+
+            // check project status
+            if (project.statusId !== Project.CREATED_STATUS_ID) {
+                throw new BadProjectStatus();
+            }
+            // delete project
+            project.destroy();
+            // delete project files
+            const projectFiles = await ProjectDocument.findAll({
+                where: {
+                    projectId: projectId
+                }
+            });
+            if (projectFiles.length > 0) {
+                projectFiles.forEach((projectFile: ProjectDocument) => {
+                    projectFile.deleteFile();
+                })
+            }
+            // delete project history
+            await HistoryRepository.deleteByProjectId(projectId);
+
+            const responseData = {
+                message: i18n.t('successDeletedProject');
+            }
+
             return ApiController.success(responseData, res);
         } catch (error) {
             if (error instanceof HttpException) {
