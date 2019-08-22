@@ -13,6 +13,7 @@ import postProgress from "../requests/project/postProgress";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
 import postLink from "../requests/projectLink/postlink";
 import getProjectLinks from "../requests/projectLink/getProjectLinks";
+import getShortProjectInfo from "../requests/project/getShortProjectInfo";
 
 const router = Router();
 const upload = multer({ 
@@ -46,6 +47,7 @@ router.put("/", [checkAuthToken, middleCheckAdminUnicefRoles, putProject], Proje
 router.get("/test", ProjectController.testing);
 router.get("/properties", [checkAuthToken], ProjectController.getProperties);
 router.get("/", [checkAuthToken], ProjectController.getInfo);
+router.get("/short", [checkAuthToken, getShortProjectInfo], ProjectController.getShortInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
 
 // documents routes block

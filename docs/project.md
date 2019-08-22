@@ -269,6 +269,94 @@ Get project data for edit form
 
 <hr>
 
+# Get project short details
+Get project data for modal summary
+
+#### Request
+
+**URL: `GET: /project/short`**
+
+**URL Params:**
+
+?> **id** - project id (required)
+
+**Headers:** <br/>
+**`Authorization: Bearer <Auth token>`**<br/>
+**`Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "project": {
+            "id": 36,
+            "title": "First project edit",
+            "projectCode": "SSFA_KAZ_2019_36",
+            "deadline": "2019-09-19",
+            "createdAt": "2019-Aug-19",
+            "ice": "400501.24 KZT",
+            "description": "My first project description edit",
+            "programme": {
+                "title": "IMPROVED EFFECTIVENESS OF TSA",
+                "code": "2390/A0/05/881/001/003"
+            }
+        }
+    }
+}
+```
+
+#### ** 401 Error Response **
+- Code: `401 Unauthenticated` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User doesn't authenticated",
+        message: "Error message",
+        status: 401,
+        errorCode: 131 //error validation code
+    }
+}
+```
+
+#### ** 400 Error Response **
+- Code: `400 Bad Request` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "Validation error",
+        message: "validation error message",
+        status: 400,
+        errorCode: 132 //error validation code
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 # Get project documents
 Get project documents list
 

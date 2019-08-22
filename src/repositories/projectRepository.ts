@@ -58,6 +58,23 @@ class ProjectRepository {
         return project;
     }
 
+    static shortInfoById = async (projectId: number) => {
+        const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
+        const query = `SELECT projects."id" as "id", projects."title${LANG}" as "title", projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", projects."ice" || ' KZT' as "ice", projects."description${LANG}" as "description", programmes."title${LANG}" as "programme.title", programmes."code" as "programme.code" `+
+        `FROM projects `+
+        `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
+        `WHERE projects."id" = ${projectId}`;
+
+        const project = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return project;
+    } 
+
     static isProjectExists = async (projectId: number) => {
         const query = `SELECT projects.id FROM projects WHERE projects."id"=${projectId}`;
 

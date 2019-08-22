@@ -145,6 +145,30 @@ class ProjectController {
         }
     }
 
+    static getShortInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const projectId = req.query.id;
+            const projectInfo = await ProjectRepository.shortInfoById(projectId);
+
+            if (projectInfo === null) {
+                throw new ProjectNotFound();
+            }
+            
+            const responseData = {
+                project: projectInfo
+            };
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
     static update = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const projectId = req.body.id;
