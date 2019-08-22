@@ -9,7 +9,11 @@ const patchProjectTermination = (req: Request, res: Response, next: NextFunction
             abortEarly: false,
             language: LocalizationHelper.getValidationMessages()
         }).keys({
-            id: Joi.number().required()
+            id: Joi.number().required(),
+            reason: Joi.object().keys({
+                key: Joi.string().required(),
+                title: Joi.string().max(255).required(),
+            }).pattern(/./, Joi.any()).required(),
         }).pattern(/./, Joi.any()),
         querySchema: null
     };

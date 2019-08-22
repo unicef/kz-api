@@ -10,7 +10,7 @@ class ProjectTerminatedMail extends Mail {
     public template?:string;
     public mailData?: any;
 
-    constructor (user: User, project: Project) {
+    constructor (user: User, project: Project, terminationReason: string|null) {
         super();
         this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = user.email;
@@ -19,7 +19,8 @@ class ProjectTerminatedMail extends Mail {
 
         this.mailData = {
             user: user,
-            project: project
+            project: project,
+            terminationReason: terminationReason
         };
     }
 }

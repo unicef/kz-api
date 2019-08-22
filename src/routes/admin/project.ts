@@ -16,6 +16,7 @@ const middleCheckAdminRole = acceptRoles([
 
 // get all users
 router.patch("/terminate", [checkAuthToken, middleCheckAdminRole, patchProjectTermination], AdminProjectController.terminate);
+router.get("/terminate/reasons", [checkAuthToken, middleCheckAdminRole], AdminProjectController.terminateReasons);
 router.delete("/", [checkAuthToken, middleCheckAdminRole, deleteProject], AdminProjectController.delete);
 
 export default router;

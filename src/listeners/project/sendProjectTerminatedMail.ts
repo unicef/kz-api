@@ -11,7 +11,7 @@ class SendProjectTerminatedMail extends Listener {
 
         const officer = await User.findByPk(project.officerId);
         if (officer) {
-            let officerEmail = new ProjectTerminatedMail(officer, project);
+            let officerEmail = new ProjectTerminatedMail(officer, project, event.terminationReason);
             officerEmail.send();
         }
         if (project.partnerId) {
@@ -19,7 +19,7 @@ class SendProjectTerminatedMail extends Listener {
             if (partner && partner.assistId) {
                 const assist = await User.findByPk(partner.assistId);
                 if (assist) {
-                    let assistEmail = new ProjectTerminatedMail(assist, project);
+                    let assistEmail = new ProjectTerminatedMail(assist, project, event.terminationReason);
                     assistEmail.send();
                 }
             }

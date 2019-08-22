@@ -13,7 +13,8 @@ class SaveTerminateHistory extends Listener {
             userId: user.id,
             projectId: project.id,
             event: {
-                action: ProjectHistoryHelper.SET_TERMINATED_STATUS
+                action: ProjectHistoryHelper.SET_TERMINATED_STATUS,
+                reason: event.terminationReasonKey
             }
         }
 

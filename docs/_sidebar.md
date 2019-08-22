@@ -53,6 +53,7 @@
         - [Block UNICEF account](admin_unicef.md?id=block-unicef-account "Block unicef account")
 
     - Project
+        - [Termination reasons](admin_project.md?id=termination-reasons "Termination reasons")
         - [Terminate project](admin_project.md?id=terminate-project "Terminate project")
         - [Delete project](admin_project.md?id=delete-project "Delete project")
         

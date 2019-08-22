@@ -25,6 +25,34 @@ class ProjectHelper {
         "section"
     ];
 
+    static terminationReasons = [
+        {
+            key: `mouf`,
+            en: `Mismanagement of UNICEF funds`,
+            ru: `Нецелевое расходование денежных средств ЮНИСЕФ`
+        }, 
+        {
+            key: `tfm`,
+            en: `The force majeure`,
+            ru: `Форс мажор`
+        },
+        {
+            key: `pawn`,
+            en: `The planned activities were not effective in producing the desired result`,
+            ru: `Запланированные активности не привели к желаемому  результату`
+        },
+        {
+            key: `aahs`,
+            en: `Assurance activities have shown the inadequate use of funds`,
+            ru: `Проведенные мероприятия по обеспечению качества показали нерациональное расходование средств`
+        },
+        {
+            key: `oo`,
+            en: `Other option (please provide the signed justification from the authorized official)`,
+            ru: `Другое (пожалуйста предоставьте письменное подтверждение за подписью уполномоченного лица)`
+        }
+    ];
+
     static getProjectData = (data: any) => {
         let projectData: any = {};
 
@@ -130,6 +158,19 @@ class ProjectHelper {
             throw new BadValidationException(400, 155, i18n.t('requiredDocsError'), `Missing some required docs: ${requiredDocs.join('/')}`);
         }
         return true;
+    }
+
+    static getTerminationReasonTitle = (key: string): string|null => {
+        const LANG = i18n.language;
+        let title: string|null = null;
+
+        ProjectHelper.terminationReasons.forEach((reason) => {
+            if (reason.key == key) {
+                title = reason[LANG]
+            }
+        })
+
+        return title;
     }
 }
 

@@ -10,12 +10,45 @@ import ProjectWasTerminated from "../../events/projectWasTerminated";
 import i18n from "i18next";
 import ProjectDocument from "../../models/projectDocument";
 import HistoryRepository from "../../repositories/historyRepository";
+import ProjectHelper from "../../helpers/projectHelper";
 
 class AdminProjectController {
+
+    static terminateReasons = async (req: Request, res: Response) => {
+        const LANG: string = i18n.language;
+
+        const reasons = ProjectHelper.terminationReasons;
+        try {
+            let responseReasons: Array<object>|[] = [];
+            reasons.forEach((reason) => {
+                if (reason[LANG]) {
+                    const langReason = {
+                        key: reason.key,
+                        title: reason[LANG]
+                    };
+                    responseReasons.push(langReason);
+                }
+            })
+    
+            const responseData = {
+                reasons: responseReasons
+            }
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+        
+    }
     
     static terminate = async (req: Request, res: Response) => {
         try {
             const projectId = req.body.id;
+            const terminationReasonKey = req.body.reason.key;
             const project = await Project.findByPk(projectId);
             if (project === null) {
                 throw new ProjectNotFound();
@@ -39,7 +72,7 @@ class AdminProjectController {
                 tranche.save();
             });
             
-            event(new ProjectWasTerminated(req.user, project));
+            event(new ProjectWasTerminated(req.user, project, terminationReasonKey));
 
             const responseData = {
                 message: i18n.t('successProjectTermination')
@@ -84,7 +117,7 @@ class AdminProjectController {
             await HistoryRepository.deleteByProjectId(projectId);
 
             const responseData = {
-                message: i18n.t('successDeletedProject');
+                message: i18n.t('successDeletedProject')
             }
 
             return ApiController.success(responseData, res);
