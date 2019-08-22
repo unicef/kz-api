@@ -32,6 +32,7 @@
     - [Get project documents](project.md?id=get-project-documents "Get project documents")
     - [Delete project document](project.md?id=delete-project-document "Delete project document")
     - [Selecting IP into project](project.md?id=selecting-ip-into-project "Selecting IP into project")
+    - [Create project link](project.md?id=create-project-link "Create project link")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

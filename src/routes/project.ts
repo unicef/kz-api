@@ -1,6 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
 import ProjectController from "../controllers/projectController";
+import ProjectLinkController from "../controllers/projectLinkController";
 import postProject from "../requests/project/postProject";
 import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import checkAuthToken from "../middlewares/checkAuthToken";
@@ -10,6 +11,7 @@ import FileController from "../controllers/fileController";
 import putProject from "../requests/project/putProject";
 import postProgress from "../requests/project/postProgress";
 import getPartnerDocuments from "../requests/partner/getPartnerDocuments";
+import postLink from "../requests/projectLink/postlink";
 
 const router = Router();
 const upload = multer({ 
@@ -19,6 +21,7 @@ const upload = multer({
         fileSize: 5242880
     }
 });
+
 const middleCheckAdminUnicefRoles = acceptRoles([
     Role.adminRoleId, 
     Role.unicefResponsibleId, 
@@ -27,15 +30,30 @@ const middleCheckAdminUnicefRoles = acceptRoles([
     Role.unicefOperationId
 ]);
 
+const middleCheckAdminUnicefPartnerRoles = acceptRoles([
+    Role.adminRoleId, 
+    Role.unicefResponsibleId, 
+    Role.unicefBudgetId, 
+    Role.unicefDeputyId, 
+    Role.unicefOperationId,
+    Role.partnerAssistId,
+    Role.partnerAuthorisedId
+]);
+
 router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], ProjectController.create);
 router.put("/", [checkAuthToken, middleCheckAdminUnicefRoles, putProject], ProjectController.update);
 router.get("/test", ProjectController.testing);
-router.get("/properties", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getProperties);
-router.get("/", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getInfo);
+router.get("/properties", [checkAuthToken], ProjectController.getProperties);
+router.get("/", [checkAuthToken], ProjectController.getInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
+
+// documents routes block
 router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);
 router.get("/document", [checkAuthToken, getPartnerDocuments], ProjectController.downloadDocument);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
 router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.deleteDocument);
+
+// links routes block
+router.post("/link", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, postLink], ProjectLinkController.create);
 
 export default router;
