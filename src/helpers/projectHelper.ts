@@ -146,7 +146,9 @@ class ProjectHelper {
 
     static validateDocumentsData = async (project: Project, documents: Array<iInputDocs>): Promise<boolean>=> {
         const typeDocName = (project.type==Project.PROJECT_SSFA_TYPE)?ProjectDocument.SSFA_REQUIRED_DOC_TITLE:ProjectDocument.PCA_REQUIRED_DOC_TITLE;
+        console.log("TYPE DOC NAME", typeDocName);
         let requiredDocs: Array<string> = ProjectDocument.IN_PROGRESS_REQUIRED_DOCS;
+        console.log("TREQUIRED DOCS ORIGINAL", requiredDocs);
         requiredDocs.push(typeDocName);
         console.log("REQUIRED DOCS", requiredDocs);
         documents.forEach((doc) => {
