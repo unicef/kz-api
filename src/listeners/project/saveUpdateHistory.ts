@@ -57,6 +57,8 @@ class SaveUpdateHistory extends Listener {
                         }
                     }
                 }
+
+                console.log("HISTORY RECORD!!!!", historyData);
     
                 const historyRecord = await HistoryRepository.create(historyData);
             }
