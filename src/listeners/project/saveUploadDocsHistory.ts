@@ -16,7 +16,7 @@ class SaveUploadDocsHistory extends Listener {
             event: {
                 action: ProjectHistoryHelper.UPLOAD_DOCS_EVENT_KEY,
                 data: {
-                    doc: doc,
+                    doc: doc.toJSON(),
                 }
             }
         }
