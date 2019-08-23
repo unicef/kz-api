@@ -39,7 +39,7 @@ class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
         const projectId = parseInt(req.query.id);
-        const history = await HistoryRepository.getList(projectId);
+        const history = await HistoryRepository.getList(projectId, 10);
 
         return ApiController.success({ history: history }, res);
     }

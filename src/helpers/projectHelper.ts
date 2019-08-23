@@ -112,6 +112,9 @@ class ProjectHelper {
             tranche.to = new Date(tranche.to);
             const dateToTs = Math.floor(tranche.to.getTime()/1000.0);
             const amount = tranche.amount;
+            if (amount<=0) {
+                throw new BadValidationException(400, 129, i18n.t('badTrancheAmount'), `Amount can't be less than 0`);
+            }
             if (dateFromTs >= dateToTs) {
                 throw new BadValidationException(400, 129, i18n.t('badTrancheDates'), `Date of ending tranche should not be less than date of tranche starting`);
             }
