@@ -148,12 +148,15 @@ class ProjectHelper {
         const typeDocName = (project.type==Project.PROJECT_SSFA_TYPE)?ProjectDocument.SSFA_REQUIRED_DOC_TITLE:ProjectDocument.PCA_REQUIRED_DOC_TITLE;
         let requiredDocs: Array<string> = ProjectDocument.IN_PROGRESS_REQUIRED_DOCS;
         requiredDocs.push(typeDocName);
+        console.log("REQUIRED DOCS", requiredDocs);
         documents.forEach((doc) => {
             const docIndex = requiredDocs.indexOf(doc.title);
+            console.log("DOC INDEX", docIndex);
             if (docIndex >= 0) {
                 requiredDocs.splice(docIndex, 1);
             }
         })
+        console.log("REQUIRED DOCS AFFTERRRRR", requiredDocs);
         if (requiredDocs.length>0) {
             throw new BadValidationException(400, 155, i18n.t('requiredDocsError'), `Missing some required docs: ${requiredDocs.join('/')}`);
         }
