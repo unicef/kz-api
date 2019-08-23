@@ -15,6 +15,7 @@ class ProjectDocumentsUploaded extends Event {
         this.userId= userId;
         this.project = project;
         this.document = projectDoc;
+        console.log("Document Upload Event SUCCESSSSSQ!!!!!!");
     }
 
     public listeners = [
