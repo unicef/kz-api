@@ -12,9 +12,7 @@ class MongoDB {
             const mongoPort: string = Config.get("MONGO_PORT", 27017);
             const mongoUrl: string = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort;
             const mongoConnect = await MongoClient.connect(mongoUrl, {useNewUrlParser: true});
-
-            console.log("MONGO CONNETSSSSSS$$$$$^^^^^^^^ ", mongoConnect);
-
+            
             MongoDB.connection = mongoConnect;
             return MongoDB.connection;
         } else {
