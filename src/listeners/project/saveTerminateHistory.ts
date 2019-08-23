@@ -15,7 +15,8 @@ class SaveTerminateHistory extends Listener {
             event: {
                 action: ProjectHistoryHelper.SET_TERMINATED_STATUS,
                 reason: event.terminationReasonKey
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);

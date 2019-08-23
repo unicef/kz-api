@@ -17,7 +17,8 @@ class SavePartnerAssignedHistory extends Listener {
                 data: {
                     patnerId: partner.id
                 }
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);

@@ -28,7 +28,8 @@ class SaveTranchesInstalledHistory extends Listener {
                 data: {
                     tranches: tranchesHistoryData
                 }
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);

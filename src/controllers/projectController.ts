@@ -206,7 +206,6 @@ class ProjectController {
             }
 
             Project.afterUpdate((prj, opt) => {
-                console.log("UPDATE EVENT!!!!", project.id);
                 event(new ProjectWasUpdated(req.user, project, prj._previousDataValues, prj.dataValues, opt.fields));
             });
 

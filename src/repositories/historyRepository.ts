@@ -19,7 +19,7 @@ class HistoryRepository {
         return insert;
     }
 
-    static getList = async (projectId: number) => {
+    static getList = async (projectId: number, limit: number) => {
         const mongoDatabase: string = Config.get("MONGO_DATABASE", 'db');
         const mongoConnect: MongoClient = await MongoDB.getMongoConnection();
 

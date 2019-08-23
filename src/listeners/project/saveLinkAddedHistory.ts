@@ -18,7 +18,8 @@ class SaveLinkAddedHistory extends Listener {
                 data: {
                     link: link
                 }
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);

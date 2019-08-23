@@ -5,7 +5,6 @@ import ProjectDocumentsUploaded from "../../events/projectDocumentsUploaded";
 
 class SaveUploadDocsHistory extends Listener {
     public handle = async (event: ProjectDocumentsUploaded) => {
-        console.log("Document Upload Listener SUCCESSSSSQ!!!!!!");
         const userId = event.userId;
         const project = event.project;
         const doc = event.document;
@@ -18,9 +17,9 @@ class SaveUploadDocsHistory extends Listener {
                 data: {
                     doc: doc.toJSON(),
                 }
-            }
+            },
+            createdAt: new Date()
         }
-        console.log(historyData);
 
         const historyRecord = await HistoryRepository.create(historyData);
     }

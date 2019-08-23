@@ -15,9 +15,10 @@ class SaveDeleteDocHistory extends Listener {
             event: {
                 action: ProjectHistoryHelper.DELETE_DOC_EVENT_KEY,
                 data: {
-                    doc: doc,
+                    doc: doc.toJSON(),
                 }
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);

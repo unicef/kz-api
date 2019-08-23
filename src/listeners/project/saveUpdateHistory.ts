@@ -55,7 +55,8 @@ class SaveUpdateHistory extends Listener {
                         data: {
                             fields: updatedData
                         }
-                    }
+                    },
+                    createdAt: new Date()
                 }
     
                 const historyRecord = await HistoryRepository.create(historyData);

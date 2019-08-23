@@ -18,7 +18,8 @@ class SaveCreateHistory extends Listener {
                     titleRu: project.titleRu,
                     officerId: project.officerId
                 }
-            }
+            },
+            createdAt: new Date()
         }
 
         const historyRecord = await HistoryRepository.create(historyData);
