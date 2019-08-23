@@ -13,6 +13,8 @@ class MongoDB {
             const mongoUrl: string = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort;
             const mongoConnect = await MongoClient.connect(mongoUrl, {useNewUrlParser: true});
 
+            console.log("MONGO CONNETSSSSSS$$$$$^^^^^^^^ ", mongoConnect);
+
             MongoDB.connection = mongoConnect;
             return MongoDB.connection;
         } else {

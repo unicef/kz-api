@@ -11,9 +11,12 @@ class HistoryRepository {
         const mongoConnect: MongoClient = await MongoDB.getMongoConnection();
 
         const db = mongoConnect.db(mongoDatabase);
+
+        console.log("MONGO DBBBBBBBBBBBB ", db);
         const collection = db.collection(HistoryRepository.COLLECTION);
 
         const insert = await collection.insertOne(data);
+        console.log("INSERT!!!!!!", insert);
 
         return insert;
     }
