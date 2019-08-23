@@ -38,7 +38,8 @@ import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
-        const history = await HistoryRepository.getList();
+        const projectId = req.query.id;
+        const history = await HistoryRepository.getList(projectId);
 
         return ApiController.success({ history: history }, res);
     }

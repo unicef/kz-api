@@ -19,14 +19,14 @@ class HistoryRepository {
         return insert;
     }
 
-    static getList = async () => {
+    static getList = async (projectId: number) => {
         const mongoDatabase: string = Config.get("MONGO_DATABASE", 'db');
         const mongoConnect: MongoClient = await MongoDB.getMongoConnection();
 
         const db = mongoConnect.db(mongoDatabase);
         const collection = db.collection(HistoryRepository.COLLECTION);
 
-        const history = collection.find();
+        const history = collection.find({"projectId" : projectId});
         return history.toArray();
     }
 
