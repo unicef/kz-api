@@ -48,5 +48,19 @@ class UserRepository {
         const users = await sequelize.query(query,{type: QueryTypes.SELECT});
         return users;
     }
+
+    static getNameById = async (userId: number) => {
+        const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
+        const query = `SELECT upd."firstName${LANG}" || ' ' || upd."lastName${LANG}" as "name" FROM users_personal_data upd WHERE upd."userId" = ${userId}`;
+    
+        const user = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true,
+            mapToModel: true
+        });
+        return user;
+    }
 }
 export default UserRepository;

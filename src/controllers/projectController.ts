@@ -34,6 +34,7 @@ import ProjectHasTranches from "../exceptions/project/projectHasTranches";
 import ProjectTranche from "../models/projectTranche";
 import ProjectPartnerAssigned from "../events/projectPartnerAssigned";
 import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
+import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
 
 class ProjectController {
 
@@ -41,7 +42,13 @@ class ProjectController {
         const projectId = parseInt(req.query.id);
         const history = await HistoryRepository.getList(projectId, 10);
 
-        return ApiController.success({ history: history }, res);
+        let histResp = [];
+
+        history.forEach(async (historyEvent) => {
+            histResp.push(await ProjectHistoryHelper.renderHistory(historyEvent));
+        })
+
+        return ApiController.success({ history: histResp }, res);
     }
 
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {

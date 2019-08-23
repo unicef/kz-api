@@ -111,5 +111,19 @@ class PartnerRepository {
 
         return partners;
     }
+
+    static getNameById = async (partnerId: number) => {
+        const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
+        const query = `SELECT p."name${LANG}" as "name" FROM partners p WHERE p."id" = ${partnerId}`;
+    
+        const partner = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true,
+            mapToModel: true
+        });
+        return partner;
+    }
 }
 export default PartnerRepository;
