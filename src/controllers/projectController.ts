@@ -261,12 +261,12 @@ class ProjectController {
             if (projectTranches.length > 0) {
                 throw new ProjectHasTranches();
             }
-            const inputTranches: any = req.body.tranches;
-            const tranchesData = await ProjectHelper.getTranchesData(project, inputTranches);
-            const tranches = await ProjectTranche.bulkCreate(tranchesData);
             // working with documents
             const inputDocs = req.body.documents;
             const isDocsValid = await ProjectHelper.validateDocumentsData(project, inputDocs);
+            const inputTranches: any = req.body.tranches;
+            const tranchesData = await ProjectHelper.getTranchesData(project, inputTranches);
+            const tranches = await ProjectTranche.bulkCreate(tranchesData);
 
             if (isDocsValid) {
                 inputDocs.forEach(async (element: any) => {
