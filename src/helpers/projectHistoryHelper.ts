@@ -22,53 +22,66 @@ class ProjectHistoryHelper {
     static ADD_LINK_EVENT_KEY: string = 'add_link';
     static SET_TERMINATED_STATUS: string = 'terminated';
 
-    static renderHistory = async (historyRow) => {
+    static renderHistory = async (historyRows) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
-        const eventData = historyRow.event.data;
-        const date = new Date(historyRow.createdAt).toLocaleString('ru-Ru', { timeZone: 'UTC' });
-        const user = await UserRepository.getNameById(historyRow.userId);
-        let history = {
-            date: date,
-            user: user.name,
-            action: ''
-        };
-        switch (historyRow.event.action) {
-            case ProjectHistoryHelper.CREATE_EVENT_KEY: {
-                const officer = await UserRepository.getNameById(eventData.officerId);
-                const title = eventData["title"+LANG];
-                history.action = `Created project with title: "${title}" and set ${officer.name} as project officer`;
+        let usersName = {};
+        let responseHistory = [];
+        
+        for (var i=0; i<=historyRows.length; i++) {
+            const historyRow = historyRows[i];
+            const eventData = historyRow.event.data;
+            const date = new Date(historyRow.createdAt).toLocaleString('ru-Ru', { timeZone: 'UTC' });
+            let user = null;
+            if (usersName[historyRow.userId]) {
+                user = usersName[historyRow.userId]
+            } else {
+                user = await UserRepository.getNameById(historyRow.userId);
+                usersName[historyRow.userId] = user;
             }
-            break;
-            case ProjectHistoryHelper.EDIT_EVENT_KEY: {
-                history.action = `Edited project and set : `;
-                eventData.fields.forEach((field) => {
-                    history.action = history.action + field.field + "| FROM: " + field.oldVal + "  |  TO:  " + field.newVal + "\n";
-                });
+            let history = {
+                date: date,
+                user: user.name,
+                action: ''
+            };
+            switch (historyRow.event.action) {
+                case ProjectHistoryHelper.CREATE_EVENT_KEY: {
+                    const officer = await UserRepository.getNameById(eventData.officerId);
+                    const title = eventData["title"+LANG];
+                    history.action = `Created project with title: "${title}" and set ${officer.name} as project officer`;
+                }
+                break;
+                case ProjectHistoryHelper.EDIT_EVENT_KEY: {
+                    history.action = `Edited project and set : `;
+                    eventData.fields.forEach((field) => {
+                        history.action = history.action + field.field + "| FROM: " + field.oldVal + "  |  TO:  " + field.newVal + "\n";
+                    });
+                }
+                break;
+                case ProjectHistoryHelper.UPLOAD_DOCS_EVENT_KEY: {
+                    history.action = `Uploaded document : ` + eventData.doc.title;
+                }
+                break;
+                case ProjectHistoryHelper.DELETE_DOC_EVENT_KEY: {
+                    history.action = `Deleted document : ` + eventData.doc.title;
+                }
+                break;
+                case ProjectHistoryHelper.SET_IP_EVENT_KEY: {
+                    const partner = await PartnerRepository.getNameById(eventData.patnerId);
+                    history.action = `Set partner "${partner.name}" as IP`;
+                }
+                break;
+                case ProjectHistoryHelper.SET_TRANCHES_EVENT_KEY: {
+                    history.action = `Set tranches : `;
+                    eventData.tranches.forEach((tranche) => {
+                        history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + "\n";
+                    });
+                }
+                break;
             }
-            break;
-            case ProjectHistoryHelper.UPLOAD_DOCS_EVENT_KEY: {
-                history.action = `Uploaded document : ` + eventData.doc.title;
-            }
-            break;
-            case ProjectHistoryHelper.DELETE_DOC_EVENT_KEY: {
-                history.action = `Deleted document : ` + eventData.doc.title;
-            }
-            break;
-            case ProjectHistoryHelper.SET_IP_EVENT_KEY: {
-                const partner = await PartnerRepository.getNameById(eventData.patnerId);
-                history.action = `Set partner "${partner.name}" as IP`;
-            }
-            break;
-            case ProjectHistoryHelper.SET_TRANCHES_EVENT_KEY: {
-                history.action = `Set tranches : `;
-                eventData.tranches.forEach((tranche) => {
-                    history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + "\n";
-                });
-            }
-            break;
-        }
 
-        return history;
+            responseHistory.push(history);
+        }
+        return responseHistory;
     }
 
     

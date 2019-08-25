@@ -42,11 +42,7 @@ class ProjectController {
         const projectId = parseInt(req.query.id);
         const history = await HistoryRepository.getList(projectId, 10);
 
-        let histResp = [];
-
-        history.forEach(async (historyEvent) => {
-            histResp.push(await ProjectHistoryHelper.renderHistory(historyEvent));
-        })
+        let histResp = await ProjectHistoryHelper.renderHistory(history);
 
         return ApiController.success({ history: histResp }, res);
     }
