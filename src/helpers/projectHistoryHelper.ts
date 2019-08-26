@@ -27,10 +27,8 @@ class ProjectHistoryHelper {
         let usersName = {};
         let responseHistory = [];
         
-        for (var i=0; i<=historyRows.length; i++) {
+        for (var i=0; i<=historyRows.length-1; i++) {
             const historyRow = historyRows[i];
-            console.log("HISTORY ROW  !!!!", historyRow);
-            console.log("EVENT DATA: : : ", historyRow.event);
             const eventData = historyRow.event.data;
             const date = new Date(historyRow.createdAt).toLocaleString('ru-Ru', { timeZone: 'UTC' });
             let user = null;
