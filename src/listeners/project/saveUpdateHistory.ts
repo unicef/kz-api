@@ -12,21 +12,25 @@ class SaveUpdateHistory extends Listener {
         let updatedData: Array<object> | [] = [];
 
         for (var field in newProjectData) {
-            console.log("FIELD:::: LISTENER", field);
             const oldValue = project.getDataValue(field);
-            console.log("OLD VALUE:!!!!!", oldValue);
-            console.log("NEW VALUE!!!!!::::", newProjectData[field]);
             if (oldValue && oldValue != newProjectData[field]) {
-                updatedData.push({
-                    field: field,
-                    oldVal: oldValue,
-                    newVal: newProjectData[field]
-                })
+                if (field!=='deadline') {
+                    updatedData.push({
+                        field: field,
+                        oldVal: oldValue,
+                        newVal: newProjectData[field]
+                    })
+                } else {
+                    if (oldValue.toLocaleString('ru-Ru', { timeZone: 'UTC' }) !== newProjectData[field].toLocaleString('ru-Ru', { timeZone: 'UTC' }) ) {
+                        updatedData.push({
+                            field: field,
+                            oldVal: oldValue,
+                            newVal: newProjectData[field]
+                        })
+                    }
+                }
             }
         }
-
-
-        console.log("UPDATED DATA!@@@", updatedData);
 
         if (updatedData.length > 0) {
             const historyData = {
