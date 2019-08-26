@@ -23,13 +23,14 @@ class ProjectHistoryHelper {
     static SET_TERMINATED_STATUS: string = 'terminated';
 
     static renderHistory = async (historyRows) => {
-        console.log("HISTORY ROWS  !!!!", historyRows);
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let usersName = {};
         let responseHistory = [];
         
         for (var i=0; i<=historyRows.length; i++) {
             const historyRow = historyRows[i];
+            console.log("HISTORY ROW  !!!!", historyRow);
+            console.log("EVENT DATA: : : ", historyRow.event);
             const eventData = historyRow.event.data;
             const date = new Date(historyRow.createdAt).toLocaleString('ru-Ru', { timeZone: 'UTC' });
             let user = null;
