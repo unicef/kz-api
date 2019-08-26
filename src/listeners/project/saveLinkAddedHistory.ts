@@ -1,7 +1,6 @@
 import Listener from "../listener";
 import ProjectHistoryHelper from "../../helpers/projectHistoryHelper";
 import HistoryRepository from "../../repositories/historyRepository";
-import ProjectPartnerAssigned from "../../events/projectPartnerAssigned";
 import ProjectLinkAdded from "../../events/projectLinkAdded";
 
 class SaveLinkAddedHistory extends Listener {
@@ -16,7 +15,7 @@ class SaveLinkAddedHistory extends Listener {
             event: {
                 action: ProjectHistoryHelper.ADD_LINK_EVENT_KEY,
                 data: {
-                    link: link
+                    link: link.toJSON()
                 }
             },
             createdAt: new Date()

@@ -35,6 +35,7 @@
     - [Selecting IP into project](project.md?id=selecting-ip-into-project "Selecting IP into project")
     - [Create project link](project.md?id=create-project-link "Create project link")
     - [Get project links](project.md?id=get-project-links "Get project links")
+    - [Get project history](project.md?id=get-project-history "Get project history")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

@@ -54,7 +54,7 @@ class ProjectHistoryHelper {
                 case ProjectHistoryHelper.EDIT_EVENT_KEY: {
                     history.action = `Edited project and set : `;
                     eventData.fields.forEach((field) => {
-                        history.action = history.action + field.field + "| FROM: " + field.oldVal + "  |  TO:  " + field.newVal + "\n";
+                        history.action = history.action + field.field + "| FROM: " + field.oldVal + "  |  TO:  " + field.newVal + " \r\n ";
                     });
                 }
                 break;
@@ -74,7 +74,7 @@ class ProjectHistoryHelper {
                 case ProjectHistoryHelper.SET_TRANCHES_EVENT_KEY: {
                     history.action = `Set tranches : `;
                     eventData.tranches.forEach((tranche) => {
-                        history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + "\n";
+                        history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + " \r\n ";
                     });
                 }
                 break;

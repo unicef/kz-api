@@ -32,6 +32,7 @@ class ProjectLinkController {
             // check if link allready exists
             const linkExists = await ProjectLink.findOne({
                 where: {
+                    projectId: projectId,
                     href: href
                 }
             });

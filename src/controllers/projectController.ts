@@ -418,6 +418,25 @@ class ProjectController {
             return;
         }
     }
+
+    static getShortHistory = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+
+            const history = await HistoryRepository.getList(projectId, 10);
+
+            let histResp = await ProjectHistoryHelper.renderHistory(history);
+
+            return ApiController.success({ history: histResp }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default ProjectController;

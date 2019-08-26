@@ -58,6 +58,9 @@ router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], Projec
 
 // links routes block
 router.post("/link", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, postLink], ProjectLinkController.create);
-router.get("/links", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getProjectLinks], ProjectLinkController.projectLinksList)
+router.get("/links", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getProjectLinks], ProjectLinkController.projectLinksList);
+
+// history routes block
+router.get("/history", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getPartnerDocuments], ProjectController.getShortHistory);
 
 export default router;
