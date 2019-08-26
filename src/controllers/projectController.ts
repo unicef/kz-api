@@ -36,6 +36,7 @@ import ProjectPartnerAssigned from "../events/projectPartnerAssigned";
 import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
 import Pagination from "../services/pagination";
+import BadPermissions from "../exceptions/badPermissions";
 
 class ProjectController {
 
@@ -181,6 +182,12 @@ class ProjectController {
 
             // get project info
             const project = await ProjectRepository.findById(projectId);
+
+            if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
+                if (req.user.partnerId !== project.partnerId) {
+                    throw new BadPermissions();
+                }
+            }
 
             if (project === null) {
                 throw new ProjectNotFound();

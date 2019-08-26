@@ -7,7 +7,7 @@ const getPartnerDocuments = (req: Request, res: Response, next: NextFunction) =>
     let validationRules: any = {
         querySchema: Joi.object().options({ abortEarly: false}).keys({
             id: Joi.number().min(1).required().options({language: LocalizationHelper.getValidationMessages()})
-        }),
+        }).pattern(/./, Joi.any()),
         bodySchema: null
     };
 

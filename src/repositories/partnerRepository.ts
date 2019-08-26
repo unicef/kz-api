@@ -101,10 +101,14 @@ class PartnerRepository {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         const query = `SELECT partners."id", partners."name${LANG}" as "name"
         FROM partners
-        LEFT JOIN projects ON projects."partnerId"=partners."id"
-        WHERE partners."statusId" = '${Partner.partnerStatusApproved}' AND projects."statusId" != '${Project.IN_PROGRESS_STATUS_ID}'
-        GROUP BY partners."id"
-        HAVING COUNT(projects."id") < ${Partner.PROJECTS_LIMIT}`
+          LEFT JOIN (
+              select p.* 
+              from projects p 
+              where p."statusId" != '${Project.IN_PROGRESS_STATUS_ID}'
+          ) as projects ON projects."partnerId"=partners."id"
+          WHERE partners."statusId" = '${Partner.partnerStatusApproved}'
+         GROUP BY partners."id"
+          HAVING COUNT(projects."id") < ${Partner.PROJECTS_LIMIT}`
 
         const partners = await sequelize.query(query, {
             type: QueryTypes.SELECT
