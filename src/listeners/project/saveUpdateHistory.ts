@@ -45,6 +45,5 @@ class SaveUpdateHistory extends Listener {
         }
     }
 }
-}
 
 export default new SaveUpdateHistory();
