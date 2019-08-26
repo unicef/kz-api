@@ -19,8 +19,8 @@ class SaveUpdateHistory extends Listener {
             if (oldValue && oldValue != newProjectData[field]) {
                 updatedData.push({
                     field: field,
-                    oldVal: oldValues[field],
-                    newVal: newValues[field]
+                    oldVal: oldValue,
+                    newVal: newProjectData[field]
                 })
             }
         }
