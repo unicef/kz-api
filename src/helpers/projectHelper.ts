@@ -7,6 +7,9 @@ import i18n from "i18next";
 import ProjectTranche from "../models/projectTranche";
 import ProjectDocumentsUploaded from "../events/projectDocumentsUploaded";
 import event from "../services/event";
+import { Request } from "express";
+import Pagination from "../services/pagination";
+import ProjectRepository from "../repositories/projectRepository";
 
 class ProjectHelper {
 
@@ -76,6 +79,35 @@ class ProjectHelper {
         projectData.deadline = new Date(data.deadline);
 
         return projectData;
+    }
+
+    static getMyPartnerList = async (req: Request) => {
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const partnerId = req.user.partnerId;
+        const projects = await ProjectRepository.getListForPartner(partnerId, searchInstanse, pagination);
+
+        const returnData = {
+            projects: projects,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+        return returnData;
+    }
+
+
+    static getMyAssistantList = async (req: Request) => {
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const assistId = req.user.id;
+        const projects = await ProjectRepository.getListForAssistant(assistId, searchInstanse, pagination);
+
+        const returnData = {
+            projects: projects,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+        return returnData;
     }
 
     static transferProjectDocument = async (tmpId: number, documentTitle: string, project: Project): Promise<ProjectDocument> => {

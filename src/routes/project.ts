@@ -42,6 +42,15 @@ const middleCheckAdminUnicefPartnerRoles = acceptRoles([
     Role.partnerAuthorisedId
 ]);
 
+const middleChekUnicefPartnerRoles = acceptRoles([
+    Role.unicefResponsibleId, 
+    Role.unicefBudgetId, 
+    Role.unicefDeputyId, 
+    Role.unicefOperationId,
+    Role.partnerAssistId,
+    Role.partnerAuthorisedId
+]);
+
 router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], ProjectController.create);
 router.put("/", [checkAuthToken, middleCheckAdminUnicefRoles, putProject], ProjectController.update);
 router.get("/test", ProjectController.testing);
@@ -49,6 +58,7 @@ router.get("/properties", [checkAuthToken], ProjectController.getProperties);
 router.get("/", [checkAuthToken], ProjectController.getInfo);
 router.get("/short", [checkAuthToken, getShortProjectInfo], ProjectController.getShortInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
+router.get("/my-list", [checkAuthToken, middleChekUnicefPartnerRoles], ProjectController.myList);
 
 // documents routes block
 router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);

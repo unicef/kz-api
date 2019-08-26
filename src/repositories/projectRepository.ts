@@ -2,6 +2,7 @@ import { QueryTypes } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import Project from "../models/project";
+import Pagination from "../services/pagination";
 
 class ProjectRepository {
 
@@ -74,6 +75,62 @@ class ProjectRepository {
 
         return project;
     } 
+
+    static getListForPartner = async (partnerId: number, searchPhrase: string|null, pagination: Pagination) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%')`;
+        }
+
+        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId" WHERE p."statusId" = '${Project.IN_PROGRESS_STATUS_ID}' AND p.partnerId=${partnerId}` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (projectsQuery == null || projectsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(projectsQuery.length);
+        let partnersIds = projectsQuery.map(a => a.id);
+
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" WHERE p."id" IN (' + partnersIds.join(', ') + ') ORDER BY p."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        return projects;
+    }
+
+    static getListForAssistant = async (assistantId: number, searchPhrase: string|null, pagination: Pagination) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%' OR pa."name${lang}" ILIKE '%${searchPhrase}%')`;
+        }
+
+        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p LEFT JOIN users_personal_data o ON o."userId" = p."officerId" LEFT JOIN partners pa ON pa."id" = p."partnerId" WHERE p.officerId=${assistantId}` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (projectsQuery == null || projectsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(projectsQuery.length);
+        let partnersIds = projectsQuery.map(a => a.id);
+
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" WHERE p."id" IN (' + partnersIds.join(', ') + ') ORDER BY p."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        return projects;
+    }
 
     static isProjectExists = async (projectId: number) => {
         const query = `SELECT projects.id FROM projects WHERE projects."id"=${projectId}`;

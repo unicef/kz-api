@@ -78,6 +78,28 @@ class ProjectController {
         }
     }
 
+    static myList = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // check user role and get list for this role
+            const user = req.user;
+            let list: any = [];
+            if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
+                list = await ProjectHelper.getMyPartnerList(req);
+            } else if (user.hasRole(Role.unicefResponsibleId)) {
+                list = await ProjectHelper.getMyAssistantList(req);
+            }
+
+            return ApiController.success(list, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
     static create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const projectData = ProjectHelper.getProjectData(req.body);

@@ -5,6 +5,7 @@ import Pagination from "../services/pagination";
 import Role from "../models/role";
 import PartnerHelper from "../helpers/partnerHelper";
 import Partner from "../models/partner";
+import Project from "../models/project";
 
 class PartnerRepository {
     
@@ -101,7 +102,7 @@ class PartnerRepository {
         const query = `SELECT partners."id", partners."name${LANG}" as "name"
         FROM partners
         LEFT JOIN projects ON projects."partnerId"=partners."id"
-        WHERE partners."statusId" = '${Partner.partnerStatusApproved}'
+        WHERE partners."statusId" = '${Partner.partnerStatusApproved}' AND projects."statusId" != '${Project.IN_PROGRESS_STATUS_ID}'
         GROUP BY partners."id"
         HAVING COUNT(projects."id") < ${Partner.PROJECTS_LIMIT}`
 
