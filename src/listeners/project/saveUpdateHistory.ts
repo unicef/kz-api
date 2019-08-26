@@ -12,8 +12,11 @@ class SaveUpdateHistory extends Listener {
         let updatedData: Array<object> | [] = [];
 
         for (var field in newProjectData) {
+            console.log("FIELD:::: LISTENER", field);
             const oldValue = project.getDataValue(field);
-            if (oldValue && oldValue !== newProjectData[field]) {
+            console.log("OLD VALUE:!!!!!", oldValue);
+            console.log("NEW VALUE!!!!!::::", newProjectData[field]);
+            if (oldValue && oldValue != newProjectData[field]) {
                 updatedData.push({
                     field: field,
                     oldVal: oldValues[field],
@@ -21,6 +24,9 @@ class SaveUpdateHistory extends Listener {
                 })
             }
         }
+
+
+        console.log("UPDATED DATA!@@@", updatedData);
 
         if (updatedData.length > 0) {
             const historyData = {

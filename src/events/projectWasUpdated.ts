@@ -15,6 +15,7 @@ class ProjectWasUpdated extends Event {
         this.user = user;
         this.project = project;
         this.newProjectData = newProjectData;
+        console.log("PROJECT UPDATED EVENT::::", newProjectData);
     }
 
     public listeners = [
