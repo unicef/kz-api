@@ -112,7 +112,7 @@ class ProjectRepository {
             searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%' OR pa."name${lang}" ILIKE '%${searchPhrase}%')`;
         }
 
-        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p LEFT JOIN users_personal_data o ON o."userId" = p."officerId" LEFT JOIN partners pa ON pa."id" = p."partnerId" WHERE p.officerId=${assistantId}` + searchInstanse, {
+        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p LEFT JOIN users_personal_data o ON o."userId" = p."officerId" LEFT JOIN partners pa ON pa."id" = p."partnerId" WHERE p."officerId"=${assistantId}` + searchInstanse, {
             type: QueryTypes.SELECT
         });
 
