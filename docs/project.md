@@ -165,6 +165,80 @@ Get select properties for project form
 
 <hr>
 
+
+# Get my projects list
+Get projects list for partner and UNICEF roles
+
+#### Request
+
+**URL: `GET: /project/my-list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "projects": [
+            {
+                "id": 41,
+                "title": "Simple title example",
+                "createdAt": "2019-08-26 07:52",
+                "deadline": "2019-12-05 12:00",
+                "status": "Project termination",
+                "programmeCode": "2390/A0/05/883/002",
+                "programmeTitle": "BEST INTERESTS OF THE CHILD & ODA",
+                "partnerName": "Andre LTD"
+            }
+        ],
+		"currentPage": 1,
+		"lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
+
 # Get project details
 Get project data for edit form
 
