@@ -2,6 +2,7 @@ import User from "../models/user";
 import i18n from "i18next";
 import UserRepository from "../repositories/userRepository";
 import PartnerRepository from "../repositories/partnerRepository";
+import ProjectHelper from "./projectHelper";
 
 class ProjectHistoryHelper {
     static EVENTS: Array<string> = [
@@ -75,6 +76,15 @@ class ProjectHistoryHelper {
                     eventData.tranches.forEach((tranche) => {
                         history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + "\n";
                     });
+                }
+                break;
+                case ProjectHistoryHelper.ADD_LINK_EVENT_KEY: {
+                    history.action = `Added link : ${eventData.link}`;
+                }
+                break;
+                case ProjectHistoryHelper.SET_TERMINATED_STATUS: {
+                    const terminationReason = ProjectHelper.getTerminationReasonTitle(historyRow.event.reason);
+                    history.action = `Terminated a project with reason : ${terminationReason}`;
                 }
                 break;
             }
