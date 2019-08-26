@@ -7,62 +7,38 @@ class SaveUpdateHistory extends Listener {
     public handle = async (event: ProjectWasUpdated) => {
         const user = event.user;
         const project = event.project;
-        const oldValues = event.oldValues;
-        const newValues = event.newValues;
-        const fields = event.fields;
+        const newProjectData = event.newProjectData;
 
-        let updatedData: Array<object>|[] = [];
+        let updatedData: Array<object> | [] = [];
 
-        if (fields) {
-            fields.forEach((field) => {
-                if (field !== 'updatedAt') {
-                    switch (field) {
-                        case 'ice': 
-                            if (parseFloat(oldValues[field]) !== newValues[field]) {
-                                updatedData.push({
-                                    field: field,
-                                    oldVal: oldValues[field],
-                                    newVal: newValues[field]
-                                })
-                            }
-                            break;
-                        case 'usdRate': 
-                            if (parseFloat(oldValues[field]) !== newValues[field]) {
-                                updatedData.push({
-                                    field: field,
-                                    oldVal: oldValues[field],
-                                    newVal: newValues[field]
-                                })
-                            }
-                            break;
-                        default:
-                            updatedData.push({
-                                field: field,
-                                oldVal: oldValues[field],
-                                newVal: newValues[field]
-                            })
-                        break;
-                    }
-                }
-            })
-    
-            if (updatedData.length > 0) {
-                const historyData = {
-                    userId: user.id,
-                    projectId: project.id,
-                    event: {
-                        action: ProjectHistoryHelper.EDIT_EVENT_KEY,
-                        data: {
-                            fields: updatedData
-                        }
-                    },
-                    createdAt: new Date()
-                }
-    
-                const historyRecord = await HistoryRepository.create(historyData);
+        for (var field in newProjectData) {
+            const oldValue = project.getDataValue(field);
+            if (oldValue && oldValue !== newProjectData[field]) {
+                updatedData.push({
+                    field: field,
+                    oldVal: oldValues[field],
+                    newVal: newValues[field]
+                })
             }
         }
+
+        if (updatedData.length > 0) {
+            const historyData = {
+                userId: user.id,
+                projectId: project.id,
+                event: {
+                    action: ProjectHistoryHelper.EDIT_EVENT_KEY,
+                    data: {
+                        fields: updatedData
+                    }
+                },
+                createdAt: new Date()
+            }
+
+            const historyRecord = await HistoryRepository.create(historyData);
+        }
     }
+}
 }
 
 export default new SaveUpdateHistory();

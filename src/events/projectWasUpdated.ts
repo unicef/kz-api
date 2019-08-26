@@ -8,17 +8,13 @@ import saveUpdateHistory from "../listeners/project/saveUpdateHistory";
 class ProjectWasUpdated extends Event {
     public project: Project;
     public user: User;
-    public oldValues: Project;
-    public newValues: Project;
-    public fields: Array<string>;
+    public newProjectData: any;
 
-    constructor(user: User, project: Project, oldProjectValues: Project, newProjectValues: Project, fields: Array<string>) {
+    constructor(user: User, project: Project, newProjectData) {
         super();
         this.user = user;
         this.project = project;
-        this.oldValues = oldProjectValues;
-        this.newValues = newProjectValues;
-        this.fields = fields;
+        this.newProjectData = newProjectData;
     }
 
     public listeners = [

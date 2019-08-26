@@ -207,10 +207,8 @@ class ProjectController {
                     throw new BadRole(400, 235, i18n.t('badResponsibleOfficerUser'), 'Creation project> Bad responsible officer user')
                 }
             }
-
-            Project.afterUpdate((prj, opt) => {
-                event(new ProjectWasUpdated(req.user, project, prj._previousDataValues, prj.dataValues, opt.fields));
-            });
+            // event of editing project
+            event(new ProjectWasUpdated(req.user, project, projectData));
 
             await project.update(projectData);
 
