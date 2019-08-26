@@ -23,6 +23,7 @@ class ProjectHistoryHelper {
     static SET_TERMINATED_STATUS: string = 'terminated';
 
     static renderHistory = async (historyRows) => {
+        console.log("HISTORY ROWS  !!!!", historyRows);
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let usersName = {};
         let responseHistory = [];
