@@ -124,7 +124,7 @@ class ProjectRepository {
         pagination.setItemsCount(projectsQuery.length);
         let projectsIds = projectsQuery.map(a => a.id);
 
-        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName", o."firstName${lang}" || ' ' || o."lastName${lang}" AS "assistName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" LEFT JOIN  users_personal_data o ON o."userId" = p."officerId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
 
         query = query + pagination.getLimitOffsetParam();
 
@@ -152,7 +152,7 @@ class ProjectRepository {
         pagination.setItemsCount(projectsQuery.length);
         let projectsIds = projectsQuery.map(a => a.id);
 
-        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName", o."firstName${lang}" || ' ' || o."lastName${lang}" AS "assistName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" LEFT JOIN  users_personal_data o ON o."userId" = p."officerId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
 
         query = query + pagination.getLimitOffsetParam();
 
