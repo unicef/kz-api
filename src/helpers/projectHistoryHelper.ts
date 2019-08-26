@@ -79,7 +79,7 @@ class ProjectHistoryHelper {
                 }
                 break;
                 case ProjectHistoryHelper.ADD_LINK_EVENT_KEY: {
-                    history.action = `Added link : ${eventData.link}`;
+                    history.action = `Added link : ${eventData.link.title}`;
                 }
                 break;
                 case ProjectHistoryHelper.SET_TERMINATED_STATUS: {

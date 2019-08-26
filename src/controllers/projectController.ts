@@ -35,6 +35,7 @@ import ProjectTranche from "../models/projectTranche";
 import ProjectPartnerAssigned from "../events/projectPartnerAssigned";
 import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
+import Pagination from "../services/pagination";
 
 class ProjectController {
 
@@ -91,6 +92,31 @@ class ProjectController {
 
             return ApiController.success(list, res);
         } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getList = async (req: Request, res: Response, next: NextFunction) => {
+        try { 
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+
+            const projects = await ProjectRepository.getAllList(searchInstanse, pagination);
+
+
+            const responseData = {
+                projects: projects,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) { 
             if (error instanceof HttpException) {
                 error.response(res);
             } else {

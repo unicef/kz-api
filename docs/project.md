@@ -165,6 +165,80 @@ Get select properties for project form
 
 <hr>
 
+# Get all projects list
+Get all projects list for UNICEF and admin roles
+
+#### Request
+
+**URL: `GET: /project/list`**
+
+**Query params:**
+
+?> **page** - list page (optional)<br/>
+**search** - search phrase (optional)<br/>
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "projects": [
+            {
+                "id": 36,
+                "title": "First project edit",
+                "projectCode": "SSFA_KAZ_2019_36",
+                "createdAt": "2019-08-19 08:32",
+                "deadline": "2019-09-19 12:00",
+                "status": "In progress",
+                "programmeCode": "2390/A0/05/881/001/003",
+                "programmeTitle": "IMPROVED EFFECTIVENESS OF TSA",
+                "partnerName": "First partner",
+                "assistName": "First Coordinator"
+            }
+        ],
+        "currentPage": 1,
+        "lastPage": 1
+    }
+}
+```
+
+#### ** 403 Error Response **
+- Code: `403 Forbidden` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        devMessage: "User's permissions not enough",
+        message: "Error message",
+        status: 403,
+        errorCode: 102 
+    }
+}
+```
+
+#### ** 500 Error Response **
+- Code: `500 SERVER ERROR` <br />
+- Content:
+```json
+{
+    success: false,
+    error: {
+        status: 500, 
+        message: "error message"
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
 
 # Get my projects list
 Get projects list for partner and UNICEF roles

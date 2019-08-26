@@ -28,6 +28,7 @@
 - Project
     - [Form properties](project.md?id=get-project-static-properties "Get project properties")
     - [Create project](project.md?id=create-project "Create project")
+    - [Get all projects list](project.md?id=get-all-projects-list "Get all projects list")
     - [Get my projects list](project.md?id=get-my-projects-list "Get my projects list")
     - [Get project details](project.md?id=get-project-details "Get project")
     - [Get project short details](project.md?id=get-project-short-details "Get project short details")

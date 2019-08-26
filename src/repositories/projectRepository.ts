@@ -76,6 +76,34 @@ class ProjectRepository {
         return project;
     } 
 
+    static getAllList = async (searchPhrase: string|null, pagination: Pagination) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` WHERE p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%'`;
+        }
+
+        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId"` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (projectsQuery == null || projectsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(projectsQuery.length);
+        let projectsIds = projectsQuery.map(a => a.id);
+
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", p."type" || '_KAZ_' || TO_CHAR(p."createdAt", \'yyyy\') || '_' || p."id" as "projectCode", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName", o."firstName${lang}" || ' ' || o."lastName${lang}" AS "assistName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" LEFT JOIN  users_personal_data o ON o."userId" = p."officerId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        return projects;
+    }
+
     static getListForPartner = async (partnerId: number, searchPhrase: string|null, pagination: Pagination) => {
         const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let searchInstanse = '';

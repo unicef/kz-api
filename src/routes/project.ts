@@ -59,6 +59,7 @@ router.get("/", [checkAuthToken], ProjectController.getInfo);
 router.get("/short", [checkAuthToken, getShortProjectInfo], ProjectController.getShortInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
 router.get("/my-list", [checkAuthToken, middleChekUnicefPartnerRoles], ProjectController.myList);
+router.get("/list", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getList);
 
 // documents routes block
 router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);
