@@ -38,6 +38,7 @@ router.post("/documents", [checkAuthToken, postPartnerDocuments], PartnerControl
 router.delete("/document", [checkAuthToken, getPartnerDocuments], PartnerController.deleteDocument);
 router.get("/list", [checkAuthToken], PartnerController.list);
 router.get("/details", [checkAuthToken, getPartnerById], PartnerController.details);
-router.get("/available", [checkAuthToken, middleCheckAdminUnicefRoles], PartnerController.availableList)
+router.get("/available", [checkAuthToken, middleCheckAdminUnicefRoles], PartnerController.availableList);
+router.get("/projects", [checkAuthToken, middleCheckAdminUnicefRoles, getPartnerDocuments], PartnerController.getProjects)
 
 export default router;

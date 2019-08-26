@@ -25,6 +25,9 @@ import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
 import Pagination from "../services/pagination";
+import Project from "../models/project";
+import ProjectHelper from "../helpers/projectHelper";
+import ProjectRepository from "../repositories/projectRepository";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -441,6 +444,31 @@ class PartnerController {
             const partners = await PartnerRepository.findAvailable();
 
             return ApiController.success({partners: partners}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getProjects = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partnerId = req.query.id;
+
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+            const projects = await ProjectRepository.getListForPartner(partnerId, searchInstanse, pagination);
+            
+            const responseData = {
+                projects: projects,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+    
+            return ApiController.success(responseData, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
