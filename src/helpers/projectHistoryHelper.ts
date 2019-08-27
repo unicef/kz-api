@@ -77,7 +77,7 @@ class ProjectHistoryHelper {
                 case ProjectHistoryHelper.SET_TRANCHES_EVENT_KEY: {
                     history.action = i18n.t('historySetTranches');
                     eventData.tranches.forEach((tranche) => {
-                        history.action = history.action + i18n.t('historySetTrancheDetails', {num: tranche.num, from: tranche.from, to: tranche.to, amoount: tranche.amount});
+                        history.action = history.action + i18n.t('historySetTrancheDetails', {num: tranche.num, from: tranche.from, to: tranche.to, amount: tranche.amount});
                     });
                 }
                 break;
@@ -95,23 +95,6 @@ class ProjectHistoryHelper {
             responseHistory.push(history);
         }
         return responseHistory;
-    }
-
-    static generateFile = async (filename: string, history: any) => {
-        console.log("FILE PATH!!!__)))(((", ProjectHistoryHelper.historyFolder+filename+'.txt');
-        console.log("HISTORY", history);
-        var file = fs.createWriteStream(ProjectHistoryHelper.historyFolder+filename+'.txt');
-
-        file.on('error', function(err) {
-            throw new Error(err);
-        });
-        history.forEach((v) => { 
-            console.log("WRITE TO FILE: ", v.date + ' - ' + v.user + ' - ' + v.action);
-            file.write(v.date + ' - ' + v.user + ' - ' + v.action + '\n'); 
-        });
-        file.end();
-
-        return ProjectHistoryHelper.historyFolder+filename+'.txt';
     }
 }
 
