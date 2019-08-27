@@ -32,6 +32,16 @@ const middleCheckAdminUnicefRoles = acceptRoles([
     Role.unicefOperationId
 ]);
 
+
+const middleCheckAdminUnicefDonorRoles = acceptRoles([
+    Role.adminRoleId, 
+    Role.unicefResponsibleId, 
+    Role.unicefBudgetId, 
+    Role.unicefDeputyId, 
+    Role.unicefOperationId,
+    Role.donorId
+]);
+
 const middleCheckAdminUnicefPartnerRoles = acceptRoles([
     Role.adminRoleId, 
     Role.unicefResponsibleId, 
@@ -59,20 +69,20 @@ router.get("/", [checkAuthToken], ProjectController.getInfo);
 router.get("/short", [checkAuthToken, getShortProjectInfo], ProjectController.getShortInfo);
 router.post("/progress", [checkAuthToken, middleCheckAdminUnicefRoles, postProgress], ProjectController.progress);
 router.get("/my-list", [checkAuthToken, middleChekUnicefPartnerRoles], ProjectController.myList);
-router.get("/list", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getList);
+router.get("/list", [checkAuthToken, middleCheckAdminUnicefDonorRoles], ProjectController.getList);
 
 // documents routes block
-router.get("/documents", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.getDocuments);
+router.get("/documents", [checkAuthToken], ProjectController.getDocuments);
 router.get("/document", [checkAuthToken, getPartnerDocuments], ProjectController.downloadDocument);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
 router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], ProjectController.deleteDocument);
 
 // links routes block
 router.post("/link", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, postLink], ProjectLinkController.create);
-router.get("/links", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getProjectLinks], ProjectLinkController.projectLinksList);
+router.get("/links", [checkAuthToken, getProjectLinks], ProjectLinkController.projectLinksList);
 
 // history routes block
-router.get("/history", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getPartnerDocuments], ProjectController.getShortHistory);
+router.get("/history", [checkAuthToken, getPartnerDocuments], ProjectController.getShortHistory);
 router.get("/history-file", [checkAuthToken, getPartnerDocuments], ProjectController.downloadHistory);
 
 export default router;

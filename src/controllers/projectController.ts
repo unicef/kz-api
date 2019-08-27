@@ -503,21 +503,19 @@ class ProjectController {
             let renderedHistory = await ProjectHistoryHelper.renderHistory(history);
 
             // generate file with history
-            let buf = new Buffer('Project history:');
+            let str = '';
             renderedHistory.forEach((v) => { 
-                buf.write(v.date + ' - ' + v.user + ' - ' + v.action + '\n'); 
+                str = str + v.date + ' - ' + v.user + ' - ' + v.action + '\n'; 
             });
 
-            console.log("BUFFER STRING", buf.toString());
-
-            const base64 = buf.toString('base64');
+            const buffer = new Buffer(str);
             const publicTitle = projectId+'_history.txt';
             const contentType = mime.contentType(publicTitle);
             if (contentType) {
                 const responseData = {
                         filename : publicTitle,
                         contentType: contentType,
-                        doc: base64
+                        doc: buffer.toString('base64')
                     };
                 ApiController.success(responseData, res);
                 return ;
