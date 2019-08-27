@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
 import fs from "fs";
+import cryptoRandomString from "crypto-random-string";
 import mime from "mime-types";
 import ApiController from "./apiController";
 import HttpException from "../exceptions/httpException";
@@ -483,6 +484,46 @@ class ProjectController {
             let histResp = await ProjectHistoryHelper.renderHistory(history);
 
             return ApiController.success({ history: histResp }, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static downloadHistory = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+
+            const history = await HistoryRepository.getList(projectId, 0);
+
+            let renderedHistory = await ProjectHistoryHelper.renderHistory(history);
+
+            // generate file with history
+            const filename = cryptoRandomString(64);
+
+            const filePath = await ProjectHistoryHelper.generateFile(filename, renderedHistory);
+
+            const fileBuffer = fs.readFileSync(filePath);
+
+            const base64 = Buffer.from(fileBuffer).toString('base64');
+            const publicTitle = projectId+'_history.txt';
+            const contentType = mime.contentType(publicTitle);
+            if (contentType) {
+                const responseData = {
+                        filename : publicTitle,
+                        contentType: contentType,
+                        doc: base64
+                    };
+                ApiController.success(responseData, res);
+                return ;
+            } else {
+                ApiController.failed(500, 'document wasn\'t found', res);
+                return ;
+            }
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

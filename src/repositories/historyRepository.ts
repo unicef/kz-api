@@ -26,7 +26,13 @@ class HistoryRepository {
         const db = mongoConnect.db(mongoDatabase);
         const collection = db.collection(HistoryRepository.COLLECTION);
 
-        const history = collection.find({"projectId" : projectId}).limit(limit).sort({createdAt: -1});
+        let history = null;
+
+        if (limit === 0) {
+            history = collection.find({"projectId" : projectId}).sort({createdAt: -1});
+        } else {
+            history = collection.find({"projectId" : projectId}).limit(limit).sort({createdAt: -1});
+        } 
         return history.toArray();
     }
 

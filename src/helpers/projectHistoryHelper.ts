@@ -1,10 +1,13 @@
 import User from "../models/user";
+import fs from "fs";
 import i18n from "i18next";
 import UserRepository from "../repositories/userRepository";
 import PartnerRepository from "../repositories/partnerRepository";
 import ProjectHelper from "./projectHelper";
 
 class ProjectHistoryHelper {
+    static historyFolder = __dirname + '/../../assets/projects/history/';
+
     static EVENTS: Array<string> = [
         'create',
         'edit',
@@ -94,7 +97,19 @@ class ProjectHistoryHelper {
         return responseHistory;
     }
 
-    
+    static generateFile = async (filename: string, history: any) => {
+        var file = fs.createWriteStream(ProjectHistoryHelper.historyFolder+filename+'.txt');
+
+        file.on('error', function(err) {
+            throw new Error(err);
+        });
+        history.forEach((v) => { 
+            file.write(v.date + ' - ' + v.user + ' - ' + v.action + '\n'); 
+        });
+        file.end();
+
+        return ProjectHistoryHelper.historyFolder+filename+'.txt';
+    }
 }
 
 export default ProjectHistoryHelper;

@@ -73,5 +73,6 @@ router.get("/links", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getPro
 
 // history routes block
 router.get("/history", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, getPartnerDocuments], ProjectController.getShortHistory);
+router.get("/history-file", [checkAuthToken, getPartnerDocuments], ProjectController.downloadHistory);
 
 export default router;

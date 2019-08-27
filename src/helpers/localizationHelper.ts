@@ -4,7 +4,6 @@ import i18n from "i18next";
 
 class LocalizationHelper {
     static getValidationMessages = () => {
-        i18n
         const validationErrors = {
             string: {
                 length: i18n.t('stringLengthValidation'),
