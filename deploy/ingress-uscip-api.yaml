@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ annotations:
+   nginx.ingress.kubernetes.io/proxy-body-size: 25m
+ name: ingress-uscip-api
+ namespace: default
+spec:
+   rules:
+   - host: api.uscip.iskytest.com
+     http:
+       paths:
+       - path: /
+         backend:
+           serviceName: service-uscip-api
+           servicePort: 3000
+   - host: apidoc.uscip.iskytest.com
+     http:
+       paths:
+       - path: /
+         backend:
+           serviceName: service-uscip-api
+           servicePort: 3030
