@@ -104,7 +104,7 @@ class PartnerRepository {
           LEFT JOIN (
               select p.* 
               from projects p 
-              where p."statusId" != '${Project.IN_PROGRESS_STATUS_ID}'
+              where p."statusId" = '${Project.IN_PROGRESS_STATUS_ID}'
           ) as projects ON projects."partnerId"=partners."id"
           WHERE partners."statusId" = '${Partner.partnerStatusApproved}'
          GROUP BY partners."id"

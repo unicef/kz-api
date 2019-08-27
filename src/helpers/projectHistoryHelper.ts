@@ -48,43 +48,43 @@ class ProjectHistoryHelper {
                 case ProjectHistoryHelper.CREATE_EVENT_KEY: {
                     const officer = await UserRepository.getNameById(eventData.officerId);
                     const title = eventData["title"+LANG];
-                    history.action = `Created project with title: "${title}" and set ${officer.name} as project officer`;
+                    history.action = i18n.t('historyCreatedEvent', {title: title, officer: officer.name});
                 }
                 break;
                 case ProjectHistoryHelper.EDIT_EVENT_KEY: {
-                    history.action = `Edited project and set : `;
+                    history.action = i18n.t('historyEditField');
                     eventData.fields.forEach((field) => {
-                        history.action = history.action + field.field + "| FROM: " + field.oldVal + "  |  TO:  " + field.newVal + " \r\n ";
+                        history.action = history.action + i18n.t('historyEditDetails', {field: field.field, from: field.oldVal, to: field.newVal});
                     });
                 }
                 break;
                 case ProjectHistoryHelper.UPLOAD_DOCS_EVENT_KEY: {
-                    history.action = `Uploaded document : ` + eventData.doc.title;
+                    history.action = i18n.t('historyUploadDoc', {doc: eventData.doc.title});
                 }
                 break;
                 case ProjectHistoryHelper.DELETE_DOC_EVENT_KEY: {
-                    history.action = `Deleted document : ` + eventData.doc.title;
+                    history.action = i18n.t('historyDeleteDoc', {doc: eventData.doc.title});
                 }
                 break;
                 case ProjectHistoryHelper.SET_IP_EVENT_KEY: {
                     const partner = await PartnerRepository.getNameById(eventData.patnerId);
-                    history.action = `Set partner "${partner.name}" as IP`;
+                    history.action = i18n.t('historySetIP', {partner: partner.name});
                 }
                 break;
                 case ProjectHistoryHelper.SET_TRANCHES_EVENT_KEY: {
-                    history.action = `Set tranches : `;
+                    history.action = i18n.t('historySetTranches');
                     eventData.tranches.forEach((tranche) => {
-                        history.action = history.action + tranche.num + ".| FROM: " + tranche.from + "  |  TO:  " + tranche.to + "  |  AMOUNT:  " + tranche.amount + " \r\n ";
+                        history.action = history.action + i18n.t('historySetTrancheDetails', {num: tranche.num, from: tranche.from, to: tranche.to, amoount: tranche.amount});
                     });
                 }
                 break;
                 case ProjectHistoryHelper.ADD_LINK_EVENT_KEY: {
-                    history.action = `Added link : ${eventData.link.title}`;
+                    history.action = i18n.t('historyAddLink', {link:eventData.link.title});
                 }
                 break;
                 case ProjectHistoryHelper.SET_TERMINATED_STATUS: {
                     const terminationReason = ProjectHelper.getTerminationReasonTitle(historyRow.event.reason);
-                    history.action = `Terminated a project with reason : ${terminationReason}`;
+                    history.action = i18n.t('historyTemination', {reason: terminationReason});
                 }
                 break;
             }
