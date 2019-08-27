@@ -503,13 +503,14 @@ class ProjectController {
             let renderedHistory = await ProjectHistoryHelper.renderHistory(history);
 
             // generate file with history
-            const filename = cryptoRandomString(64);
+            let buf = new Buffer('Project history:');
+            renderedHistory.forEach((v) => { 
+                buf.write(v.date + ' - ' + v.user + ' - ' + v.action + '\n'); 
+            });
 
-            const filePath = await ProjectHistoryHelper.generateFile(filename, renderedHistory);
-            const fileBuffer = fs.readFileSync(filePath);
-            console.log("FILE ___ BUFFER  ::::", fileBuffer);
+            console.log("BUFFER STRING", buf.toString());
 
-            const base64 = Buffer.from(fileBuffer).toString('base64');
+            const base64 = buf.toString('base64');
             const publicTitle = projectId+'_history.txt';
             const contentType = mime.contentType(publicTitle);
             if (contentType) {
