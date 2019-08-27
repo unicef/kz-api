@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deployment-uscip-api
+  labels:
+    name: deployment-uscip-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: uscip-api
+    spec:
+      volumes:
+        - name: data-volume-p
+          persistentVolumeClaim:
+           claimName: data-claim-volume
+      containers:
+      - name: uscip-api
+        image: sadist/uscip-api:latest
+        envFrom:
+        - configMapRef:
+            name: uscip-api-env-file
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+        volumeMounts:
+          - mountPath: /home/app/assets/
+            name: data-volume-p
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "DATABASE_URL=postgres://blockchain:testuser@postgres:5432/blockchain npm run migrate up"]
