@@ -507,6 +507,7 @@ class ProjectController {
 
             const filePath = await ProjectHistoryHelper.generateFile(filename, renderedHistory);
             const fileBuffer = fs.readFileSync(filePath);
+            console.log("FILE ___ BUFFER  ::::", fileBuffer);
 
             const base64 = Buffer.from(fileBuffer).toString('base64');
             const publicTitle = projectId+'_history.txt';
