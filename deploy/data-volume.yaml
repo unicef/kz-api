@@ -11,4 +11,4 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/home/sadist/kubernetes/uscip.api/assets"
+    path: "/home/kubernetes/projects/uscip.api/assets"
