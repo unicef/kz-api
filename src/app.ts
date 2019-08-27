@@ -63,7 +63,8 @@ class App {
             preload: ['en', 'ru'],
             interpolation: {
                 prefix: "!{I{",
-                suffix: "}I}!"
+                suffix: "}I}!",
+                escapeValue: false
             }
         });
     }
