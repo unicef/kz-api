@@ -238,44 +238,52 @@ class ProjectController {
                 throw new ProjectNotFound();
             }
             // system can edit the project only in the status created
-            if (project.statusId !== Project.CREATED_STATUS_ID) {
+            if (project.statusId == Project.CREATED_STATUS_ID) {
+                // get project data from request
+                const projectData = ProjectHelper.getProjectData(req.body);
+                // If the project budget requires type changes
+                if (projectData.type !== project.type) {
+                    throw new NeedAnotherProjectType();
+                }
+                if (projectData.officerId !== project.officerId) {
+                    // check if officer user has needed role
+                    const officer = await User.findOne({
+                        where: {
+                            id: projectData.officerId
+                        },
+                        include: [
+                            User.associations.roles,
+                            User.associations.personalData
+                        ]
+                    });
+        
+                    if (officer == null || !officer.hasRole(Role.unicefResponsibleId) || officer.isBlocked || officer.emailVerifiedAt===null) {
+                        throw new BadRole(400, 235, i18n.t('badResponsibleOfficerUser'), 'Creation project> Bad responsible officer user')
+                    }
+                }
+                // event of editing project
+                event(new ProjectWasUpdated(req.user, project, projectData));
+
+                await project.update(projectData);
+
+                // working with documents
+                if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                    req.body.documents.forEach(async (element: any) => {
+                        let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
+                    });
+                }
+                return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
+            } else if (project.statusId == Project.IN_PROGRESS_STATUS_ID) {
+                // working only with documents
+                if (req.body.documents instanceof Array && req.body.documents.length > 0) {
+                    req.body.documents.forEach(async (element: any) => {
+                        let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
+                    });
+                }
+                return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
+            } else {
                 throw new BadProjectStatus();
             }
-            // get project data from request
-            const projectData = ProjectHelper.getProjectData(req.body);
-            // If the project budget requires type changes
-            if (projectData.type !== project.type) {
-                throw new NeedAnotherProjectType();
-            }
-            if (projectData.officerId !== project.officerId) {
-                // check if officer user has needed role
-                const officer = await User.findOne({
-                    where: {
-                        id: projectData.officerId
-                    },
-                    include: [
-                        User.associations.roles,
-                        User.associations.personalData
-                    ]
-                });
-    
-                if (officer == null || !officer.hasRole(Role.unicefResponsibleId) || officer.isBlocked || officer.emailVerifiedAt===null) {
-                    throw new BadRole(400, 235, i18n.t('badResponsibleOfficerUser'), 'Creation project> Bad responsible officer user')
-                }
-            }
-            // event of editing project
-            event(new ProjectWasUpdated(req.user, project, projectData));
-
-            await project.update(projectData);
-
-            // working with documents
-            if (req.body.documents instanceof Array && req.body.documents.length > 0) {
-                req.body.documents.forEach(async (element: any) => {
-                    let doc = await ProjectHelper.transferProjectDocument(element.id, element.title, project);
-                });
-            }
-
-            return ApiController.success({message: i18n.t('projectSuccessfullyUpdated')}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
@@ -523,6 +531,23 @@ class ProjectController {
                 ApiController.failed(500, 'document wasn\'t found', res);
                 return ;
             }
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getTranches = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+
+            const tranches = await ProjectRepository.getTranches(projectId);
+
+            return ApiController.success({tranches: tranches}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

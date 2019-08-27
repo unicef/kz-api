@@ -160,6 +160,14 @@ class ProjectRepository {
         return projects;
     }
 
+    static getTranches = async (projectId: number) => {
+        const tracnheString = i18n.t('tranche');
+        let query = `SELECT '${tracnheString}' || ' ' || pt."num" as "num", TO_CHAR(pt."from", 'yyyy-mm') as "from", TO_CHAR(pt."to", 'yyyy-mm') as "to", pt."amount" as "amount" FROM project_tranches "pt" WHERE pt."projectId"=${projectId} ORDER BY pt."num" ASC`;
+
+        const tranches = await sequelize.query(query,{type: QueryTypes.SELECT});
+        return tranches;
+    }
+
     static isProjectExists = async (projectId: number) => {
         const query = `SELECT projects.id FROM projects WHERE projects."id"=${projectId}`;
 

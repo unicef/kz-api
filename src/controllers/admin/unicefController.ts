@@ -13,6 +13,7 @@ import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import BadRole from "../../exceptions/user/badRole";
 import sequelize from "../../services/sequelize";
 import BadValidationException from "../../exceptions/badValidationException";
+import Project from "../../models/project";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -206,7 +207,17 @@ class AdminUnicefController {
                 });
                 await newUser.save();
             }
-            // TODO: give all projects to new user
+            
+
+            if (userUnicefRole === Role.unicefResponsibleId) {
+                // set all in progress projects to new user
+                const update = await Project.update({officerId: newUser.id}, {
+                    where: {
+                        officerId: user.id,
+                        statusId: Project.IN_PROGRESS_STATUS_ID
+                    }
+                });
+            }
     
             user.isBlocked = true;
             await user.save();

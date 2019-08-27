@@ -81,6 +81,9 @@ router.delete("/document", [checkAuthToken, middleCheckAdminUnicefRoles], Projec
 router.post("/link", [checkAuthToken, middleCheckAdminUnicefPartnerRoles, postLink], ProjectLinkController.create);
 router.get("/links", [checkAuthToken, getProjectLinks], ProjectLinkController.projectLinksList);
 
+// tranches routes block
+router.get("/tranches", [checkAuthToken, getPartnerDocuments], ProjectController.getTranches);
+
 // history routes block
 router.get("/history", [checkAuthToken, getPartnerDocuments], ProjectController.getShortHistory);
 router.get("/history-file", [checkAuthToken, getPartnerDocuments], ProjectController.downloadHistory);
