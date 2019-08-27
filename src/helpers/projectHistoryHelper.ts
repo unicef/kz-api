@@ -98,12 +98,15 @@ class ProjectHistoryHelper {
     }
 
     static generateFile = async (filename: string, history: any) => {
+        console.log("FILE PATH!!!__)))(((", ProjectHistoryHelper.historyFolder+filename+'.txt');
+        console.log("HISTORY", history);
         var file = fs.createWriteStream(ProjectHistoryHelper.historyFolder+filename+'.txt');
 
         file.on('error', function(err) {
             throw new Error(err);
         });
         history.forEach((v) => { 
+            console.log("WRITE TO FILE: ", v.date + ' - ' + v.user + ' - ' + v.action);
             file.write(v.date + ' - ' + v.user + ' - ' + v.action + '\n'); 
         });
         file.end();

@@ -506,7 +506,6 @@ class ProjectController {
             const filename = cryptoRandomString(64);
 
             const filePath = await ProjectHistoryHelper.generateFile(filename, renderedHistory);
-
             const fileBuffer = fs.readFileSync(filePath);
 
             const base64 = Buffer.from(fileBuffer).toString('base64');
