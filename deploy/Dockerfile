@@ -1,0 +1,13 @@
+FROM node:10.15.3
+EXPOSE 3000 9229 3030
+COPY . /home/app
+WORKDIR /home/app
+RUN apt-get update
+RUN apt-get install lsof
+RUN npm install -g typescript
+RUN npm install -g concurrently
+RUN npm install -g docsify-cli
+RUN npm install
+# ENTRYPOINT ["DATABASE_URL=postgres://blockchain:testuser@postgres:5432/blockchain npm run migrate up"]
+ENTRYPOINT ["sh", "./scripts/start.sh"]
+CMD ./scripts/start.sh
