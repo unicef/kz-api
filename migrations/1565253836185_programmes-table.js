@@ -25,7 +25,7 @@ exports.up = (pgm) => {
     pgm.sql("INSERT INTO public.programmes (\"id\", \"pid\", \"code\", \"titleEn\", \"titleRu\") VALUES "+
     "(1, NULL, '2390/A0/05/880', 'PROGRAMME EFFECTIVENESS OUTCOME', 'РЕЗУЛЬТАТЫ ЭФФЕКТИВНОСТИ ПРОГРАММЫ'),"+
     "(2, 1, '2390/A0/05/880/001', 'PROGRAMME COORDINATION', 'КООРДИНАЦИЯ ПРОГРАММЫ'),"+
-    "(3, 2, '2390/A0/05/880/001/001','DEPUTY REPRESENTATIVE/COORDINATION','ЗАМЕСТИТЕЛЬ ПРЕДСТАВИТЕЛЯ/КООРДИНАЦИЯ'),"+
+    "(3, 2, '2390/A0/05/880/001/001','DEPUTY REPRESENTATIVE / COORDINATION','ЗАМЕСТИТЕЛЬ ПРЕДСТАВИТЕЛЯ/КООРДИНАЦИЯ'),"+
     "(4, 2, '2390/A0/05/880/001/002','TRAVEL','ПОЕЗДКИ'),"+
     "(5, 2, '2390/A0/05/880/001/003','PROGRAMME REVIEW','ОБЗОР ПРОГРАММЫ'),"+
     "(6, 1, '2390/A0/05/880/002','EXTERNAL RELATIONS','ВНЕШНИЕ СВЯЗИ'),"+
