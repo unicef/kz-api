@@ -98,7 +98,7 @@ class AdminUnicefController {
         let page = 1;
         const pageCount = 15;
         let responseData = {};
-        if (req.query.page !== undefined) {
+        if (req.query.page !== undefined && req.query.page!=='') {
             page = parseInt(req.query.page);
         }
         let searchInstanse = '';
