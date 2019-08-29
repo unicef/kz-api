@@ -39,6 +39,8 @@
     - [Create project link](project.md?id=create-project-link "Create project link")
     - [Get project links](project.md?id=get-project-links "Get project links")
     - [Get project history](project.md?id=get-project-history "Get project history")
+    - Face Request
+        - [Get face request static properties](request.md?id=get-face-request-static-properties "Get face request static properties")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
