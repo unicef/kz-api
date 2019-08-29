@@ -8,17 +8,13 @@ class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const lang: string = i18n.language;
-            const faceRequestTypes = [...FaceRequestHelper.requestTypes];
-
-            faceRequestTypes.map((type: {id:number, ru: string, en: string, title?:string}) => {
-                type.title = type[lang];
-                delete type.ru;
-                delete type.en;
-
-                return type;
+            let faceRequestTypes = [...FaceRequestHelper.requestTypes];
+            let responseTypes = [];
+            faceRequestTypes.forEach((type: {id:number, ru: string, en: string}) => {
+                responseTypes.push({id: type.id, title: type[lang]});
             })
 
-            return ApiController.success({type: faceRequestTypes}, res);
+            return ApiController.success({type: responseTypes}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
