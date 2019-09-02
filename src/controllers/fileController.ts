@@ -3,6 +3,8 @@ import ApiController from "./apiController";
 import mime from "mime-types";
 import fs from "fs";
 import User from "../models/user";
+import HttpException from "../exceptions/httpException";
+import TmpFile from "../models/tmpFile";
 
 class FileController{
     // get users list
@@ -32,6 +34,27 @@ class FileController{
             return;
         } catch (error) {
             ApiController.failed(503, error.message, res);
+            return;
+        }
+    }
+
+    static uploadingTemp = async (req: Request, res: Response) => {
+        try {
+            const tmpFile = await TmpFile.create({
+                id: req.file.filename,
+                userId: req.user.id,
+                originalName: req.file.originalname,
+                mimeType: req.file.mimetype,
+                size: req.file.size
+            });
+            ApiController.success({id: tmpFile.id}, res);
+            return;
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
             return;
         }
     }

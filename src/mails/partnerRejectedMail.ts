@@ -1,5 +1,5 @@
 import User from "../models/user";
-import config from "../config/config";
+import Config from "../services/config";
 import Mail from "./mail";
 import Partner from "../models/partner";
 
@@ -12,7 +12,7 @@ class PartnerRejectedMail extends Mail {
 
     constructor (user: User, partner: Partner, rejectReason: string) {
         super();
-        this.from = config.mail.from;
+        this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = user.email;
         this.subject = "Your company was rejected";
         this.template = 'partnerRejected';

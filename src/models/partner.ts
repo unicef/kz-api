@@ -1,20 +1,16 @@
 import { Model, DataTypes, QueryTypes, Sequelize } from "sequelize";
 import sequelize from "../services/sequelize";
 import Role from "./role";
-import SHA1 from "crypto-js/sha256";
-import cryptoRandomString from "crypto-random-string";
-import ActivationHash from "./activationHash";
-import config from "../config/config";
-import UserPersonalData from "./userPersonalData";
-import User from "./user";
 import Country from "./country";
 import AreaOfWork from "./areaOfWork";
 import CompanyOwnership from "./companyOwnership";
 import PartnerType from "./partnerType";
 import CSOType from "./csoType";
-import PartnerHelper from "../helpers/partnerHelper";
+import ProjectRepository from "../repositories/projectRepository";
 
 class Partner extends Model {
+    static PROJECTS_LIMIT = 1; // value 0 is unlimit of projects
+
     static partnerStatusNew = 'new';
     static partnerStatusFilled = 'filled';
     static partnerStatusApproved = 'trusted';
@@ -80,9 +76,11 @@ class Partner extends Model {
         }
     }
 
-    // static findByPk = async () => {
+    public getProjects = async () => {
+        const projects = await ProjectRepository.findByPartnerId(this.id);
 
-    // }
+        return projects;
+    }
 }
 
 Partner.init(

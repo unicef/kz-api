@@ -7,9 +7,8 @@ import i18n from "i18next";
 import fs from "fs";
 import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
-import config from "../config/config";
+import Config from "../services/config";
 import { captureException } from "@sentry/node";
-import userIsNotActivated from "../exceptions/userIsNotActivated";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import BadActivationLink from "../exceptions/badActivationLink";
 import BadEmailException from "../exceptions/badEmailException";
@@ -28,30 +27,19 @@ import putUserStepInformation from "../requests/user/putUserStepInformation";
 import putPartnerStepInformation from "../requests/partner/putPartnerStepInformation";
 import PartnerHelper from "../helpers/partnerHelper";
 import Partner from "../models/partner";
-import UserRegisteredRemotely from "../events/userRegisteredRemotely";
-import TmpFile from "../models/tmpFile";
-import PartnerDocument from "../models/partnerDocument";
 import UserNotfind from "../exceptions/userNotFind";
-import mailer from "../services/mailer";
 import ResetPasswordMail from "../mails/resetPasswordMail";
 import ActivationLinkMail from "../mails/activationLinkMail";
 import AuthorisedUserHelper from "../helpers/authorisedUserHelper";
-import sequelize from "../services/sequelize";
 import DocumentHelper from "../helpers/documentHelper";
 import WrongOldPassword from "../exceptions/user/wrongOldPassword";
 import BlockedUserException from "../exceptions/blockedUserException";
 import UserRepository from "../repositories/userRepository";
 import DonorRepository from "../repositories/donorRepository";
 import BadValidationException from "../exceptions/badValidationException";
+import SetPasswordHashRepository from "../repositories/setPasswordHashRepository";
 
 class UserController {
-    // get users list
-    static getUsersList = async (req: Request, res: Response) => {
-        let response = i18n.t('testlong');
-
-        ApiController.success(req.user, res);
-    }
-
     // get user Data about auth user
     static getMe = async (req: Request, res: Response) => {
         const user = req.user;
@@ -60,7 +48,7 @@ class UserController {
             email: user.email,
             showSeed: user.showSeed,
             showForm: user.showForm,
-            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
+            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
         }
         // working with rolles
         let roles: string[] = [];
@@ -81,7 +69,7 @@ class UserController {
 
             responseData.seed = {
                 phrase: seedPhrase,
-                link: 'http://' + config.APP_NAME + '/file?id=' + user.id
+                link: 'http://' + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
             }
         }
         // showForm flag
@@ -153,8 +141,13 @@ class UserController {
             if (!hashModel) {
                 throw new BadActivationLink();
             }
+            // get activation user
+            const user = await User.findByPk(hashModel.userId) || false;
+            if (!user) {
+                throw new BadActivationLink();
+            }
             if (today > hashModel.expiredAt) {
-                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
                 const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
                 return res.status(412).json({
                     success:false, 
@@ -164,11 +157,7 @@ class UserController {
                     }
                 });
             }
-            // get activation user
-            const user = await User.findByPk(hashModel.userId) || false;
-            if (!user) {
-                throw new BadActivationLink();
-            }
+            
             // activation process
             user.emailVerifiedAt = new Date();
             user.save();
@@ -208,7 +197,7 @@ class UserController {
             // check user activation 
             if (user.emailVerifiedAt == null) {
                 // get activation user hash
-                const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+                const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
                 const hash: string = CryptoJS.AES.encrypt(user.email, secret).toString();
                 return res.status(412).json({
                     success:false, 
@@ -223,7 +212,7 @@ class UserController {
             }
     
             let token = jwt.sign({userEmail: user.email},
-                config.jwt.secret,
+                Config.get('JWT_SECRET', 'jwt_default'),
                 { expiresIn: '24h'});
             
             event(new UserLoggedIn(user));
@@ -320,8 +309,8 @@ class UserController {
                 tel: user.personalData.tel,
                 mobile: user.personalData.mobile,
                 id: user.id,
-                lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM:ss'),
-                createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM:ss')
+                lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM'),
+                createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
             }
             if (UserHelper.isRole(user.roles, Role.partnerAssistId) || UserHelper.isRole(user.roles, Role.partnerAuthorisedId)) {
                 const company = await UserHelper.getUserPartner(user);
@@ -369,9 +358,10 @@ class UserController {
             user.save();
     
             hashModel.destroy();
+            const deleteHashes = SetPasswordHashRepository.deleteHashesByUserId(user.id);
     
             const responseData = {
-                message: i18n.t('successUserActivation')
+                message: i18n.t('successUserPasswordSet')
             }
     
             ApiController.success(responseData, res);
@@ -457,7 +447,7 @@ class UserController {
                             let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
                             authorisedPerson.personalData.update(authorisedData);
                         } else {
-                            let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                            authorisedPerson = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
                         }
                     }
                 } else {
@@ -529,7 +519,7 @@ class UserController {
     static repeatActivationLink = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const repeatHash = req.body.repeatHash;
-            const secret: string = process.env.ACTIVATION_SECRET || '123fds';
+            const secret: string = Config.get("ACTIVATION_SECRET", '123fds');
             const userEmail = CryptoJS.AES.decrypt(repeatHash, secret).toString(CryptoJS.enc.Utf8);
     
             const user = await User.findOne({

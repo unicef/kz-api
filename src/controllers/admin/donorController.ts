@@ -125,7 +125,7 @@ class AdminDonorController {
             }
             const isDonor = await user.hasRole(Role.donorId);
             if (!isDonor) {
-                throw new UserNotfind(403, 332, i18n.t('userNotUnicef'), 'User ( id : ' + user.id + ') is not unicef');
+                throw new UserNotfind(403, 332, i18n.t('userNotDonor'), 'User ( id : ' + user.id + ') is not donor');
             }
     
             user.isBlocked = true;

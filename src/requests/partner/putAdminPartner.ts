@@ -1,30 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { validationProcess } from "../../middlewares/validate";
 import Joi from "@hapi/joi";
-import i18n from "i18next";
+import LocalizationHelper from "../../helpers/localizationHelper";
 
 const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
         bodySchema: Joi.object().options({
             abortEarly: false,
-            language: {
-                string: {
-                    length: i18n.t('stringLengthValidation'),
-                    min: i18n.t('stringMinValidation'),
-                    max: i18n.t('stringMaxValidation'),
-                    base: i18n.t('stringBaseValidation'),
-                    email: i18n.t('stringEmailValidation'),
-                    regex: {
-                        base: i18n.t('stringRegexPasswordValidation')
-                    }
-                },
-                any: {
-                    required: i18n.t('anyRequiredValidation'),
-                    empty: i18n.t('anyEmptyValidation'),
-                    unknown: i18n.t('anyUnknownValidation'),
-                    allowOnly: i18n.t('anyValidValidation')
-                }
-            }
+            language: LocalizationHelper.getValidationMessages()
         }).keys({
             user: Joi.object().keys({
                 id: Joi.number().required(),
@@ -43,7 +26,7 @@ const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                 }).pattern(/./, Joi.any()).required()
             }).pattern(/./, Joi.any()),
             company: Joi.object().keys({
-                id: Joi.number().required(),
+                id: Joi.number().allow('').allow(null),
                 nameEn: Joi.string().max(255).required(),
                 nameRu: Joi.string().max(255).required(),
                 tradeNameEn: Joi.string().max(255).allow('').allow(null),
@@ -72,8 +55,8 @@ const putAdminPartner = (req: Request, res: Response, next: NextFunction) => {
                     title: Joi.string().max(255),
                 }).allow(null),
                 csoType: Joi.object().keys({
-                    id: Joi.number(),
-                    title: Joi.string().max(255),
+                    id: Joi.number().allow(null),
+                    title: Joi.string().max(255).allow(null),
                 }).allow(null),
                 tel: Joi.string().max(20).allow('').allow(null),
                 website: Joi.string().max(124).allow('').allow(null),

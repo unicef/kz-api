@@ -1,8 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize";
-import config from "../config/config";
-import User from "./user";
-import Role from "./role";
+import Config from "../services/config";
 
 class ActivationHash extends Model {
     public id!: number;
@@ -13,7 +11,7 @@ class ActivationHash extends Model {
     static getExpiredDate = () => {
         var today = new Date();
         var expiredDate = new Date();
-        expiredDate.setDate(today.getDate()+config.client.activationExpiredDays);
+        expiredDate.setDate(today.getDate()+Config.get("ACTIVATION_LIFE_DAYS", 1));
         
         return expiredDate;
     }

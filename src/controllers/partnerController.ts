@@ -25,6 +25,9 @@ import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
 import Pagination from "../services/pagination";
+import Project from "../models/project";
+import ProjectHelper from "../helpers/projectHelper";
+import ProjectRepository from "../repositories/projectRepository";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -101,6 +104,10 @@ class PartnerController {
                 throw new PartnerNotFind();
             }
             let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company);
+            
+            if (PartnerHelper.isPartnerDataDifferent(partnerData, partner)) {
+                partnerData.statusId = Partner.partnerStatusFilled;
+            }
             await partner.update(partnerData);
 
             if (user.hasRole('ra')) {
@@ -284,26 +291,14 @@ class PartnerController {
     }
 
     static getPartnerById = async (req: Request, res: Response) => {
-        const partnerId = req.query.id;
-        const partner = await PartnerRepository.findById(partnerId);
-        if (partner == null) {
-            throw new PartnerNotFind();
-        }
-        
-        return ApiController.success(partner, res);
-    }
-
-    static uploadingDocument = async (req: Request, res: Response) => {
         try {
-            const tmpFile = await TmpFile.create({
-                id: req.file.filename,
-                userId: req.user.id,
-                originalName: req.file.originalname,
-                mimeType: req.file.mimetype,
-                size: req.file.size
-            });
-            ApiController.success({id: tmpFile.id}, res);
-            return;
+            const partnerId = req.query.id;
+            const partner = await PartnerRepository.findById(partnerId);
+            if (partner == null) {
+                throw new PartnerNotFind();
+            }
+            
+            return ApiController.success(partner, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
@@ -323,7 +318,7 @@ class PartnerController {
             }
             await partner.getAssistId();
             await partner.getAuthorisedId();
-            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin() && !req.user.isUnicefUser()) {
                 throw new BadPermissions();
             }
 
@@ -372,7 +367,7 @@ class PartnerController {
             }
             await partner.getAssistId();
             await partner.getAuthorisedId();
-            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
+            if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin() && !req.user.isUnicefUser()) {
                 throw new BadPermissions();
             }
     
@@ -407,7 +402,6 @@ class PartnerController {
     static deleteDocument = async (req: Request, res: Response) => {
         try {
             const documentId = req.query.id;
-
             const partnerDocument = await PartnerDocument.findByPk(documentId);
             if (partnerDocument == null) {
                 throw new PartnerNotFind(400, 110, i18n.t('documentNotFindError'), 'Document not found');
@@ -423,6 +417,10 @@ class PartnerController {
             if (partner.assistId != req.user.id && partner.authorisedId != req.user.id && !req.user.isAdmin()) {
                 throw new BadPermissions();
             }
+            if (partnerDocument.title == 'Partner Declaration Profile and due Diligence Verification Form') {
+                partner.statusId = Partner.partnerStatusFilled;
+                partner.save();
+            }
 
             await partnerDocument.destroy();
 
@@ -431,7 +429,53 @@ class PartnerController {
             }, res)
 
         } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
+    // Get list of available partners for assigning to project
+    static availableList = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partners = await PartnerRepository.findAvailable();
+
+            return ApiController.success({partners: partners}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getProjects = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const partnerId = req.query.id;
+
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+            const projects = await ProjectRepository.getListForPartner(partnerId, searchInstanse, pagination);
+            
+            const responseData = {
+                projects: projects,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+    
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
         }
     }
 }

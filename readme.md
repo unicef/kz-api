@@ -1,4 +1,4 @@
-TEST
+TEST v 1.1
 # UNICEF blockchain API test files
 
 
@@ -66,3 +66,6 @@ password: IskyOperation1092@
 email: uscipdonor@maildrop.cc
 password: IskyDonor1092@
 ```
+
+
+lsof -i -n | grep 9229 | awk '{print $2}' | xargs kill

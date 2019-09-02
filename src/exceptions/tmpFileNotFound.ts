@@ -8,7 +8,7 @@ class TmpFileNotFound extends HttpException {
      * @param message 
      */
     constructor(status?: number, errorCode?: number, message?: string, devMessage?: string) {
-        const responseStatus: number = status || 400;
+        const responseStatus: number = status || 404;
         const responseErrorCode: number = errorCode || 124;
         const responseMessage: string = message || i18n.t('tempFileNotFound');
         const responseDevMessage: string = devMessage || 'Temporary file not found';

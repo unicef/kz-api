@@ -5,7 +5,7 @@ import Role from "./role";
 import SHA1 from "crypto-js/sha256";
 import cryptoRandomString from "crypto-random-string";
 import ActivationHash from "./activationHash";
-import config from "../config/config";
+import Config from "../services/config";
 import UserPersonalData from "./userPersonalData";
 import SetPasswordHash from "./setPasswordHash";
 import Partner from "./partner";
@@ -129,7 +129,9 @@ class User extends Model {
         });
 
         // generate activation link
-        const activationLink = process.env.CLIENT_URL + config.client.activationRoute + '?activation=' + activationHashString;
+        const clientUrl: string = Config.get("CLIENT_URL", 'http://client.local.com');
+        const activationRoute: string = Config.get("CLIENT_ACTIVATION_ROUTE", '/activate');
+        const activationLink: string = clientUrl + activationRoute + '?activation=' + activationHashString;
 
         return activationLink;
     }
@@ -157,8 +159,10 @@ class User extends Model {
             console.log(error.message);
         });
 
-        // generate activation link
-        const setPasswordLink = process.env.CLIENT_URL + config.client.setManualPasswordRoute + '?user_token=' + setNewPasswordHashString;
+        // generate set password link
+        const clientUrl: string = Config.get("CLIENT_URL", 'http://client.local.com');
+        const setPasswordRoute: string = Config.get("CLIENT_SET_PASSWORD_ROUTE", '/set-password');
+        const setPasswordLink: string = clientUrl + setPasswordRoute + '?user_token=' + setNewPasswordHashString;
 
         return setPasswordLink;
     }

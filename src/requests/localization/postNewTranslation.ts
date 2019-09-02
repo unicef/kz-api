@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { validationProcess } from "../../middlewares/validate";
-import config from "../../config/config";
+import Config from "../../services/config";
+import LocalizationHelper from "../../helpers/localizationHelper";
 import Joi from "@hapi/joi";
-import i18n from "i18next";
 
 const postNewTranslation = (req: Request, res: Response, next: NextFunction) => {
     let validationRules: any = {
@@ -14,26 +14,15 @@ const postNewTranslation = (req: Request, res: Response, next: NextFunction) => 
         key: Joi.string().min(3).required()
     }
 
-    const locales = config.locales;
+    const locales = Config.get('locales', {"en" : {"code" : "en","title" : "English"}});
     for (let key in locales) {
         validationBodyRules[key] = Joi.string().min(1).required();
     }
 
     validationRules.bodySchema = Joi.object(validationBodyRules).options({ 
         abortEarly: false, 
-        language: {
-            string: {
-                length: i18n.t('stringLengthValidation'),
-                min: i18n.t('stringMinValidation'),
-                base: i18n.t('stringBaseValidation'),
-            },
-            any: {
-                required: i18n.t('anyRequiredValidation'),
-                empty: i18n.t('anyEmptyValidation'),
-                unknown: i18n.t('anyUnknownValidation')
-            }
-        }}
-    );
+        language: LocalizationHelper.getValidationMessages()
+    });
     validationProcess(req, res, next, validationRules);
 }
 

@@ -13,6 +13,7 @@ import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import BadRole from "../../exceptions/user/badRole";
 import sequelize from "../../services/sequelize";
 import BadValidationException from "../../exceptions/badValidationException";
+import Project from "../../models/project";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -80,7 +81,7 @@ class AdminUnicefController {
             await userPersonalData.update(userData);
 
             return ApiController.success({
-                message: i18n.t('adminSuccessDonorUpdate')
+                message: i18n.t('adminSuccessUnicefUpdate')
             }, res);
         } catch (error) {
             if (error instanceof HttpException) {
@@ -97,13 +98,13 @@ class AdminUnicefController {
         let page = 1;
         const pageCount = 15;
         let responseData = {};
-        if (req.query.page !== undefined) {
+        if (req.query.page !== undefined && req.query.page!=='') {
             page = parseInt(req.query.page);
         }
         let searchInstanse = '';
         if (req.query.search) {
             const idSearch = +req.query.search ? +req.query.search : 0;
-            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" LIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" LIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" LIKE \'%'+ req.query.search +'%\')';
+            searchInstanse = ' AND (users."id" = ' + idSearch +' OR users."email" ILIKE \'%'+ req.query.search +'%\' OR upd."firstName' +lang+ '" ILIKE \'%'+ req.query.search +'%\' OR upd."lastName' +lang+ '" ILIKE \'%'+ req.query.search +'%\')';
         }
 
         // get unicef ids
@@ -125,7 +126,7 @@ class AdminUnicefController {
 
         let usersIds = unicefQuery.map(a => a.userId);
 
-        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:MI:SS\') as "createdAt", upd."firstName'+lang+'" as "firstName", upd."lastName'+lang+'" as "lastName", r."title'+lang+'" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ') AND ("roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' ORDER BY users."id" DESC';
+        let query = 'SELECT users."email", users."id",CASE WHEN users."emailVerifiedAt" IS NULL THEN \'not active\' WHEN users."isBlocked" THEN \'blocked\' ELSE \'active\' END AS  "userStatus", TO_CHAR(users."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", upd."firstName'+lang+'" as "firstName", upd."lastName'+lang+'" as "lastName", r."title'+lang+'" as "role" FROM users LEFT JOIN users_personal_data AS upd ON users."id" = upd."userId" LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN roles r ON r."id" = uhr."roleId" WHERE users."id" IN (' + usersIds.join(', ') + ') AND ("roleId" = \'' + Role.unicefResponsibleId + '\' OR "roleId" = \'' + Role.unicefBudgetId  + '\' OR "roleId" = \'' + Role.unicefDeputyId  + '\' OR "roleId" = \'' + Role.unicefOperationId  + '\')' + searchInstanse + ' ORDER BY users."id" DESC';
         const offset = pageCount * (page-1);
 
         query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;
@@ -206,7 +207,17 @@ class AdminUnicefController {
                 });
                 await newUser.save();
             }
-            // TODO: give all projects to new user
+            
+
+            if (userUnicefRole === Role.unicefResponsibleId) {
+                // set all in progress projects to new user
+                const update = await Project.update({officerId: newUser.id}, {
+                    where: {
+                        officerId: user.id,
+                        statusId: Project.IN_PROGRESS_STATUS_ID
+                    }
+                });
+            }
     
             user.isBlocked = true;
             await user.save();

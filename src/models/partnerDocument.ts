@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize"
-import config from "../config/config";
+import Config from "../services/config";
 
 class PartnerDocument extends Model {
     static documentsRoute = '/partner/document';
@@ -14,7 +14,9 @@ class PartnerDocument extends Model {
     public readonly updatedAt!: Date;
 
     get href() {
-        return config.APP_PROTOCOL + config.APP_NAME + PartnerDocument.documentsRoute + '?id=' + this.id;
+        const protocol = Config.get("APP_PROTOCOL", 'http://');
+        const appName = Config.get("APP_NAME", 'api.local.com');
+        return protocol + appName + PartnerDocument.documentsRoute + '?id=' + this.id;
     }
 
     public getFilePath = () => {
