@@ -16,7 +16,7 @@ class ProjectRepository {
         `projects."type" || '_KAZ_' || date_part('year', CURRENT_DATE) || '_' || projects."id" as "projectCode", `+
         `TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", projects."ice" as "ice", projects."usdRate" as "usdRate", `+
         `projects."descriptionEn" as "descriptionEn", projects."descriptionRu" as "descriptionRu", `+
-        `TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", programmes."id" as "programme.id", programmes."title${LANG}" as "programme.title", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE 'waiting' END as "stage.status", `+
+        `TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", programmes."id" as "programme.id", programmes."title${LANG}" as "programme.title", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", `+
         `programmes."code" as "programme.code", officer."userId" as "officer.id", `+
         `officer."firstName${LANG}" || officer."lastName${LANG}" as "officer.name", `+
         `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", `+
@@ -30,7 +30,7 @@ class ProjectRepository {
         `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
         `LEFT JOIN sections ON sections."id"=projects."sectionId" `+
         `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
-        `WHERE projects."id" = ${projectId} AND pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'`;
+        `WHERE projects."id" = ${projectId} AND (pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
@@ -71,14 +71,14 @@ class ProjectRepository {
     static shortInfoById = async (projectId: number) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
-        const query = `SELECT projects."id" as "id", projects."title${LANG}" as "title", projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", projects."ice" as "ice", projects."description${LANG}" as "description", programmes."title${LANG}" as "programme.title", programmes."code" as "programme.code", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE 'waiting' END as "stage.status", 0 as "totalPaid" `+
+        const query = `SELECT projects."id" as "id", projects."title${LANG}" as "title", projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", projects."ice" as "ice", projects."description${LANG}" as "description", programmes."title${LANG}" as "programme.title", programmes."code" as "programme.code", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", 0 as "totalPaid" `+
         `FROM projects `+
         `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
         `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" `+
         `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" `+
         `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" `+
         `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" `+
-        `WHERE projects."id" = ${projectId} AND pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'`;
+        `WHERE projects."id" = ${projectId} AND (pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,

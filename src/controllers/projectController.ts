@@ -194,7 +194,10 @@ class ProjectController {
                 throw new ProjectNotFound();
             }
             // get isMyStage flag
-            await ProjectHelper.getIsMyStageFlag(req.user, project); 
+            await ProjectHelper.getIsMyStageFlag(req.user, project);
+            if (project.stage.type===null) {
+                project.stage={};
+            }
 
             return ApiController.success({ project: project }, res);
         } catch (error) {
@@ -214,6 +217,10 @@ class ProjectController {
 
             if (projectInfo === null) {
                 throw new ProjectNotFound();
+            }
+
+            if (projectInfo.stage.type===null) {
+                projectInfo.stage={};
             }
             
             const responseData = {
