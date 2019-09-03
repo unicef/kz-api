@@ -193,6 +193,8 @@ class ProjectController {
             if (project === null) {
                 throw new ProjectNotFound();
             }
+            // get isMyStage flag
+            await ProjectHelper.getIsMyStageFlag(req.user, project); 
 
             return ApiController.success({ project: project }, res);
         } catch (error) {

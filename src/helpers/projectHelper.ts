@@ -10,6 +10,7 @@ import event from "../services/event";
 import { Request } from "express";
 import Pagination from "../services/pagination";
 import ProjectRepository from "../repositories/projectRepository";
+import User from "../models/user";
 
 class ProjectHelper {
 
@@ -207,6 +208,18 @@ class ProjectHelper {
 
         return title;
     }
+
+    static getIsMyStageFlag = async (user: User, project: iProjectDetails) => {
+        project.isMyStage = false;
+        switch(project.stage.status) {
+            case "waiting" : {
+                if (project.assistantId && project.assistantId==user.id) {
+                    project.isMyStage = true;
+                }
+            }
+            break;
+        }
+    }
 }
 
 interface iInputTranche {
@@ -221,6 +234,30 @@ interface iInputTranche {
 interface iInputDocs {
     title: string;
     id: string;
+}
+
+interface iProjectDetails {
+    id: number;
+    status: string;
+    titleEn: string;
+    titleRu: string;
+    type: string;
+    partnerId: number|null;
+    projectCode: string;
+    deadline: string;
+    ice: number;
+    usdRate: number;
+    descriptionEn: string;
+    descriptionRu: string;
+    createdAt: string;
+    programme: object;
+    stage: {num:number; type: string; status: string};
+    officer: object;
+    partnerName: string;
+    section: object;
+    assistantName: string;
+    assistantId: number;
+    isMyStage?: boolean;
 }
 
 export default ProjectHelper;
