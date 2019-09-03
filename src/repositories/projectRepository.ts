@@ -30,7 +30,7 @@ class ProjectRepository {
         `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
         `LEFT JOIN sections ON sections."id"=projects."sectionId" `+
         `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
-        `WHERE projects."id" = ${projectId}`;
+        `WHERE projects."id" = ${projectId} AND pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
