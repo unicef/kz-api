@@ -1,3 +1,4 @@
+
 class FaceRequestHelper {
     static requestTypes = [
         {
