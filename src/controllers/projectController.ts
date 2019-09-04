@@ -218,6 +218,12 @@ class ProjectController {
             if (projectInfo === null) {
                 throw new ProjectNotFound();
             }
+            if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
+                // check if partner has access to project
+                if (req.user.partnerId !== projectInfo.partnerId) {
+                    throw new BadPermissions();
+                }
+            }
 
             if (projectInfo.stage.type===null) {
                 projectInfo.stage={};

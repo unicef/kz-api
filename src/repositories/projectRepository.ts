@@ -71,7 +71,20 @@ class ProjectRepository {
     static shortInfoById = async (projectId: number) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
-        const query = `SELECT projects."id" as "id", projects."title${LANG}" as "title", projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", projects."ice" as "ice", projects."description${LANG}" as "description", programmes."title${LANG}" as "programme.title", programmes."code" as "programme.code", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", 0 as "totalPaid" `+
+        const query = `SELECT 
+        projects."id" as "id", 
+        projects."title${LANG}" as "title", 
+        projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", 
+        projects."partnerId" as "partnerId", 
+        TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", 
+        TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", 
+        projects."ice" as "ice", projects."description${LANG}" as "description", 
+        programmes."title${LANG}" as "programme.title", 
+        programmes."code" as "programme.code", 
+        pt."num" as "stage.num", 
+        ptype."projecttype" AS "stage.type", 
+        CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", 
+        0 as "totalPaid" `+
         `FROM projects `+
         `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
         `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" `+
