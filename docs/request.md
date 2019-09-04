@@ -6,6 +6,10 @@
 
 **Headers: `Lang: ru/en`**
 
+**Query Params:**
+
+?> **projectId** - id or project (optional)<br/>
+
 #### Response
 <!-- tabs:start -->
 #### ** Success Response **
@@ -29,7 +33,9 @@
                 "id": 3,
                 "title": "Direct Payment"
             }
-        ]
+        ],
+        "activities": [],
+        "num": 1
     }
 }
 ```
