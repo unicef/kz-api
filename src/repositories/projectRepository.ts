@@ -30,7 +30,7 @@ class ProjectRepository {
         `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
         `LEFT JOIN sections ON sections."id"=projects."sectionId" `+
         `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
-        `WHERE projects."id" = ${projectId} AND (pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') LIMIT 1`;
+        `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
@@ -78,7 +78,7 @@ class ProjectRepository {
         `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" `+
         `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" `+
         `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" `+
-        `WHERE projects."id" = ${projectId} AND (pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') LIMIT 1`;
+        `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
