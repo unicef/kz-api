@@ -7,6 +7,7 @@ import ActivityRepository from "../repositories/activityRepository";
 import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
 import Project from "../models/project";
 import { TestRequest } from "../requests/faceRequest/testRequest";
+import { GetRequestActivitiesRequest } from "../requests/faceRequest/getRequestActivitiesRequest";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +21,43 @@ class FaceRequestController {
             })
 
             return ApiController.success({type: responseTypes}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getActivities = async (req: GetRequestActivitiesRequest, res: Response, next: NextFunction) => {
+        try {
+            const project = req.project;
+            const request = req.faceRequest;
+            let activities;
+            let totalActivities;
+
+            if (request==null) {
+                // get project activities 
+                activities = await ActivityRepository.getByProjectId(project.id);
+                totalActivities = {
+                    amountE: 0,
+                    amountF: 0,
+                    amountG: 0
+                };
+            } else {
+                // get request activities
+                activities = await ActivityRepository.getByRequestId(request.id);
+                totalActivities = await ActivityRepository.getTotalRequestAmounts(request.id);
+            }
+            const responseData = {
+                activities: activities,
+                total: totalActivities
+            }
+
+            return ApiController.success(responseData, res);
+            
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
