@@ -12,11 +12,15 @@ import ProjectNotFound from '../../exceptions/project/projectNotFound';
 import BadProjectStatus from '../../exceptions/project/badProjectStatus';
 import BadPermissions from '../../exceptions/badPermissions';
 import FaceRequestRepository from '../../repositories/faceRequestRepository';
+import FaceRequest from '../../models/faceRequest';
+import TrancheHasRequest from '../../exceptions/project/trancheHasRequest';
+import FaceRequestHelper from '../../helpers/faceRequestHelper';
+import ProjectActivity from '../../models/projectActivity';
 
-interface TestRequest extends Request
+interface PostCreateRequest extends Request
 {
     project: Project,
-    tranche: ProjectTranche,
+    tranche: ProjectTranche
 }
 
 const requestValidation = Joi.object().options({
@@ -35,7 +39,7 @@ const requestValidation = Joi.object().options({
     }).pattern(/./, Joi.any());
 
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {
-    const req = expressRequest as TestRequest;
+    const req = expressRequest as PostCreateRequest;
     try {
         requestValidation.validate(req.body, (err: any, value: any) => {
             req.body = value;
@@ -43,6 +47,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
                 throw new BadValidationException(400, 129, getValidationErrorMessage(err), 'Validation error');
             }
         })
+        // CHECK PROJECT
         const projectId = req.body.projectId;
         const project = await Project.findOne({
             where: { 
@@ -62,6 +67,9 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         if (project.partnerId !== req.user.partnerId) {
             throw new BadPermissions();
         }
+        if (project.deadline < new Date(req.body.to)) {
+            throw new BadValidationException(400,119, i18n.t('badToDate'));
+        }
         // get active project tranche
         const activeTranche = await ProjectTranche.findOne({
             where: {
@@ -70,13 +78,37 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             }
         });
         if (activeTranche === null) {
-            throw new Error('Project doesn\'t have in progress tranche');
+            throw new BadProjectStatus(400, 119, i18n.t('projectBadStatusError'), 'Project doesn\'t have in progress tranche');
         }
         req.tranche = activeTranche;
         // get tranche request
-        const request = await FaceRequestRepository.findByTrancheId(activeTranche.id);
+        const request = await FaceRequest.findOne({
+            where: {
+                trancheId: activeTranche.id
+            }
+        });
         if (request) {
-            throw new Error(`Tranche #${activeTranche.num} allready has request`);
+            throw new TrancheHasRequest();
+        }
+        // check activities
+        const activities: Array<{id: number|null; title: string; amountE: number; }> = req.body.activities;
+        if (activities.length < 1) {
+            throw new BadValidationException(400, 119, i18n.t('emptyActivitiesArray'));
+        }
+        for (var i=0; i < activities.length; i++) {
+            const activity = activities[i];
+            if (activity.id!==null && activity.id != '') {
+                // get activity data
+                const projectActivity = await ProjectActivity.findOne({
+                    where: {
+                        projectId: project.id,
+                        id: activity.id
+                    }
+                })
+                if (projectActivity === null) {
+                    throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
+                }
+            }
         }
 
         next();
@@ -90,4 +122,4 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
     }
 }
 
-export { TestRequest, middleware };
+export { PostCreateRequest, middleware };

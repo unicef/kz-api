@@ -41,6 +41,8 @@
     - [Get project history](project.md?id=get-project-history "Get project history")
     - Face Request
         - [Get face request static properties](request.md?id=get-face-request-static-properties "Get face request static properties")
+        - [Get face request activities](request.md?id=get-face-request-activities "Get face request activities")
+        - [Create FACE request](request.md?id=create-face-request "Create FACE request")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

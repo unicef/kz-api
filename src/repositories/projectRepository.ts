@@ -74,6 +74,7 @@ class ProjectRepository {
         const query = `SELECT 
         projects."id" as "id", 
         projects."title${LANG}" as "title", 
+        projects."statusId" as "statusId",
         projects."type" || '_KAZ_' || TO_CHAR(projects."createdAt", \'yyyy\') || '_' || projects."id" as "projectCode", 
         projects."partnerId" as "partnerId", 
         TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", 
@@ -84,11 +85,15 @@ class ProjectRepository {
         pt."num" as "stage.num", 
         ptype."projecttype" AS "stage.type", 
         CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", 
-        0 as "totalPaid" `+
+        0 as "totalPaid", `+
+        `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", `+
+        `officer."firstName${LANG}" || ' ' || officer."lastName${LANG}" as "officerName" `+
         `FROM projects `+
         `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
         `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" `+
         `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" `+
+        `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
+        `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
         `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" `+
         `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" `+
         `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
@@ -98,6 +103,29 @@ class ProjectRepository {
             nest: true,
             plain: true
         });
+        if (project !== null) {
+            if (project.partnerId !== null) {
+                const assistQuery = `SELECT 
+                "upd"."firstName${LANG}" || ' ' || "upd"."lastName${LANG}" as "name"
+                FROM "users" as "us" 
+                    LEFT JOIN "users_has_roles" as "uhr" 
+                        ON "us"."id" = "uhr"."userId" 
+                    LEFT JOIN "partners" as "p" 
+                        ON "p"."id" = "us"."partnerId" 
+                    LEFT OUTER JOIN "users_personal_data" as "upd" ON "us"."id"="upd"."userId"  
+                WHERE "uhr"."roleId" = '${Role.partnerAssistId}' AND "us"."partnerId" = ${project.partnerId} LIMIT 1`
+                const assist = await sequelize.query(assistQuery, {
+                    type: QueryTypes.SELECT,
+                    nest: true,
+                    plain: true
+                });
+                if (assist!==null) {
+                    project.assistantName = assist.name;
+                }
+            } else {
+                project.assistantName = "";
+            }
+        }
 
         return project;
     } 

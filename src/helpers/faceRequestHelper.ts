@@ -17,6 +17,15 @@ class FaceRequestHelper {
             ru: `Прямая оплата`
         }
     ];
+
+    static getRequestData = (data: any) => {
+        let requestData: any = {};
+        requestData.from = new Date(data.from);
+        requestData.to = new Date(data.to);
+        requestData.typeId = data.typeId;
+
+        return requestData;
+    }
 }
 
 export default FaceRequestHelper;

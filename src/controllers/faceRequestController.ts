@@ -6,8 +6,11 @@ import FaceRequestHelper from "../helpers/faceRequestHelper";
 import ActivityRepository from "../repositories/activityRepository";
 import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
 import Project from "../models/project";
-import { TestRequest } from "../requests/faceRequest/testRequest";
+import { PostCreateRequest } from "../requests/faceRequest/postCreateRequest";
 import { GetRequestActivitiesRequest } from "../requests/faceRequest/getRequestActivitiesRequest";
+import FaceRequest from "../models/faceRequest";
+import ProjectActivity from "../models/projectActivity";
+import FaceRequestActivity from "../models/faceRequestActivity";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -68,12 +71,50 @@ class FaceRequestController {
         }
     }
 
-    static create = async (req: TestRequest, res: Response, next: NextFunction) => {
+    static create = async (req: PostCreateRequest, res: Response, next: NextFunction) => {
         try {
+            const project = req.project;
+            const tranche = req.tranche;
+
+            // prepare request data
+            const requestData = FaceRequestHelper.getRequestData(req.body);
+            const activities = req.body.activities;
+
+            requestData.trancheId = tranche.id;
+            requestData.statusId = FaceRequest.CONFIRM_STATUS_KEY;
+
+            const request = await FaceRequest.create(requestData);
+            // working with activities
+            for (var i=0; i<activities.length; i++) {
+                const activity = activities[i];
+                let projectActivity = null;
+                if (activity.id == '' || activity.id == null) {
+                    // create new project activity
+                    const projectActivityData = {
+                        projectId: project.id,
+                        title: activity.title
+                    }
+                    projectActivity = await ProjectActivity.create(projectActivityData);
+                } else {
+                    // get exists activity
+                    projectActivity = await ProjectActivity.findOne({
+                        where: {
+                            id: activity.id
+                        }
+                    })
+                }
+                // set request activity
+                await FaceRequestActivity.create({
+                    requestId: request.id,
+                    activityId: projectActivity.id,
+                    amountE: activity.amountE
+                });
+            }
             
-            console.log("PROJECT!!@@@@!!!!", req.project);
-            console.log("IN PROGRESS TRANCHE@@#@#@#", req.tranche);
-            res.send('GOOD');
+            const responseData = {
+                message: i18n.t('faceRequestCreatedSuccesfully')
+            }
+            return ApiController.success(responseData, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
