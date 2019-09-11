@@ -11,6 +11,11 @@ import { GetRequestActivitiesRequest } from "../requests/faceRequest/getRequestA
 import FaceRequest from "../models/faceRequest";
 import ProjectActivity from "../models/projectActivity";
 import FaceRequestActivity from "../models/faceRequestActivity";
+import { GetRequest } from "../requests/faceRequest/getRequest";
+import event from "../services/event";
+import FaceRequestCreated from "../events/faceRequestCreated";
+import ProjectHelper from "../helpers/projectHelper";
+import ProjectTranche from "../models/projectTranche";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -84,6 +89,7 @@ class FaceRequestController {
             requestData.statusId = FaceRequest.CONFIRM_STATUS_KEY;
 
             const request = await FaceRequest.create(requestData);
+            event(new FaceRequestCreated(req.user, request, project));
             // working with activities
             for (var i=0; i<activities.length; i++) {
                 const activity = activities[i];
@@ -115,6 +121,22 @@ class FaceRequestController {
                 message: i18n.t('faceRequestCreatedSuccesfully')
             }
             return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getRequest = async (req: GetRequest, res: Response, next: NextFunction) => {
+        try { 
+            const faceRequest = req.faceRequest;
+            // get is my stage flag
+            const isMyStage = FaceRequestHelper.isMyStage(faceRequest, req.user);
+            return ApiController.success({request: faceRequest, isMyStage: isMyStage}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

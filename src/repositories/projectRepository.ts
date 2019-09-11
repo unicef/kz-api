@@ -250,6 +250,38 @@ class ProjectRepository {
 
         return projects;
     }
+
+    static getPartnerIdByTrancheId = async (trancheId: number) => {
+        const query = `SELECT p."partnerId" FROM projects p LEFT JOIN project_tranches pt ON pt."projectId" = p."id" WHERE pt.id = ${trancheId}`;
+
+        const partnerId = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (partnerId) {
+            return partnerId.partnerId;
+        } else {
+            return null;
+        }
+    }
+
+    static getProjectIdByRequestId = async (requestId: number) => {
+        const query = `SELECT pt."projectId" FROM project_tranches pt LEFT JOIN face_requests fr ON fr."trancheId" = pt."id" WHERE fr."id"= ${requestId}`;
+
+        const projectId = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (projectId) {
+            return projectId.projectId;
+        } else {
+            return null;
+        }
+    }
     
 }
 

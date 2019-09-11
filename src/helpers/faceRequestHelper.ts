@@ -1,3 +1,5 @@
+import FaceRequest from "../models/faceRequest";
+import Role from "../models/role";
 
 class FaceRequestHelper {
     static requestTypes = [
@@ -25,6 +27,25 @@ class FaceRequestHelper {
         requestData.typeId = data.typeId;
 
         return requestData;
+    }
+
+    static isMyStage = (faceRequest, user) => {
+        let isMyStage = false;
+        switch (faceRequest.statusId) {
+            case FaceRequest.WAITING_STATUS_KEY : {
+                if (user.hasRole(Role.partnerAssistId) && faceRequest.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case FaceRequest.CONFIRM_STATUS_KEY : {
+                if (user.hasRole(Role.partnerAuthorisedId) && faceRequest.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+        }
+        return isMyStage;
     }
 }
 

@@ -11,6 +11,7 @@ import { Request } from "express";
 import Pagination from "../services/pagination";
 import ProjectRepository from "../repositories/projectRepository";
 import User from "../models/user";
+import Role from "../models/role";
 
 class ProjectHelper {
 
@@ -210,15 +211,22 @@ class ProjectHelper {
     }
 
     static getIsMyStageFlag = async (user: User, project: iProjectDetails) => {
-        project.isMyStage = false;
+        let isMyStage = false;
         switch(project.stage.status) {
             case "waiting" : {
                 if (project.assistantId && project.assistantId==user.id) {
-                    project.isMyStage = true;
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "confirm" : {
+                if (user.hasRole(Role.partnerAuthorisedId) && user.partnerId === project.partnerId) {
+                    isMyStage = true;
                 }
             }
             break;
         }
+        return isMyStage;
     }
 }
 

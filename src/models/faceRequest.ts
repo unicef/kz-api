@@ -1,5 +1,8 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../services/sequelize"
+import User from "./user";
+import Role from "./role";
+import ProjectRepository from "../repositories/projectRepository";
 
 class FaceRequest extends Model {
     static WAITING_STATUS_KEY = 'waiting';
@@ -13,6 +16,8 @@ class FaceRequest extends Model {
 
     public id!: number;
     public trancheId!: number;
+    public projectId!: number;
+    public partnerId!: number;
     public from!: Date;
     public to!: Date;
     public statusId!: string;
@@ -23,6 +28,43 @@ class FaceRequest extends Model {
     public successedAt!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    async getProjectId() {
+        if (this.projectId) {
+            return this.projectId;
+        } else {
+            this.projectId = await ProjectRepository.getProjectIdByRequestId(this.id);
+            return this.projectId;
+        }
+    }
+
+    async getPartnerId() {
+        if (this.partnerId) {
+            return this.partnerId;
+        } else {
+            this.partnerId = await ProjectRepository.getPartnerIdByTrancheId(this.trancheId);
+            return this.partnerId;
+        }
+    }
+
+    public async isMyStage (user: User) {
+        let isMyStage = false;
+        switch (this.statusId) {
+            case FaceRequest.WAITING_STATUS_KEY : {
+                if (user.hasRole(Role.partnerAssistId) && this.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case FaceRequest.CONFIRM_STATUS_KEY : {
+                if (user.hasRole(Role.partnerAuthorisedId) && this.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+        }
+        return isMyStage;
+    }
 }
 
 FaceRequest.init(
@@ -35,6 +77,16 @@ FaceRequest.init(
         trancheId: {
             type: DataTypes.INTEGER,
             allowNull: false,
+        },
+        projectId: {
+            type: DataTypes.VIRTUAL,
+            allowNull: true,
+            defaultValue: null
+        },
+        partnerId: {
+            type: new DataTypes.VIRTUAL(DataTypes.INTEGER, ['trancheId']),
+            allowNull: true,
+            defaultValue: null
         },
         from: {
             type: DataTypes.DATE,

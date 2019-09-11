@@ -30,7 +30,7 @@ exports.up = (pgm) => {
         },
         validateBy: {
             type: "integer",
-            notNull: true,
+            notNull: false,
             references: "users"
         },
         validateAt: {
@@ -40,7 +40,7 @@ exports.up = (pgm) => {
         },
         certifyBy: {
             type: "integer",
-            notNull: true,
+            notNull: false,
             references: "users"
         },
         certifyAt: {
@@ -50,7 +50,7 @@ exports.up = (pgm) => {
         },
         approveBy: {
             type: "integer",
-            notNull: true,
+            notNull: false,
             references: "users"
         },
         approveAt: {
@@ -60,7 +60,7 @@ exports.up = (pgm) => {
         },
         verifyBy: {
             type: "integer",
-            notNull: true,
+            notNull: false,
             references: "users"
         },
         verifyAt: {

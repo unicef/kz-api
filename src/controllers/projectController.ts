@@ -194,7 +194,7 @@ class ProjectController {
                 throw new ProjectNotFound();
             }
             // get isMyStage flag
-            await ProjectHelper.getIsMyStageFlag(req.user, project);
+            project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);;
             if (project.stage.type===null) {
                 project.stage={};
             }
