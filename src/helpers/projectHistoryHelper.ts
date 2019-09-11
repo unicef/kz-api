@@ -14,7 +14,8 @@ class ProjectHistoryHelper {
         'upload_docs',
         'set_ip',
         'set_tranches',
-        'add_link'
+        'add_link',
+        'create_face_request'
     ];
 
     static CREATE_EVENT_KEY: string = 'create';
@@ -25,6 +26,7 @@ class ProjectHistoryHelper {
     static SET_TRANCHES_EVENT_KEY: string = 'set_tranches';
     static ADD_LINK_EVENT_KEY: string = 'add_link';
     static SET_TERMINATED_STATUS: string = 'terminated';
+    static CREATE_REQUEST_KEY: string = 'create_face_request';
 
     static renderHistory = async (historyRows) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
@@ -88,6 +90,10 @@ class ProjectHistoryHelper {
                 case ProjectHistoryHelper.SET_TERMINATED_STATUS: {
                     const terminationReason = ProjectHelper.getTerminationReasonTitle(historyRow.event.reason);
                     history.action = i18n.t('historyTemination', {reason: terminationReason});
+                }
+                break;
+                case ProjectHistoryHelper.CREATE_REQUEST_KEY: {
+                    history.action = i18n.t('historyCreateRequest');
                 }
                 break;
             }

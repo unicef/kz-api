@@ -20,8 +20,10 @@ class FaceRequestCreated extends Event {
     public listeners = [
         // create request confirm chain data
         createConfirmChainRow,
-        // send email to authorised person
+        // save in history
         
+        // send email to authorised person
+
     ];
 }
 

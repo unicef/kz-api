@@ -14,7 +14,7 @@ import BadPermissions from '../../exceptions/badPermissions';
 import FaceRequest from '../../models/faceRequest';
 import Role from '../../models/role';
 import ProjectHasNoActiveTranche from '../../exceptions/project/projectHasNoActiveTranche';
-import RequestNotFound from '../../exceptions/project/RequestNotFound';
+import RequestNotFound from '../../exceptions/project/requestNotFound';
 import ProjectRepository from '../../repositories/projectRepository';
 import FaceRequestRepository from '../../repositories/faceRequestRepository';
 
