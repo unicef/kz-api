@@ -62,5 +62,17 @@ class UserRepository {
         });
         return user;
     }
+
+    static findWalletById = async (userId: number) => {
+        const query = `SELECT * FROM users_wallets WHERE "userId" = ${userId}`;
+
+        const wallet = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+        
+        return wallet;
+    }
 }
 export default UserRepository;

@@ -11,6 +11,7 @@ import SetPasswordHash from "./setPasswordHash";
 import Partner from "./partner";
 import event from "../services/event";
 import UserRegisteredRemotely from "../events/userRegisteredRemotely";
+import WalletHelper from "../helpers/walletHelper";
 
 class User extends Model {
     public id!: number;
@@ -201,6 +202,10 @@ class User extends Model {
         })
 
         return isUnicefRole;
+    }
+
+    public getWalletPhrase = async () => {
+        return await WalletHelper.getWallPhrase(this);
     }
 }
 

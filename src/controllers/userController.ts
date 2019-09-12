@@ -60,7 +60,7 @@ class UserController {
         responseData.roles = roles;
 
         // get user seed phrase
-        const seedPhrase = keystore.generateRandomSeed();
+        const seedPhrase = await user.getWalletPhrase();
         if (user.showSeed) {
             // generate txt file with seed
             fs.writeFile(__dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt", seedPhrase, (err) => {
