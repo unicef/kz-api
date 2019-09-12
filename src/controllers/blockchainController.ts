@@ -19,6 +19,7 @@ class BlockchainController {
         const password = 'cukerman1092';
         const secretSeed = keystore.generateRandomSeed();
         let walletKey = null;
+
         keystore.createVault({
             password: password,
             seedPhrase: secretSeed,
@@ -35,13 +36,15 @@ class BlockchainController {
                 // the corresponding private keys are also encrypted
                 ks.generateNewAddress(pwDerivedKey, 1);
                 walletKey = ks.getAddresses();
+
+                let pK = ks.exportPrivateKey(walletKey[0], pwDerivedKey);
                 // Now set ks as transaction_signer in the hooked web3 provider
                 // and you can start using web3 using the keys/addresses in ks!
                 return res.json({
                     success: true,
                     seedPhrase: secretSeed,
-                    walletKey: walletKey.toString(),
-                    ks: ksSerialize
+                    walletKey: walletKey[0],
+                    ksSerialize: ksSerialize,
                 });
             });
         });

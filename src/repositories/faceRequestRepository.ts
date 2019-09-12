@@ -19,8 +19,9 @@ class FaceRequestRepository {
 
     static findById = async (requestId: number) => {
         const query = `SELECT fr."id" as "id", 
-        TO_CHAR(fr."from", 'yyyy-mm') as "from", 
-        TO_CHAR(fr."to", 'yyyy-mm') as "to", 
+        TO_CHAR(fr."from", 'yyyy-mm') as "dateFrom", 
+        TO_CHAR(fr."to", 'yyyy-mm') as "dateTo", 
+        fr."typeId" as "type",
         fr."statusId" as "statusId", 
         fr."isCertify" as "isCertify",
         fr."isValid" as "isValid",
