@@ -24,7 +24,11 @@ class ActivityRepository {
     static getTotalRequestAmounts = async (requestId: number) => {
         const query = `SELECT SUM(ra."amountE") as "totalE", SUM(ra."amountF") as "totalF", SUM(ra."amountG") as "totalG" FROM request_activities "ra" WHERE ra."requestId" = ${requestId}`;
 
-        const total = await sequelize.query(query,{type: QueryTypes.SELECT});
+        const total = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
 
         return total;
     }

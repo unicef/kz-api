@@ -38,6 +38,7 @@ import UserRepository from "../repositories/userRepository";
 import DonorRepository from "../repositories/donorRepository";
 import BadValidationException from "../exceptions/badValidationException";
 import SetPasswordHashRepository from "../repositories/setPasswordHashRepository";
+import UserSetPassword from "../events/userSetPassword";
 
 class UserController {
     // get user Data about auth user
@@ -111,7 +112,7 @@ class UserController {
             const role = await Role.findByPk('ra');
             user.addRole(role);
 
-            event(new UserRegistered(user));
+            event(new UserRegistered(user, req.body.password));
             
             const responseData = {
                 userId: user.id,
@@ -356,7 +357,9 @@ class UserController {
             user.setPassword(newUserPassword);
             user.emailVerifiedAt = new Date();
             user.save();
-    
+
+            event(new UserSetPassword(user, newUserPassword));
+
             hashModel.destroy();
             const deleteHashes = SetPasswordHashRepository.deleteHashesByUserId(user.id);
     
