@@ -18,8 +18,8 @@ class ActivityRepository {
             pa."id" as "id", 
             pa."title" as "title", 
             ra."amountE" as "amountE", 
-            CASE WHEN ra."amountF" IS NULL THEN \'\' ELSE ra."amountF" END AS "amountF", 
-            CASE WHEN ra."amountG" IS NULL THEN \'\' ELSE ra."amountG" END AS "amountG",
+            CASE WHEN ra."amountF" IS NULL THEN 0 ELSE ra."amountF" END AS "amountF", 
+            CASE WHEN ra."amountG" IS NULL THEN 0 ELSE ra."amountG" END AS "amountG",
             ra."isRejected" as "isRejected",
             CASE WHEN ra."rejectReason" IS NULL THEN \'\' ELSE ra."rejectReason" END AS "rejectReason" 
             FROM project_activities "pa" 
