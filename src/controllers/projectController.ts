@@ -194,7 +194,7 @@ class ProjectController {
                 throw new ProjectNotFound();
             }
             // get isMyStage flag
-            project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);;
+            project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);
             if (project.stage.type===null) {
                 project.stage={};
             }
@@ -224,7 +224,8 @@ class ProjectController {
                     throw new BadPermissions();
                 }
             }
-
+            // get isMyStage flag
+            projectInfo.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, projectInfo);
             if (projectInfo.stage.type===null) {
                 projectInfo.stage={};
             }
