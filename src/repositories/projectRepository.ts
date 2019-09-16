@@ -106,7 +106,8 @@ class ProjectRepository {
         if (project !== null) {
             if (project.partnerId !== null) {
                 const assistQuery = `SELECT 
-                "upd"."firstName${LANG}" || ' ' || "upd"."lastName${LANG}" as "name"
+                "upd"."firstName${LANG}" || ' ' || "upd"."lastName${LANG}" as "name", 
+                "upd"."userId" as "id" 
                 FROM "users" as "us" 
                     LEFT JOIN "users_has_roles" as "uhr" 
                         ON "us"."id" = "uhr"."userId" 
@@ -121,9 +122,11 @@ class ProjectRepository {
                 });
                 if (assist!==null) {
                     project.assistantName = assist.name;
+                    project.assistantId = assist.id;
                 }
             } else {
                 project.assistantName = "";
+                project.assistantId = 0;
             }
         }
 
