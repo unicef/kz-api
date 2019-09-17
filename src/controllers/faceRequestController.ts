@@ -50,9 +50,9 @@ class FaceRequestController {
                 // get project activities 
                 activities = await ActivityRepository.getByProjectId(project.id);
                 totalActivities = {
-                    amountE: 0,
-                    amountF: 0,
-                    amountG: 0
+                    totalE: 0,
+                    totalF: 0,
+                    totalG: 0
                 };
             } else {
                 // get request activities
