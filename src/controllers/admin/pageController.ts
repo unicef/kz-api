@@ -135,6 +135,29 @@ class AdminPageController {
             return;
         }
     }
+
+    static delete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const pageId = req.query.id;
+            const page = await Page.findByPk(pageId);
+    
+            if (page == null) {
+                throw new PageNotFind();
+            }
+
+            await page.destroy();
+
+            return ApiController.success({message: i18n.t('successDeletePage')}, res);
+        } catch (error) {
+            console.log(error);
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default AdminPageController;

@@ -79,4 +79,5 @@
         - [Update page](admin_page.md?id=update-page "Update page")
         - [Pages list](admin_page.md?id=get-pages-list "Get pages list")
         - [Get page](admin_page.md?id=get-single-page "Get page")
+        - [Delete page](admin_page.md?id=delete-page "Delete page")
         
