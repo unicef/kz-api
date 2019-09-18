@@ -28,9 +28,9 @@ const requestValidation = Joi.object().options({
         language: LocalizationHelper.getValidationMessages()
     }).keys({
         projectId: Joi.number().required(),
-        from: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
-        to: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
-        typeId: Joi.number().min(1).max(3).required(),
+        dateFrom: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
+        dateTo: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
+        type: Joi.number().min(1).max(3).required(),
         activities: Joi.array().items(Joi.object().keys({
             id: Joi.number().allow(null).allow(''),
             title: Joi.string().max(255).required(),

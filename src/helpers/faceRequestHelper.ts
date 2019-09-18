@@ -22,9 +22,9 @@ class FaceRequestHelper {
 
     static getRequestData = (data: any) => {
         let requestData: any = {};
-        requestData.from = new Date(data.from);
-        requestData.to = new Date(data.to);
-        requestData.typeId = data.typeId;
+        requestData.from = new Date(data.dateFrom);
+        requestData.to = new Date(data.dateTo);
+        requestData.typeId = data.type;
 
         return requestData;
     }
