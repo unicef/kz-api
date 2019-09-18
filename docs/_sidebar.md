@@ -47,6 +47,7 @@
     
 - Page
     - [Get page by key](page.md?id=get-page-by-key "Get page by key")
+    - [Get pages list](page.md?id=get-pages-list "Get pages list")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")

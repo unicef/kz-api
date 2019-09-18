@@ -46,6 +46,32 @@ class PageController {
             return;
         }
     }
+
+    static getList = async (req: Request, res: Response) => {
+        try {
+            const pagesList = await Page.findAll({
+                where: {
+                    isPublic: true
+                }, 
+                attributes: [
+                    'key', 'titleRu', 'titleEn'
+                ]
+            });
+
+            const responseData = {
+                pages: pagesList
+            };
+            
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default PageController;

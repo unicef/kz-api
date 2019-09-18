@@ -28,6 +28,7 @@ routes.use("/file", file);
 routes.use("/partner", partner);
 routes.use("/project", project);
 routes.use("/request", request);
-routes.get("/page", PageController.getPage)
+routes.get("/page", PageController.getPage);
+routes.get("/page/list", checkAuthToken, PageController.getList);
 
 export default routes;

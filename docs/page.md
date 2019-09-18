@@ -63,3 +63,47 @@
 }
 ```
 <!-- tabs:end -->
+<hr>
+
+# Get pages list
+
+#### Request
+
+**URL: `GET: /page/list`**
+
+**Headers: `Authorization: Bearer <Auth token>`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "pages": [
+            {
+                "key": "testpage1",
+                "titleRu": "Тестовая страница",
+                "titleEn": "Test page"
+            },
+            {
+                "key": "agreements",
+                "titleRu": "Соглашения",
+                "titleEn": "Agreements"
+            },
+            {
+                "key": "terms",
+                "titleRu": "Условия и положения",
+                "titleEn": "Terms and conditions"
+            }
+        ]
+    }
+}
+```
+<!-- tabs:end -->
+<hr>
+
+
