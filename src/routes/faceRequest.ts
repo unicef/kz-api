@@ -14,9 +14,17 @@ const middleCheckAssistantRole = acceptRoles([
     Role.partnerAssistId
 ]);
 
+const middleCheckUnicefUser = acceptRoles([
+    Role.unicefResponsibleId,
+    Role.unicefBudgetId,
+    Role.unicefDeputyId,
+    Role.unicefOperationId
+])
+
 router.get("/properties", [checkAuthToken], FaceRequestController.getProperties);
 router.get("/activities", [checkAuthToken, getActivitiesRequest], FaceRequestController.getActivities);
 router.post("/", [checkAuthToken, middleCheckAssistantRole, postRequest], FaceRequestController.create);
 router.get("/", [checkAuthToken, getRequest], FaceRequestController.getRequest);
+router.get("/users", [checkAuthToken, middleCheckUnicefUser], FaceRequestController.getNextStepUsers)
 
 export default router;

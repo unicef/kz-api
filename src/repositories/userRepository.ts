@@ -74,5 +74,36 @@ class UserRepository {
         
         return wallet;
     }
+
+    /**
+     * get users list fro choosing next user on approving face request/report process
+     * 
+     * var userId - except user from list
+     */
+    static getForFaceList = async (userId: number) => {
+        const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+
+        const query = `SELECT 
+            u."id", 
+            upd."firstName${LANG}" || ' ' || upd."lastName${LANG}" || ' - ' || r."title${LANG}" as "user" 
+            FROM users u 
+            LEFT JOIN users_has_roles uhr ON u."id" = uhr."userId" 
+            LEFT JOIN roles r ON r."id" = uhr."roleId" 
+            LEFT JOIN users_personal_data upd ON u.id = upd."userId" 
+            WHERE uhr."roleId" IN ('${Role.unicefResponsibleId}', '${Role.unicefBudgetId}', '${Role.unicefDeputyId}', '${Role.unicefOperationId}') 
+            AND u."isBlocked" = false 
+            AND u."emailVerifiedAt" IS NOT NULL 
+            AND u."id" != ${userId} 
+            ORDER BY CASE
+                WHEN uhr."roleId"='${Role.unicefResponsibleId}' THEN 1
+                WHEN uhr."roleId"='${Role.unicefBudgetId}' THEN 2
+                WHEN uhr."roleId"='${Role.unicefDeputyId}' THEN 3
+                WHEN uhr."roleId"='${Role.unicefOperationId}' THEN 4
+                ELSE 5
+            END`;
+    
+        const users = await sequelize.query(query,{type: QueryTypes.SELECT});
+        return users;
+    }
 }
 export default UserRepository;

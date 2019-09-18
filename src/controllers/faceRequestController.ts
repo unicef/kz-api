@@ -16,6 +16,7 @@ import event from "../services/event";
 import FaceRequestCreated from "../events/faceRequestCreated";
 import ProjectHelper from "../helpers/projectHelper";
 import ProjectTranche from "../models/projectTranche";
+import UserRepository from "../repositories/userRepository";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -137,6 +138,24 @@ class FaceRequestController {
             // get is my stage flag
             const isMyStage = FaceRequestHelper.isMyStage(faceRequest, req.user);
             return ApiController.success({request: faceRequest, isMyStage: isMyStage}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getNextStepUsers = async (req: GetRequest, res: Response, next: NextFunction) => {
+        try {
+            const users = await UserRepository.getForFaceList(req.user.id);
+
+            const responseData = {
+                users: users
+            }
+            return ApiController.success(responseData, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

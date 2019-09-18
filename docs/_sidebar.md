@@ -43,6 +43,7 @@
         - [Get face request static properties](request.md?id=get-face-request-static-properties "Get face request static properties")
         - [Get face request activities](request.md?id=get-face-request-activities "Get face request activities")
         - [Create FACE request](request.md?id=create-face-request "Create FACE request")
+        - [Get users list for approve](request.md?id=get-users-list-for-approve "Get users list for approve")
     
 - Page
     - [Get page by key](page.md?id=get-page-by-key "Get page by key")

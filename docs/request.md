@@ -171,3 +171,46 @@
 <!-- tabs:end -->
 
 <hr>
+
+# Get users list for approve
+
+#### Request
+
+**URL: `GET: /request/users`**
+
+**Headers: `Lang: ru/en`**
+
+#### Response
+<!-- tabs:start -->
+#### ** Success Response **
+- Code: `200`</br>
+- Content:
+```json
+{
+    "success": true,
+    "error": {},
+    "data": {
+        "users": [
+            {
+                "id": 11,
+                "user": "Админ Админский - Координатор"
+            },
+            {
+                "id": 2,
+                "user": "Гари Топор - Владелец бюджета"
+            },
+            {
+                "id": 16,
+                "user": "Димас Абрамович - Заместитель Представителя"
+            },
+            {
+                "id": 17,
+                "user": "Виктор Янукович - Руководитель финансово-административного отдела"
+            }
+        ]
+    }
+}
+```
+<!-- tabs:end -->
+
+<hr>
