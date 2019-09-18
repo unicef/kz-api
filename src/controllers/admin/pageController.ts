@@ -66,7 +66,7 @@ class AdminPageController {
     
             let pagesIds = pagesQuery.map(a => a.id);
     
-            let query = 'SELECT * FROM pages WHERE "id" IN (' + pagesIds.join(', ') + ') ORDER BY "id" DESC';
+            let query = 'SELECT pages."id", pages."key", pages."titleEn", pages."titleRu", pages."isPublic", TO_CHAR(pages."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt" FROM pages WHERE "id" IN (' + pagesIds.join(', ') + ') ORDER BY "id" DESC';
             const offset = pageCount * (page-1);
     
             query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;

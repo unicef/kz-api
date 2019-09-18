@@ -44,6 +44,9 @@
         - [Get face request activities](request.md?id=get-face-request-activities "Get face request activities")
         - [Create FACE request](request.md?id=create-face-request "Create FACE request")
     
+- Page
+    - [Get page by key](page.md?id=get-page-by-key "Get page by key")
+    
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
     - [Get all translations by phrase key](localization.md?id=get-all-translations-by-phrase-key "Get all translations by phrase key")

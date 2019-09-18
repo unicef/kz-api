@@ -10,6 +10,7 @@ import localizationService from "../services/localization";
 import checkAuthToken from "../middlewares/checkAuthToken";
 import UserController from "../controllers/userController";
 import BlockchainController from "../controllers/blockchainController";
+import PageController from "../controllers/pageController";
 
 const routes = Router();
 
@@ -27,5 +28,6 @@ routes.use("/file", file);
 routes.use("/partner", partner);
 routes.use("/project", project);
 routes.use("/request", request);
+routes.get("/page", PageController.getPage)
 
 export default routes;
