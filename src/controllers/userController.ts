@@ -59,9 +59,9 @@ class UserController {
         });
         responseData.roles = roles;
 
-        // get user seed phrase
-        const seedPhrase = await user.getWalletPhrase();
         if (user.showSeed) {
+            // get user seed phrase
+            const seedPhrase = await user.getWalletPhrase();
             // generate txt file with seed
             fs.writeFile(__dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt", seedPhrase, (err) => {
                 if (err) console.log(err);

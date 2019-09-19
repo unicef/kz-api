@@ -17,6 +17,7 @@ import FaceRequestCreated from "../events/faceRequestCreated";
 import ProjectHelper from "../helpers/projectHelper";
 import ProjectTranche from "../models/projectTranche";
 import UserRepository from "../repositories/userRepository";
+import { PostRequestApprove } from "../requests/faceRequest/postRequestApprove";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -156,6 +157,26 @@ class FaceRequestController {
                 users: users
             }
             return ApiController.success(responseData, res);
+
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static approve = async (req: PostRequestApprove, res: Response, next: NextFunction) => {
+        try {
+            const project = req.project;
+            const tranche = req.tranche;
+            const faceRequest = req.faceRequest;
+            const activities = req.activities;
+
+            
+
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

@@ -14,6 +14,8 @@ import BadPermissions from '../../exceptions/badPermissions';
 import FaceRequest from '../../models/faceRequest';
 import Role from '../../models/role';
 import ProjectHasNoActiveTranche from '../../exceptions/project/projectHasNoActiveTranche';
+import ProjectRepository from '../../repositories/projectRepository';
+import RequestNotFound from '../../exceptions/project/requestNotFound';
 
 interface GetRequestActivitiesRequest extends Request
 {
@@ -57,7 +59,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             }
         }
         let faceRequest = null;
-        if (req.query.requestId === '') {
+        if (req.query.requestId === '' || req.query.requestId === null) {
             // IF NEW REQUEST
             // check project status
             if (project.statusId !== Project.IN_PROGRESS_STATUS_ID) {
@@ -91,6 +93,11 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             });
             if (faceRequest === null) {
                 throw new Error('Face request not found');
+            }
+            // get project id for request
+            const projectIdByRequest = await ProjectRepository.getPartnerIdByTrancheId(faceRequest.trancheId);
+            if (projectIdByRequest !== project.id) {
+                throw new RequestNotFound();
             }
             req.faceRequest = faceRequest;
         }
