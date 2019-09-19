@@ -25,6 +25,7 @@ class FaceRequestHelper {
         requestData.from = new Date(data.dateFrom);
         requestData.to = new Date(data.dateTo);
         requestData.typeId = data.type;
+        requestData.isCertify = data.isCertify;
 
         return requestData;
     }
