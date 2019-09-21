@@ -11,6 +11,7 @@ import checkAuthToken from "../middlewares/checkAuthToken";
 import UserController from "../controllers/userController";
 import BlockchainController from "../controllers/blockchainController";
 import PageController from "../controllers/pageController";
+import checkAdminRole from "../middlewares/checkAdminRole";
 
 const routes = Router();
 
@@ -30,5 +31,8 @@ routes.use("/project", project);
 routes.use("/request", request);
 routes.get("/page", PageController.getPage);
 routes.get("/page/list", checkAuthToken, PageController.getList);
+
+routes.post("/wallets/generate", checkAuthToken, BlockchainController.generateUsersWallets);
+routes.post("/digicus/deploy", [checkAuthToken, checkAdminRole], BlockchainController.deployDigicus);
 
 export default routes;

@@ -16,7 +16,7 @@ const postRequest = (req: Request, res: Response, next: NextFunction) => {
             typeId: Joi.number().min(1).max(3).required(),
             activities: Joi.object().keys({
                 id: Joi.allow(null).allow('').number(),
-                title: Joi.string().max(255).required(),
+                title: Joi.string().max(100).required(),
                 amountE: Joi.number().min(0).required()
             }).pattern(/./, Joi.any()).required(),
         }).pattern(/./, Joi.any()),

@@ -176,6 +176,9 @@ class FaceRequestController {
             const activities = req.activities;
 
             
+            
+
+            
 
         } catch (error) {
             if (error instanceof HttpException) {

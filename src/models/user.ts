@@ -12,6 +12,7 @@ import Partner from "./partner";
 import event from "../services/event";
 import UserRegisteredRemotely from "../events/userRegisteredRemotely";
 import WalletHelper from "../helpers/walletHelper";
+import UserRepository from "../repositories/userRepository";
 
 class User extends Model {
     public id!: number;
@@ -191,6 +192,7 @@ class User extends Model {
         }
         
         let isUnicefRole = false;
+        console.log("USER ROLES", userRoles);
         userRoles.forEach((element) => {
             switch (element.roleId) {
                 case Role.unicefResponsibleId:
@@ -200,12 +202,13 @@ class User extends Model {
                     isUnicefRole = true;
             }
         })
-
+        console.log("IS UNICEFFF", isUnicefRole);
         return isUnicefRole;
     }
 
     public getWalletPhrase = async () => {
-        return await WalletHelper.getWallPhrase(this);
+        const userWallet = await UserRepository.findWalletById(this.id);
+        return await WalletHelper.getWallPhrase(userWallet, this);
     }
 }
 

@@ -1,8 +1,12 @@
 export default {
-    "NODE_ENV": "prod",
+    "NODE_ENV": "production",
     "PORT": 3000,
     "APP_PROTOCOL": "http://",
     "APP_NAME": "kazapi.unicef.io",
+    "BC_NETWORK": "ropsten",
+    "INFURA_PROJECT_URL": "https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7",
+    "DEPLOY_SECRET": "gu24Khdn5OIdbfy334ofg8dHD7sDCSJh7eew",
+    "DIGICUS_ADDRESS": "0x34e03064f017f9b5a903807a28e9aa72f41b8920",
     "DB_HOST": "postgres",
     "DB_USER": "blockchain",
     "DB_PASSWORD": "testuser",

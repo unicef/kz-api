@@ -1,7 +1,7 @@
 
-import config_dev from "../config/config_dev";
+import config_dev from "../config/config_development";
 import config_test from "../config/config_test";
-import config_prod from "../config/config_prod";
+import config_prod from "../config/config_production";
 
 class Config {
     private env: string;
