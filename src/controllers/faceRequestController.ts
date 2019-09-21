@@ -18,6 +18,9 @@ import ProjectHelper from "../helpers/projectHelper";
 import ProjectTranche from "../models/projectTranche";
 import UserRepository from "../repositories/userRepository";
 import { PostRequestApprove } from "../requests/faceRequest/postRequestApprove";
+import FaceRequestChain from "../models/faceRequestChain";
+import BadRole from "../exceptions/user/badRole";
+import iInputActivity from "../interfaces/faceRequest/iInputActivity";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -175,11 +178,66 @@ class FaceRequestController {
             const faceRequest = req.faceRequest;
             const activities = req.activities;
 
-            
+            console.log("PROJECT", typeof project);
+            console.log("Number", typeof 24);
+
+            // get approve chain
+            const requestChain = await FaceRequestChain.findOne({
+                where: {
+                    requestId: faceRequest.id
+                }
+            });
+            if (requestChain) {
+                switch (null) {
+                    case requestChain.confirmAt: {
+                        // check userID
+                        if (requestChain.confirmBy !== req.user.id) {
+                            throw new BadRole();
+                        }
+                        // foreach all activities
+                        let rejectRequest = false;
+                        let rejectedActivities: Array<iInputActivity>|[] = [];
+                        activities.forEach((activity) => {
+                            if (activity.isRejected) {
+                                rejectRequest = true;
+                                rejectedActivities.push(activity);
+                            }
+                        })
+                        if (rejectRequest) {
+                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                        } else {
+
+                        }
+                        return res.json("GOOD CHOISE");
+                    }
+                    break;
+                    case requestChain.validateAt: {
+                        return res.json("GOOD CHOISE2");
+                    }
+                    break;
+                    case requestChain.certifyAt: {
+                        return res.json("GOOD CHOISE3");
+                    }
+                    break;
+                    case requestChain.approveAt: {
+                        return res.json("GOOD CHOISE4");
+                    }
+                    break;
+                    case requestChain.verifyAt: {
+                        return res.json("GOOD CHOISE5");
+                    }
+                }
+            }
             
 
-            
 
+            return ApiController.success({
+                chain: requestChain,
+                project: project,
+                tranche: tranche,
+                faceRequest: faceRequest,
+                activities: activities
+            }, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);

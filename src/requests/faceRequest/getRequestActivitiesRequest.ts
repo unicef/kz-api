@@ -95,8 +95,8 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
                 throw new Error('Face request not found');
             }
             // get project id for request
-            const projectIdByRequest = await ProjectRepository.getPartnerIdByTrancheId(faceRequest.trancheId);
-            if (projectIdByRequest !== project.id) {
+            const partnerIdByTranche = await ProjectRepository.getPartnerIdByTrancheId(faceRequest.trancheId);
+            if (partnerIdByTranche !== project.partnerId) {
                 throw new RequestNotFound();
             }
             req.faceRequest = faceRequest;

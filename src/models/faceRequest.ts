@@ -3,6 +3,7 @@ import sequelize from "../services/sequelize"
 import User from "./user";
 import Role from "./role";
 import ProjectRepository from "../repositories/projectRepository";
+import ProjectTranche from "./projectTranche";
 
 class FaceRequest extends Model {
     static WAITING_STATUS_KEY = 'waiting';
@@ -24,8 +25,8 @@ class FaceRequest extends Model {
     public isCertify!: boolean;
     public isValid!: boolean;
     public isAuthorised!: boolean;
-    public approvedAt!: Date;
-    public successedAt!: Date;
+    public approvedAt!: Date|null;
+    public successedAt!: Date|null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -47,6 +48,21 @@ class FaceRequest extends Model {
         }
     }
 
+    public getNum = async () => {
+        const trancheNum = await ProjectTranche.findOne({
+            where: {
+                id: this.trancheId
+            },
+            attributes: ['num']
+        });
+
+        if (trancheNum) {
+            return trancheNum.num;
+        } else {
+            return null;
+        }
+    }
+
     public async isMyStage (user: User) {
         let isMyStage = false;
         switch (this.statusId) {
@@ -64,6 +80,14 @@ class FaceRequest extends Model {
             break;
         }
         return isMyStage;
+    }
+
+    public reject = async () => {
+        this.statusId = FaceRequest.REJECT_STATUS_KEY;
+        this.isCertify = false;
+        this.isValid = false;
+        this.approvedAt = null;
+        return await this.save();
     }
 }
 

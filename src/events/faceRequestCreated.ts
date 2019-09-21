@@ -4,6 +4,7 @@ import Project from "../models/project";
 import FaceRequest from "../models/faceRequest";
 import Partner from "../models/partner";
 import createConfirmChainRow from "../listeners/faceRequest/createConfirmChainRow";
+import saveCreatedHistory from "../listeners/faceRequest/saveCreatedHistory";
 
 class FaceRequestCreated extends Event {
     public project: Project;
@@ -21,7 +22,7 @@ class FaceRequestCreated extends Event {
         // create request confirm chain data
         createConfirmChainRow,
         // save in history
-        
+        saveCreatedHistory
         // send email to authorised person
 
     ];

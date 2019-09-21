@@ -7,6 +7,7 @@ import Role from "../models/role";
 import { middleware as postRequest } from "../requests/faceRequest/postCreateRequest";
 import { middleware as getActivitiesRequest } from "../requests/faceRequest/getRequestActivitiesRequest";
 import { middleware as getRequest } from "../requests/faceRequest/getRequest";
+import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
 
 const router = Router();
 
@@ -14,7 +15,6 @@ const middleCheckAssistantRole = acceptRoles([
     Role.partnerAssistId
 ]);
 const middleCheckPartnerUnicefRole = acceptRoles([
-    Role.partnerAssistId,
     Role.partnerAuthorisedId,
     Role.unicefResponsibleId,
     Role.unicefBudgetId,
@@ -34,6 +34,6 @@ router.get("/activities", [checkAuthToken, getActivitiesRequest], FaceRequestCon
 router.post("/", [checkAuthToken, middleCheckAssistantRole, postRequest], FaceRequestController.create);
 router.get("/", [checkAuthToken, getRequest], FaceRequestController.getRequest);
 router.get("/users", [checkAuthToken, middleCheckUnicefUser], FaceRequestController.getNextStepUsers);
-//router.post("/approve", [checkAuthToken, middleCheckPartnerUnicefRole, postRequestApprove], FaceRequestController.approve)
+router.post("/approve", [checkAuthToken, middleCheckPartnerUnicefRole, postRequestApprove], FaceRequestController.approve)
 
 export default router;

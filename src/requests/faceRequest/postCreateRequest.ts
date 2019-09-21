@@ -36,7 +36,7 @@ const requestValidation = Joi.object().options({
             title: Joi.string().max(255).required(),
             amountE: Joi.number().min(0).required()
         }).pattern(/./, Joi.any()).required()),
-        isCertify: Joi.boolean().allow(true)
+        isCertify: Joi.boolean().allow(true).required()
     }).pattern(/./, Joi.any());
 
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {

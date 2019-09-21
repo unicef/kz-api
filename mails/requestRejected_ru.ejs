@@ -1,0 +1,15 @@
+<h1>Ваш запрос <%= faceRequest %> на проекте <%= project.titleRu %> был отклонен</h1>
+
+<p>
+    Ваш запрос на проекте <%= project.titleRu %> был отклонен пользователем <%= user.personalData.firstNameRu %> <%= user.personalData.lastNameRu %> на в системе <b>UNICEF SMART CONTRACT IP</b><br>
+    <b>Отклоненные активности: </b> 
+    <ul>
+        <% activities.forEach( activity => { %>
+            <li><b><%= activity.title %></b> по причине "<%= activity.rejectReason %>"</li>
+        <% }) %>
+    </ul>
+</p>
+
+<p>
+    <i>Вернитесь к проекту и внесите корректировки в запрос!</i>
+</p>

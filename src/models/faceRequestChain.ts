@@ -7,15 +7,27 @@ class FaceRequestChain extends Model {
     public createdBy!: number;
     public createdAt!: Date;
     public confirmBy!: number;
-    public confirmAt!: Date;
+    public confirmAt!: Date|null;
     public validateBy!: number;
-    public validateAt!: Date;
-    public certifyBy!: number;
-    public certifyAt!: Date;
-    public approveBy!: number;
-    public approveAt!: Date;
-    public verifyBy!: number;
-    public verifyAt!: Date;
+    public validateAt!: Date|null;
+    public certifyBy!: number|null;
+    public certifyAt!: Date|null;
+    public approveBy!: number|null;
+    public approveAt!: Date|null;
+    public verifyBy!: number|null;
+    public verifyAt!: Date|null;
+
+    public rejectRequest = async () => {
+        this.verifyBy = null;
+        this.approveAt = null;
+        this.approveBy = null;
+        this.certifyAt = null;
+        this.certifyBy = null;
+        this.validateAt = null;
+        this.confirmAt = null;
+
+        return await this.save();
+    }
 }
 
 FaceRequestChain.init(

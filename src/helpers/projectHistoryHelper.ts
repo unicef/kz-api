@@ -15,7 +15,8 @@ class ProjectHistoryHelper {
         'set_ip',
         'set_tranches',
         'add_link',
-        'create_face_request'
+        'create_face_request',
+        'reject_face_request'
     ];
 
     static CREATE_EVENT_KEY: string = 'create';
@@ -27,6 +28,7 @@ class ProjectHistoryHelper {
     static ADD_LINK_EVENT_KEY: string = 'add_link';
     static SET_TERMINATED_STATUS: string = 'terminated';
     static CREATE_REQUEST_KEY: string = 'create_face_request';
+    static REJECT_REQUEST_KEY: string = 'reject_face_request';
 
     static renderHistory = async (historyRows) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
@@ -94,6 +96,10 @@ class ProjectHistoryHelper {
                 break;
                 case ProjectHistoryHelper.CREATE_REQUEST_KEY: {
                     history.action = i18n.t('historyCreateRequest');
+                }
+                break;
+                case ProjectHistoryHelper.REJECT_REQUEST_KEY: {
+                    history.action = i18n.t('historyRejectRequest');
                 }
                 break;
             }

@@ -18,16 +18,36 @@ import FaceRequestHelper from '../../helpers/faceRequestHelper';
 import ProjectActivity from '../../models/projectActivity';
 import RequestNotFound from '../../exceptions/project/requestNotFound';
 import BadTrancheStatus from '../../exceptions/project/badTrancheStatus';
+import Role from '../../models/role';
+import ActivityRepository from '../../repositories/activityRepository';
+import iInputActivity from '../../interfaces/faceRequest/iInputActivity';
+import RequestBadStatus from '../../exceptions/project/requestBadStatus';
 
 interface PostRequestApprove extends Request
 {
     project: Project,
     tranche: ProjectTranche,
     faceRequest: FaceRequest,
-    activities: Array<ProjectActivity>
+    activities: Array<iInputActivity>
 }
 
-const requestValidation = Joi.object().options({
+const requestValidationAuthorised = Joi.object().options({
+        abortEarly: false,
+        language: LocalizationHelper.getValidationMessages()
+    }).keys({
+        requestId: Joi.number().min(1).required(),
+        activities: Joi.array().items(Joi.object().keys({
+            id: Joi.number().allow(null).allow(''),
+            title: Joi.string().max(255).required(),
+            amountE: Joi.number().min(0).required(),
+            amountF: Joi.number().min(0).allow(null),
+            amountG: Joi.number().min(0).allow(null),
+            isRejected: Joi.boolean().required(),
+            rejectReason: Joi.string().allow('').required()
+        }).pattern(/./, Joi.any()).required()),
+    }).pattern(/./, Joi.any());
+
+const requestValidationUnicef = Joi.object().options({
         abortEarly: false,
         language: LocalizationHelper.getValidationMessages()
     }).keys({
@@ -46,12 +66,22 @@ const requestValidation = Joi.object().options({
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {
     const req = expressRequest as PostRequestApprove;
     try {
-        requestValidation.validate(req.body, (err: any, value: any) => {
-            req.body = value;
-            if (err) {
-                throw new BadValidationException(400, 129, getValidationErrorMessage(err), 'Validation error');
-            }
-        })
+        if (req.user.hasRole(Role.partnerAuthorisedId)) {
+            requestValidationAuthorised.validate(req.body, (err: any, value: any) => {
+                req.body = value;
+                if (err) {
+                    throw new BadValidationException(400, 129, getValidationErrorMessage(err), 'Validation error');
+                }
+            })
+        } else {
+            requestValidationUnicef.validate(req.body, (err: any, value: any) => {
+                req.body = value;
+                if (err) {
+                    throw new BadValidationException(400, 129, getValidationErrorMessage(err), 'Validation error');
+                }
+            })
+        }
+        
         // CHECK Face Request
         const requestId = req.body.requestId;
         const faceRequest = await FaceRequest.findOne({
@@ -62,12 +92,12 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         if (faceRequest===null) {
             throw new RequestNotFound();
         }
-        // check user role + face request stage
-        switch (faceRequest.statusId) {
-            case FaceRequest.WAITING_STATUS_KEY: {
-
-            }
-            break;
+        // face request stage
+        const isReqWaiting = faceRequest.statusId == FaceRequest.WAITING_STATUS_KEY;
+        const isReqSuccess = faceRequest.statusId == FaceRequest.SUCCESS_STATUS_KEY;
+        const isReqReject = faceRequest.statusId == FaceRequest.REJECT_STATUS_KEY;
+        if (isReqWaiting || isReqSuccess || isReqReject) {
+            throw new RequestBadStatus();
         }
         // Check project tranche
         const tranche = await ProjectTranche.findOne({
@@ -98,7 +128,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         }
         
         // check activities
-        const activities: Array<{id: number|null; title: string; amountE: number; }> = req.body.activities;
+        const activities: Array<iInputActivity> = req.body.activities;
         if (activities.length < 1) {
             throw new BadValidationException(400, 119, i18n.t('emptyActivitiesArray'));
         }
@@ -108,16 +138,11 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             if (activity.id === null || activity.id === '') {
                 throw new BadValidationException(400, 119, i18n.t('notFoundActivity'));
             }
-            const projectActivity = await ProjectActivity.findOne({
-                where: {
-                    projectId: project.id,
-                    id: activity.id
-                }
-            })
+            const projectActivity = await ActivityRepository.findById(activity.id);
             if (projectActivity === null) {
                 throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
             }
-            req.activities.push(projectActivity);
+            req.activities.push(activity);
         }
         req.faceRequest = faceRequest;
         req.tranche = tranche;

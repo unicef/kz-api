@@ -1,5 +1,12 @@
 import FaceRequest from "../models/faceRequest";
 import Role from "../models/role";
+import iInputActivity from "../interfaces/faceRequest/iInputActivity";
+import FaceRequestChain from "../models/faceRequestChain";
+import event from "../services/event";
+import FaceRequestRejected from "../events/faceRequestRejected";
+import Project from "../models/project";
+import User from "../models/user";
+import FaceRequestActivity from "../models/faceRequestActivity";
 
 class FaceRequestHelper {
     static requestTypes = [
@@ -47,6 +54,21 @@ class FaceRequestHelper {
             break;
         }
         return isMyStage;
+    }
+
+    static rejectRequestProcess = async (user: User, faceRequest: FaceRequest, project: Project, rejectedActivities: Array<iInputActivity>, requestChain: FaceRequestChain) => {
+        // update activities in DB
+        rejectedActivities.forEach((activity: iInputActivity) => {
+            FaceRequestActivity.update({isRejected: true, rejectReason: activity.rejectReason}, {
+                where: {
+                    id: activity.id
+                }
+            })
+        });
+        const rejectRequest = await faceRequest.reject();
+        const rejectChain = await requestChain.rejectRequest();
+        
+        event(new FaceRequestRejected(user, faceRequest, project, rejectedActivities))
     }
 }
 

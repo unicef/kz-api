@@ -24,7 +24,7 @@ class ActivityRepository {
 
     static getByRequestId = async (requestId: number) => {
         const query = `SELECT 
-            pa."id" as "id", 
+            ra."id" as "id", 
             pa."title" as "title", 
             ra."amountE" as "amountE", 
             CASE WHEN ra."amountF" IS NULL THEN 0 ELSE ra."amountF" END AS "amountF", 
@@ -55,6 +55,28 @@ class ActivityRepository {
         });
 
         return total;
+    }
+
+    static findById = async (id: number) => {
+        const query = `SELECT 
+            ra."id" as "id", 
+            pa."title" as "title", 
+            ra."amountE" as "amountE", 
+            CASE WHEN ra."amountF" IS NULL THEN 0 ELSE ra."amountF" END AS "amountF", 
+            CASE WHEN ra."amountG" IS NULL THEN 0 ELSE ra."amountG" END AS "amountG",
+            ra."isRejected" as "isRejected",
+            CASE WHEN ra."rejectReason" IS NULL THEN \'\' ELSE ra."rejectReason" END AS "rejectReason" 
+            FROM project_activities "pa" 
+            LEFT JOIN request_activities "ra" ON pa."id" = ra."activityId" 
+            WHERE ra."id" = ${id}`;
+
+        const activity = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return activity;
     }
 }
 
