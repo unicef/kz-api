@@ -12,6 +12,7 @@ import Pagination from "../services/pagination";
 import ProjectRepository from "../repositories/projectRepository";
 import User from "../models/user";
 import Role from "../models/role";
+import FaceRequestChain from "../models/faceRequestChain";
 
 class ProjectHelper {
 
@@ -219,8 +220,45 @@ class ProjectHelper {
                 }
             }
             break;
+            case "reject" : {
+                if (project.assistantId && project.assistantId==user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
             case "confirm" : {
                 if (user.hasRole(Role.partnerAuthorisedId) && user.partnerId === project.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "validate" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        // chain = await FaceReportChain.findOne({
+                        //     where: {
+                        //         requestId: faceReport.id
+                        //     }
+                        // });
+                    }
+                }
+                if (chain && chain.validateBy == user.id) {
                     isMyStage = true;
                 }
             }

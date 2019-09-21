@@ -46,6 +46,7 @@ const requestValidationAuthorised = Joi.object().options({
             isRejected: Joi.boolean().required(),
             rejectReason: Joi.string().allow('').required()
         }).pattern(/./, Joi.any()).required()),
+        nextUser: Joi.number().min(1).allow(null).allow('').required()
     }).pattern(/./, Joi.any());
 
 const requestValidationUnicef = Joi.object().options({

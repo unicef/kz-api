@@ -11,26 +11,26 @@ class ProjectRepository {
     static findById = async (projectId: number) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
-        const query = `SELECT projects."id" as "id", projects."statusId" as "status", projects."titleEn" as "titleEn", `+
-        `projects."titleRu" as "titleRu", projects."type" as "type", projects."partnerId" as "partnerId", `+
-        `projects."type" || '_KAZ_' || date_part('year', CURRENT_DATE) || '_' || projects."id" as "projectCode", `+
-        `TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", projects."ice" as "ice", projects."usdRate" as "usdRate", `+
-        `projects."descriptionEn" as "descriptionEn", projects."descriptionRu" as "descriptionRu", `+
-        `TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", programmes."id" as "programme.id", programmes."title${LANG}" as "programme.title", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", `+
-        `programmes."code" as "programme.code", officer."userId" as "officer.id", `+
-        `officer."firstName${LANG}" || officer."lastName${LANG}" as "officer.name", `+
-        `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", `+
-        `sections."id" as "section.id", sections."title${LANG}" as "section.title" `+
-        `FROM projects `+
-        `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
-        `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" `+
-        `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" `+
-        `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" `+
-        `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" `+
-        `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
-        `LEFT JOIN sections ON sections."id"=projects."sectionId" `+
-        `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
-        `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
+        const query = `SELECT projects."id" as "id", projects."statusId" as "status", projects."titleEn" as "titleEn", ` +
+            `projects."titleRu" as "titleRu", projects."type" as "type", projects."partnerId" as "partnerId", ` +
+            `projects."type" || '_KAZ_' || date_part('year', CURRENT_DATE) || '_' || projects."id" as "projectCode", ` +
+            `TO_CHAR(projects."deadline", \'yyyy-mm-dd\') as "deadline", projects."ice" as "ice", projects."usdRate" as "usdRate", ` +
+            `projects."descriptionEn" as "descriptionEn", projects."descriptionRu" as "descriptionRu", ` +
+            `TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", programmes."id" as "programme.id", programmes."title${LANG}" as "programme.title", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", ` +
+            `programmes."code" as "programme.code", officer."userId" as "officer.id", ` +
+            `officer."firstName${LANG}" || officer."lastName${LANG}" as "officer.name", ` +
+            `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", ` +
+            `sections."id" as "section.id", sections."title${LANG}" as "section.title" ` +
+            `FROM projects ` +
+            `LEFT JOIN programmes ON programmes."id"=projects."programmeId" ` +
+            `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" ` +
+            `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" ` +
+            `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" ` +
+            `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" ` +
+            `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" ` +
+            `LEFT JOIN sections ON sections."id"=projects."sectionId" ` +
+            `LEFT JOIN partners ON partners."id"=projects."partnerId"` +
+            `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
@@ -55,7 +55,7 @@ class ProjectRepository {
                     nest: true,
                     plain: true
                 });
-                if (assist!==null) {
+                if (assist !== null) {
                     project.assistantName = assist.name;
                     project.assistantId = assist.id;
                 }
@@ -86,17 +86,17 @@ class ProjectRepository {
         ptype."projecttype" AS "stage.type", 
         CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", 
         0 as "totalPaid", `+
-        `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", `+
-        `officer."firstName${LANG}" || ' ' || officer."lastName${LANG}" as "officerName" `+
-        `FROM projects `+
-        `LEFT JOIN programmes ON programmes."id"=projects."programmeId" `+
-        `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" `+
-        `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" `+
-        `LEFT JOIN partners ON partners."id"=projects."partnerId"`+
-        `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" `+
-        `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" `+
-        `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" `+
-        `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
+            `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", ` +
+            `officer."firstName${LANG}" || ' ' || officer."lastName${LANG}" as "officerName" ` +
+            `FROM projects ` +
+            `LEFT JOIN programmes ON programmes."id"=projects."programmeId" ` +
+            `LEFT JOIN project_tranches pt ON pt."projectId"=projects."id" ` +
+            `LEFT JOIN get_project_stage_type(${projectId}) ptype ON ptype."projectid"=projects."id" ` +
+            `LEFT JOIN partners ON partners."id"=projects."partnerId"` +
+            `LEFT JOIN users_personal_data as officer ON officer."userId"=projects."officerId" ` +
+            `LEFT JOIN face_requests pfreq ON pfreq."trancheId"=pt."id" ` +
+            `LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" ` +
+            `WHERE projects."id" = ${projectId} AND ((pt."id" IS NULL OR pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}') OR (projects."statusId"='${Project.TERMINATION_STATUS_ID}' OR projects."statusId"='${Project.COMPLETED_STATUS_ID}')) LIMIT 1`;
 
         const project = await sequelize.query(query, {
             type: QueryTypes.SELECT,
@@ -120,7 +120,7 @@ class ProjectRepository {
                     nest: true,
                     plain: true
                 });
-                if (assist!==null) {
+                if (assist !== null) {
                     project.assistantName = assist.name;
                     project.assistantId = assist.id;
                 }
@@ -131,9 +131,9 @@ class ProjectRepository {
         }
 
         return project;
-    } 
+    }
 
-    static getAllList = async (searchPhrase: string|null, pagination: Pagination) => {
+    static getAllList = async (searchPhrase: string | null, pagination: Pagination) => {
         const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let searchInstanse = '';
         if (searchPhrase) {
@@ -141,7 +141,7 @@ class ProjectRepository {
             searchInstanse = ` WHERE p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%'`;
         }
 
-        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId"` + searchInstanse, {
+        const projectsQuery: Array<{ id: number }> | null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId"` + searchInstanse, {
             type: QueryTypes.SELECT
         });
 
@@ -157,11 +157,11 @@ class ProjectRepository {
 
         query = query + pagination.getLimitOffsetParam();
 
-        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
         return projects;
     }
 
-    static getListForPartner = async (partnerId: number, searchPhrase: string|null, pagination: Pagination) => {
+    static getListForPartner = async (partnerId: number, searchPhrase: string | null, pagination: Pagination) => {
         const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let searchInstanse = '';
         if (searchPhrase) {
@@ -169,7 +169,7 @@ class ProjectRepository {
             searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%')`;
         }
 
-        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId" WHERE p."statusId" = '${Project.IN_PROGRESS_STATUS_ID}' AND p."partnerId"=${partnerId}` + searchInstanse, {
+        const projectsQuery: Array<{ id: number }> | null = await sequelize.query(`SELECT p."id" as "id" FROM projects p JOIN users_personal_data o ON o."userId" = p."officerId" WHERE p."statusId" = '${Project.IN_PROGRESS_STATUS_ID}' AND p."partnerId"=${partnerId}` + searchInstanse, {
             type: QueryTypes.SELECT
         });
 
@@ -185,11 +185,11 @@ class ProjectRepository {
 
         query = query + pagination.getLimitOffsetParam();
 
-        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
         return projects;
     }
 
-    static getListForAssistant = async (assistantId: number, searchPhrase: string|null, pagination: Pagination) => {
+    static getListForAssistant = async (assistantId: number, searchPhrase: string | null, pagination: Pagination) => {
         const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
         let searchInstanse = '';
         if (searchPhrase) {
@@ -197,7 +197,7 @@ class ProjectRepository {
             searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%' OR pa."name${lang}" ILIKE '%${searchPhrase}%')`;
         }
 
-        const projectsQuery: Array<{id: number}>|null = await sequelize.query(`SELECT p."id" as "id" FROM projects p LEFT JOIN users_personal_data o ON o."userId" = p."officerId" LEFT JOIN partners pa ON pa."id" = p."partnerId" WHERE p."officerId"=${assistantId}` + searchInstanse, {
+        const projectsQuery: Array<{ id: number }> | null = await sequelize.query(`SELECT p."id" as "id" FROM projects p LEFT JOIN users_personal_data o ON o."userId" = p."officerId" LEFT JOIN partners pa ON pa."id" = p."partnerId" WHERE p."officerId"=${assistantId}` + searchInstanse, {
             type: QueryTypes.SELECT
         });
 
@@ -213,7 +213,7 @@ class ProjectRepository {
 
         query = query + pagination.getLimitOffsetParam();
 
-        const projects = await sequelize.query(query,{type: QueryTypes.SELECT});
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
         return projects;
     }
 
@@ -221,7 +221,7 @@ class ProjectRepository {
         const tracnheString = i18n.t('tranche');
         let query = `SELECT '${tracnheString}' || ' ' || pt."num" as "num", TO_CHAR(pt."from", 'yyyy-mm') as "from", TO_CHAR(pt."to", 'yyyy-mm') as "to", pt."amount" as "amount" FROM project_tranches "pt" WHERE pt."projectId"=${projectId} ORDER BY pt."num" ASC`;
 
-        const tranches = await sequelize.query(query,{type: QueryTypes.SELECT});
+        const tranches = await sequelize.query(query, { type: QueryTypes.SELECT });
         return tranches;
     }
 
@@ -236,11 +236,11 @@ class ProjectRepository {
 
         if (project) {
             return true;
-        } 
+        }
         return false;
     }
 
-    static findByPartnerId = async (partnerId: number): Promise<Array<object>|[]> => {
+    static findByPartnerId = async (partnerId: number): Promise<Array<object> | []> => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
 
         const query = `SELECT projects."id", projects."title${LANG}", projects."type", projects."programmeId", projects."deadline", projects."ice", projects."usdRate", projects."officerId", projects."sectionId", projects."description${LANG}" 
@@ -285,7 +285,47 @@ class ProjectRepository {
             return null;
         }
     }
-    
+
+    static getActiveRequestById = async (projectId: number) => {
+        const query = `SELECT 
+                fr.* 
+            FROM face_requests fr
+            LEFT JOIN project_tranches pt ON pt."id" = fr."trancheId"
+            WHERE pt."status"= ${ProjectTranche.IN_PROGRESS_STATUS_KEY} AND pt."projectId" = ${projectId}`;
+
+        const faceRequest = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (faceRequest) {
+            return faceRequest;
+        } else {
+            return null;
+        }
+    }
+
+    static getActiveReportById = async (projectId: number) => {
+        const query = `SELECT 
+                fr.* 
+            FROM face_reports fr
+            LEFT JOIN project_tranches pt ON pt."id" = fr."trancheId"
+            WHERE pt."status"= ${ProjectTranche.IN_PROGRESS_STATUS_KEY} AND pt."projectId" = ${projectId}`;
+
+        const faceReport = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (faceReport) {
+            return faceReport;
+        } else {
+            return null;
+        }
+    }
+
 }
 
 export default ProjectRepository;

@@ -10,6 +10,7 @@ import FaceRequestActivity from "../models/faceRequestActivity";
 import ProjectTranche from "../models/projectTranche";
 import ActivityRepository from "../repositories/activityRepository";
 import FaceRequestApproved from "../events/faceRequestApproved";
+import MultisignatureContract from "../services/multisignatureContract";
 
 class FaceRequestHelper {
     static requestTypes = [
@@ -40,7 +41,7 @@ class FaceRequestHelper {
         return requestData;
     }
 
-    static isMyStage = (faceRequest, user) => {
+    static isMyStage = async (faceRequest, user) => {
         let isMyStage = false;
         switch (faceRequest.statusId) {
             case FaceRequest.WAITING_STATUS_KEY: {
@@ -49,8 +50,27 @@ class FaceRequestHelper {
                 }
             }
                 break;
+
+            case FaceRequest.REJECT_STATUS_KEY: {
+                if (user.hasRole(Role.partnerAssistId) && faceRequest.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+                break;
             case FaceRequest.CONFIRM_STATUS_KEY: {
                 if (user.hasRole(Role.partnerAuthorisedId) && faceRequest.partnerId === user.partnerId) {
+                    isMyStage = true;
+                }
+            }
+                break;
+            case FaceRequest.VALIDATE_STATUS_KEY: {
+                // get faceRequest chain
+                const requestChain = await FaceRequestChain.findOne({
+                    where: {
+                        requestId: faceRequest.id
+                    }
+                });
+                if (requestChain && requestChain.validateBy == user.id) {
                     isMyStage = true;
                 }
             }
@@ -126,6 +146,20 @@ class FaceRequestHelper {
         requestChain.confirmAt = confirmedAt;
         await requestChain.save();
         event(new FaceRequestApproved(user, faceRequest, project));
+    }
+
+    static validateRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
+        MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
+        faceRequest.isFreeze = true;
+        // update status
+        faceRequest.statusId = FaceRequest.CERTIFY_STATUS_KEY;
+        faceRequest.save();
+        // set next user to chain
+        requestChain.certifyBy = nextUser.id;
+        requestChain.validateAt = new Date();
+        requestChain.save();
+
+        return true;
     }
 }
 

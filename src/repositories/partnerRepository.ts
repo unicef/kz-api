@@ -130,5 +130,23 @@ class PartnerRepository {
         });
         return partner;
     }
+
+    static getIdByRequestId = async (requestId: number) => {
+        const query = `SELECT p."partnerId"
+            FROM projects p
+            LEFT JOIN project_tranches pt ON pt."projectId" = p."id"
+            LEFT JOIN face_requests fr ON fr."trancheId" = pt."id"
+            WHERE fr."id" = ${requestId}`;
+
+        const partner = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+        if (partner) {
+            return partner.partnerId;
+        }
+        return null;
+    }
 }
 export default PartnerRepository;

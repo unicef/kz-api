@@ -26,6 +26,7 @@ class FaceRequestRepository {
         fr."isCertify" as "isCertify",
         fr."isValid" as "isValid",
         fr."isAuthorised" as "isAuthorised",
+        fr."isFreeze" as "isFreeze",
         TO_CHAR(fr."approvedAt", 'yyyy-mm-dd') as "approvedAt",
         TO_CHAR(fr."successedAt", 'yyyy-mm-dd') as "successedAt",
         TO_CHAR(fr."createdAt", 'yyyy-mm-dd') as "createdAt",

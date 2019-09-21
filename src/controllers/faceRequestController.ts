@@ -23,6 +23,10 @@ import BadRole from "../exceptions/user/badRole";
 import iInputActivity from "../interfaces/faceRequest/iInputActivity";
 import { PutUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
 import FaceRequestUpdated from "../events/faceRequestUpdated";
+import User from "../models/user";
+import BadValidationException from "../exceptions/badValidationException";
+import i18n from "i18next";
+import { type } from "os";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -211,7 +215,7 @@ class FaceRequestController {
         try { 
             const faceRequest = req.faceRequest;
             // get is my stage flag
-            const isMyStage = FaceRequestHelper.isMyStage(faceRequest, req.user);
+            const isMyStage = await FaceRequestHelper.isMyStage(faceRequest, req.user);
             return ApiController.success({request: faceRequest, isMyStage: isMyStage}, res);
         } catch (error) {
             if (error instanceof HttpException) {
@@ -280,7 +284,18 @@ class FaceRequestController {
                         if (rejectedActivities.length > 0) {
                             await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
                         } else {
-                            //await FaceRequestHelper.validateRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain);
+                            if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
+                                throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
+                            }
+                            const nextUser = await User.findOne({
+                                where: {
+                                    id: req.body.nextUser
+                                }
+                            });
+                            if (nextUser === null || !nextUser.isUnicefUser()) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
+                            await FaceRequestHelper.validateRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
                         }
                     }
                     break;

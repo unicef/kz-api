@@ -117,7 +117,7 @@ class PartnerHelper {
     /**
      * Get autorised person user from partner object
      */
-    static getPartnerAuthorised = async (partner: Partner): Promise<User|null> => {
+    static getPartnerAuthorised = async (partner: Partner|number): Promise<User|null> => {
         let partnerId = 0;
         if (typeof partner == 'number') {
             partnerId = partner

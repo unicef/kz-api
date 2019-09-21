@@ -4,6 +4,7 @@ import User from "./user";
 import Role from "./role";
 import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "./projectTranche";
+import FaceRequestHelper from "../helpers/faceRequestHelper";
 
 class FaceRequest extends Model {
     static WAITING_STATUS_KEY = 'waiting';
@@ -25,6 +26,7 @@ class FaceRequest extends Model {
     public isCertify!: boolean;
     public isValid!: boolean;
     public isAuthorised!: boolean;
+    public isFreeze!: boolean;
     public approvedAt!: Date|null;
     public successedAt!: Date|null;
     public readonly createdAt!: Date;
@@ -64,22 +66,8 @@ class FaceRequest extends Model {
     }
 
     public async isMyStage (user: User) {
-        let isMyStage = false;
-        switch (this.statusId) {
-            case FaceRequest.WAITING_STATUS_KEY : {
-                if (user.hasRole(Role.partnerAssistId) && this.partnerId === user.partnerId) {
-                    isMyStage = true;
-                }
-            }
-            break;
-            case FaceRequest.CONFIRM_STATUS_KEY : {
-                if (user.hasRole(Role.partnerAuthorisedId) && this.partnerId === user.partnerId) {
-                    isMyStage = true;
-                }
-            }
-            break;
-        }
-        return isMyStage;
+        await this.getPartnerId();
+        return await FaceRequestHelper.isMyStage(this, user);
     }
 
     public reject = async () => {
@@ -136,6 +124,11 @@ FaceRequest.init(
             defaultValue: false
         },
         isAuthorised: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        isFreeze: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false

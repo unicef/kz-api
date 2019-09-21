@@ -6,11 +6,13 @@ import express from "express";
 import i18next from "i18next";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
+import { CronJob } from "cron";
 import { init as SentryInit, Handlers as SentryHandlers } from "@sentry/node";
 import routes from "./routes";
 import Config from "./services/config";
 import Translation from './models/translation';
 import User from "./models/user";
+import Jobs from "./jobs";
 
 class App {
     public app: express.Application = express();
@@ -21,6 +23,8 @@ class App {
     }
 
     private config(): void{
+        // run cron job
+        const jobs = new Jobs();
         // Call midlewares
         this.app.use(cors({
             optionsSuccessStatus:200
