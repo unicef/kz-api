@@ -22,6 +22,7 @@ import Role from '../../models/role';
 import ActivityRepository from '../../repositories/activityRepository';
 import iInputActivity from '../../interfaces/faceRequest/iInputActivity';
 import RequestBadStatus from '../../exceptions/project/requestBadStatus';
+import FaceRequestActivity from '../../models/faceRequestActivity';
 
 interface PostRequestApprove extends Request
 {
@@ -35,7 +36,7 @@ const requestValidationAuthorised = Joi.object().options({
         abortEarly: false,
         language: LocalizationHelper.getValidationMessages()
     }).keys({
-        requestId: Joi.number().min(1).required(),
+        id: Joi.number().min(1).required(),
         activities: Joi.array().items(Joi.object().keys({
             id: Joi.number().allow(null).allow(''),
             title: Joi.string().max(255).required(),
@@ -51,7 +52,7 @@ const requestValidationUnicef = Joi.object().options({
         abortEarly: false,
         language: LocalizationHelper.getValidationMessages()
     }).keys({
-        requestId: Joi.number().min(1).required(),
+        id: Joi.number().min(1).required(),
         activities: Joi.array().items(Joi.object().keys({
             id: Joi.number().allow(null).allow(''),
             title: Joi.string().max(255).required(),
@@ -83,7 +84,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         }
         
         // CHECK Face Request
-        const requestId = req.body.requestId;
+        const requestId = req.body.id;
         const faceRequest = await FaceRequest.findOne({
             where: {
                 id: requestId
@@ -142,6 +143,8 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             if (projectActivity === null) {
                 throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
             }
+            // get activityId param
+            activity.activityId = projectActivity.activityId;
             req.activities.push(activity);
         }
         req.faceRequest = faceRequest;

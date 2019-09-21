@@ -11,23 +11,22 @@ import HttpException from '../../exceptions/httpException';
 import ProjectNotFound from '../../exceptions/project/projectNotFound';
 import BadProjectStatus from '../../exceptions/project/badProjectStatus';
 import BadPermissions from '../../exceptions/badPermissions';
-import FaceRequestRepository from '../../repositories/faceRequestRepository';
 import FaceRequest from '../../models/faceRequest';
-import TrancheHasRequest from '../../exceptions/project/trancheHasRequest';
-import FaceRequestHelper from '../../helpers/faceRequestHelper';
-import ProjectActivity from '../../models/projectActivity';
+import RequestNotFound from '../../exceptions/project/requestNotFound';
+import ActivityRepository from '../../repositories/activityRepository';
 
-interface PostCreateRequest extends Request
+interface PutUpdateRequest extends Request
 {
     project: Project,
-    tranche: ProjectTranche
+    tranche: ProjectTranche,
+    faceRequest: FaceRequest
 }
 
 const requestValidation = Joi.object().options({
         abortEarly: false,
         language: LocalizationHelper.getValidationMessages()
     }).keys({
-        projectId: Joi.number().required(),
+        id: Joi.number().required(),
         dateFrom: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
         dateTo: Joi.string().options({language: {string: {regex : {base: i18n.t('dateFormatValidation')}}}}).regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/).required(),
         type: Joi.number().min(1).max(3).required(),
@@ -36,20 +35,42 @@ const requestValidation = Joi.object().options({
             title: Joi.string().max(255).required(),
             amountE: Joi.number().min(0).required()
         }).pattern(/./, Joi.any()).required()),
-        isCertify: Joi.boolean().allow(true).required()
+        isCertify: Joi.allow(true).required()
     }).pattern(/./, Joi.any());
 
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {
-    const req = expressRequest as PostCreateRequest;
+    const req = expressRequest as PutUpdateRequest;
     try {
         requestValidation.validate(req.body, (err: any, value: any) => {
             req.body = value;
             if (err) {
                 throw new BadValidationException(400, 129, getValidationErrorMessage(err), 'Validation error');
             }
-        })
+        });
+        // Get face request
+        const faceRequest = await FaceRequest.findOne({
+            where: {
+                id: req.body.id
+            }
+        });
+        if (faceRequest === null) {
+            throw new RequestNotFound();
+        }
+        if (faceRequest.statusId !== FaceRequest.REJECT_STATUS_KEY) {
+            throw new BadPermissions();
+        }
+        // get project tranche
+        const projectTranche = await ProjectTranche.findOne({
+            where: {
+                id: faceRequest.trancheId
+            }
+        });
+        if (projectTranche === null || projectTranche.status !== ProjectTranche.IN_PROGRESS_STATUS_KEY) {
+            throw new BadProjectStatus();
+        }
+
         // CHECK PROJECT
-        const projectId = req.body.projectId;
+        const projectId = projectTranche.projectId;
         const project = await Project.findOne({
             where: { 
                 id: projectId
@@ -59,7 +80,6 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         if (project === null) {
             throw new ProjectNotFound();
         }
-        req.project = project;
         // check project status
         if (project.statusId !== Project.IN_PROGRESS_STATUS_ID) {
             throw new BadProjectStatus();
@@ -71,26 +91,6 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         if (project.deadline < new Date(req.body.dateTo)) {
             throw new BadValidationException(400,119, i18n.t('badToDate'));
         }
-        // get active project tranche
-        const activeTranche = await ProjectTranche.findOne({
-            where: {
-                projectId: project.id,
-                status: ProjectTranche.IN_PROGRESS_STATUS_KEY
-            }
-        });
-        if (activeTranche === null) {
-            throw new BadProjectStatus(400, 119, i18n.t('projectBadStatusError'), 'Project doesn\'t have in progress tranche');
-        }
-        req.tranche = activeTranche;
-        // get tranche request
-        const request = await FaceRequest.findOne({
-            where: {
-                trancheId: activeTranche.id
-            }
-        });
-        if (request) {
-            throw new TrancheHasRequest();
-        }
         // check activities
         const activities: Array<{id: number|null; title: string; amountE: number; }> = req.body.activities;
         if (activities.length < 1) {
@@ -100,17 +100,15 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             const activity = activities[i];
             if (activity.id!==null && activity.id != '') {
                 // get activity data
-                const projectActivity = await ProjectActivity.findOne({
-                    where: {
-                        projectId: project.id,
-                        id: activity.id
-                    }
-                })
+                const projectActivity = await ActivityRepository.findById(activity.id);
                 if (projectActivity === null) {
                     throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
                 }
             }
         }
+        req.project = project,
+        req.tranche = projectTranche;
+        req.faceRequest = faceRequest;
 
         next();
     } catch (error) {
@@ -123,4 +121,4 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
     }
 }
 
-export { PostCreateRequest, middleware };
+export { PutUpdateRequest, middleware };

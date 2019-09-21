@@ -60,6 +60,7 @@ class ActivityRepository {
     static findById = async (id: number) => {
         const query = `SELECT 
             ra."id" as "id", 
+            ra."activityId" as "activityId", 
             pa."title" as "title", 
             ra."amountE" as "amountE", 
             CASE WHEN ra."amountF" IS NULL THEN 0 ELSE ra."amountF" END AS "amountF", 
@@ -77,6 +78,20 @@ class ActivityRepository {
         });
 
         return activity;
+    }
+
+    static getActivitiesAmountDFromReport = async (projectId: number, trancheNum: number) => {
+        const query = `SELECT
+            ra."activityId" AS "activityId",
+            CASE WHEN ra."amountD" IS NULL THEN 0 ELSE ra."amountD" END
+        FROM report_activities ra
+        LEFT JOIN face_reports frep ON frep."id" = ra."reportId"
+        LEFT JOIN project_tranches pt ON pt."id" = frep."trancheId"
+        WHERE pt."projectId" = ${projectId} AND pt."num" = ${trancheNum}`;
+
+        const activities = await sequelize.query(query,{type: QueryTypes.SELECT});
+
+        return activities;
     }
 }
 

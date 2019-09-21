@@ -21,6 +21,8 @@ import { PostRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceRequestChain from "../models/faceRequestChain";
 import BadRole from "../exceptions/user/badRole";
 import iInputActivity from "../interfaces/faceRequest/iInputActivity";
+import { PutUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
+import FaceRequestUpdated from "../events/faceRequestUpdated";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -136,6 +138,75 @@ class FaceRequestController {
         }
     }
 
+    static update = async (req: PutUpdateRequest, res: Response, next: NextFunction) => {
+        try{
+            const project = req.project;
+            const tranche = req.tranche;
+            const faceRequest = req.faceRequest;
+
+            const faceRequestData = FaceRequestHelper.getRequestData(req.body);
+            const updateFaceRequest = await faceRequest.update(faceRequestData);
+
+            // working with activities
+            const activities = req.body.activities;
+            for (var i=0; i<activities.length; i++) {
+                const activity = activities[i];
+                if (activities[i].id === '' || activities[i].id === null) {
+                    // insert new activity
+                    const projectActivityData = {
+                        projectId: project.id,
+                        title: activity.title
+                    }
+                    const projectActivity = await ProjectActivity.create(projectActivityData);
+                    // set request activity
+                    await FaceRequestActivity.create({
+                        requestId: faceRequest.id,
+                        activityId: projectActivity.id,
+                        amountE: activity.amountE
+                    });
+                } else {
+                    const requestActivity = await FaceRequestActivity.findOne({
+                        where: {
+                            id: activity.id
+                        }
+                    });
+                    // get project activity object
+                    const projectActivity = await ProjectActivity.findOne({
+                        where: {
+                            id: requestActivity.activityId
+                        }
+                    });
+
+                    // updating process
+                    await requestActivity.update({
+                        amountE: activity.amountE,
+                        amountF: 0,
+                        amountG: 0,
+                        isRejected: false,
+                        rejectReason: null
+                    });
+                    await projectActivity.update({title: activity.title});
+                }   
+            }
+
+            faceRequest.statusId = FaceRequest.CONFIRM_STATUS_KEY;
+            await faceRequest.save();
+            event(new FaceRequestUpdated(req.user, faceRequest, project));
+
+            const responseData = {
+                message: i18n.t('faceRequestSuccessfullyEdited')
+            };
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
     static getRequest = async (req: GetRequest, res: Response, next: NextFunction) => {
         try { 
             const faceRequest = req.faceRequest;
@@ -178,9 +249,6 @@ class FaceRequestController {
             const faceRequest = req.faceRequest;
             const activities = req.activities;
 
-            console.log("PROJECT", typeof project);
-            console.log("Number", typeof 24);
-
             // get approve chain
             const requestChain = await FaceRequestChain.findOne({
                 where: {
@@ -191,28 +259,29 @@ class FaceRequestController {
                 switch (null) {
                     case requestChain.confirmAt: {
                         // check userID
-                        if (requestChain.confirmBy !== req.user.id) {
+                        if (requestChain.confirmBy !== req.user.id)
                             throw new BadRole();
-                        }
-                        // foreach all activities
-                        let rejectRequest = false;
-                        let rejectedActivities: Array<iInputActivity>|[] = [];
-                        activities.forEach((activity) => {
-                            if (activity.isRejected) {
-                                rejectRequest = true;
-                                rejectedActivities.push(activity);
-                            }
-                        })
-                        if (rejectRequest) {
+                        // checking rejected activities
+                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        if (rejectedActivities.length > 0) {
                             await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
                         } else {
-
+                            await FaceRequestHelper.confirmRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain);
                         }
-                        return res.json("GOOD CHOISE");
                     }
                     break;
                     case requestChain.validateAt: {
-                        return res.json("GOOD CHOISE2");
+                        // approve by project coordinator
+                        // check userID
+                        if (requestChain.validateBy !== req.user.id) 
+                            throw new BadRole();
+                        // checking rejected activities
+                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        if (rejectedActivities.length > 0) {
+                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                        } else {
+                            //await FaceRequestHelper.validateRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain);
+                        }
                     }
                     break;
                     case requestChain.certifyAt: {
@@ -232,11 +301,7 @@ class FaceRequestController {
 
 
             return ApiController.success({
-                chain: requestChain,
-                project: project,
-                tranche: tranche,
-                faceRequest: faceRequest,
-                activities: activities
+                message: i18n.t('successApprovingMessage')
             }, res);
         } catch (error) {
             if (error instanceof HttpException) {

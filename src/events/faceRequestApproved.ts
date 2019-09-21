@@ -2,11 +2,10 @@ import Event from "./event";
 import User from "../models/user";
 import Project from "../models/project";
 import FaceRequest from "../models/faceRequest";
-import createConfirmChainRow from "../listeners/faceRequest/createConfirmChainRow";
-import saveCreatedHistory from "../listeners/faceRequest/saveCreatedHistory";
 import sendRequestNeedsApproveEmail from "../listeners/faceRequest/sendRequestNeedsApproveEmail";
+import saveApprovedHistory from "../listeners/faceRequest/saveApprovedHistory";
 
-class FaceRequestCreated extends Event {
+class FaceRequestApproved extends Event {
     public project: Project;
     public user: User;
     public faceRequest: FaceRequest;
@@ -19,13 +18,11 @@ class FaceRequestCreated extends Event {
     }
 
     public listeners = [
-        // create request confirm chain data
-        createConfirmChainRow,
         // save in history
-        saveCreatedHistory,
-        // send email to authorised person
+        saveApprovedHistory,
+        // send reject email
         sendRequestNeedsApproveEmail
     ];
 }
 
-export default FaceRequestCreated;
+export default FaceRequestApproved;

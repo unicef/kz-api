@@ -30,8 +30,6 @@ class SaveRejectedHistory extends Listener {
             createdAt: new Date()
         }
 
-        console.log(historyData);
-
         const historyRecord = await HistoryRepository.create(historyData);
     }
 }
