@@ -47,6 +47,7 @@ class BlockchainHelper {
                 const authorised = await PartnerHelper.getPartnerAuthorised(partnerId);
                 const authWallet = await UserRepository.findWalletById(authorised.id);
                 let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
+                // get total amount F
                 let data = contract.methods.submitTransaction(authWallet.address, 300, dataString).encodeABI();
                 const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
 

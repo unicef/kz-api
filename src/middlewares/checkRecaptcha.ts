@@ -11,7 +11,7 @@ export const checkRecaptcha = (req: Request, res: Response, next: NextFunction) 
     const recaptcha = new RecaptchaV2(recaptchaSite, recaptchaSecret);
     try {
         recaptcha.verify(req, (error, data) => {
-            if (error && Config.get("NODE_ENV", "dev")!=="dev") {
+            if (error && Config.get("NODE_ENV", "development")!=="development") {
                 throw new BadRecaptchaException();
             }
             next();

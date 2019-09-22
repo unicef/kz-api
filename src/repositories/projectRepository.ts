@@ -291,7 +291,7 @@ class ProjectRepository {
                 fr.* 
             FROM face_requests fr
             LEFT JOIN project_tranches pt ON pt."id" = fr."trancheId"
-            WHERE pt."status"= ${ProjectTranche.IN_PROGRESS_STATUS_KEY} AND pt."projectId" = ${projectId}`;
+            WHERE pt."status"= '${ProjectTranche.IN_PROGRESS_STATUS_KEY}' AND pt."projectId" = ${projectId}`;
 
         const faceRequest = await sequelize.query(query, {
             type: QueryTypes.SELECT,
@@ -311,7 +311,7 @@ class ProjectRepository {
                 fr.* 
             FROM face_reports fr
             LEFT JOIN project_tranches pt ON pt."id" = fr."trancheId"
-            WHERE pt."status"= ${ProjectTranche.IN_PROGRESS_STATUS_KEY} AND pt."projectId" = ${projectId}`;
+            WHERE pt."status"= '${ProjectTranche.IN_PROGRESS_STATUS_KEY}' AND pt."projectId" = ${projectId}`;
 
         const faceReport = await sequelize.query(query, {
             type: QueryTypes.SELECT,
