@@ -2,7 +2,12 @@ import { CronJob } from "cron";
 import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
 import BlockchainHelper from "../helpers/blockchainHelper";
 import FaceRequest from "../models/faceRequest";
-import BlockchainController from "../controllers/blockchainController";
+import FaceRequestChain from "../models/faceRequestChain";
+import User from "../models/user";
+import ProjectRepository from "../repositories/projectRepository";
+import event from "../services/event";
+import FaceRequestApproved from "../events/faceRequestApproved";
+import Project from "../models/project";
 
 class Jobs {
     private jobs: Array<CronJob>|[] = [
@@ -18,6 +23,58 @@ class Jobs {
                         await FaceRequestContractRepository.setContractProperty(requestIds[i].requestId, 'contractAddress', contractAddress);
                         // send submit tranzaction web3 request
                         await BlockchainHelper.sendSubmitTransaction(contractAddress, requestIds[i].requestId);
+                    }
+                }
+            }
+        }),
+        new CronJob('*/30 * * * * *', async () => {
+            // get face request without contracts addresses
+            const requestIds = await FaceRequestContractRepository.getNotValidRequests();
+            if (requestIds.length > 0) {
+                for (var i=0; i<requestIds.length; i++) {
+                    const requestRow = requestIds[i];
+                    const transaction = requestRow.validateHash;
+                    const receipt = await BlockchainHelper.getTransactionReceipt(transaction);
+                    if (receipt && receipt.status) {
+                        // write validateReceipt (transaction block hash)
+                        const blockHash = receipt.blockHash;
+                        await FaceRequestContractRepository.setContractProperty(requestRow.requestId, 'validateReceipt', blockHash);
+                        // set is Freeze of request to false
+                        await FaceRequest.update({isFreeze: false}, {
+                            where: {
+                                id: requestRow.requestId
+                            }
+                        });
+                        // event request was validate
+                        const faceRequest = await FaceRequest.findOne({
+                            where: {
+                                id: requestRow.requestId
+                            }
+                        });
+                        faceRequest.update({isFreeze: false});
+                        const requestChain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: requestRow.requestId
+                            },
+                            attributes: ['id', 'validateAt', 'validateBy']
+                        });
+                        requestChain.update({validateAt: new Date()});
+                        const user = await User.findOne({
+                            where: {
+                                id: requestChain.validateBy
+                            },
+                            include: [
+                                User.associations.roles,
+                                User.associations.personalData
+                            ]
+                        });
+                        const projectId = await ProjectRepository.getProjectIdByRequestId(faceRequest.id);
+                        const project = await Project.findOne({
+                            where: {
+                                id: projectId
+                            }
+                        });
+                        event(new FaceRequestApproved(user, faceRequest, project));
                     }
                 }
             }

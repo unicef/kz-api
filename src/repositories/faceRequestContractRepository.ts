@@ -14,6 +14,16 @@ class FaceRequestContractRepository {
         return faceRequests;
     }
 
+    static getNotValidRequests = async () => {
+        const query = `SELECT "requestId", "validateHash" FROM request_contracts WHERE "validateHash" IS NOT NULL AND "validateReceipt" IS NULL`;
+
+        const faceRequests = await sequelize.query(query, {
+            type: QueryTypes.SELECT
+        });
+
+        return faceRequests;
+    }
+
     static setRequestContract = async (requestId: number, contractHash: string) => {
         // isset request row
         const query = `SELECT "requestId", "contractHash" FROM request_contracts WHERE "requestId"=${requestId}`;

@@ -10,6 +10,8 @@ import PartnerRepository from "../repositories/partnerRepository";
 import PartnerHelper from "./partnerHelper";
 import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
 import User from "../models/user";
+import FaceRequestRepository from "../repositories/faceRequestRepository";
+import ActivityRepository from "../repositories/activityRepository";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -48,13 +50,20 @@ class BlockchainHelper {
                 const authWallet = await UserRepository.findWalletById(authorised.id);
                 let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
                 // get total amount F
-                let data = contract.methods.submitTransaction(authWallet.address, 300, dataString).encodeABI();
-                const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
-
-                let result = await web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
-                    FaceRequestContractRepository.setContractProperty(requestId, 'validateHash', hash);
-                });
-                return result;
+                const requestAmount = await ActivityRepository.getTotalRequestAmounts(requestId);
+                if (requestAmount && requestAmount.totalF) {
+                    const transactionAmount = requestAmount.totalF*100;
+                    let data = contract.methods.submitTransaction(authWallet.address, transactionAmount, dataString).encodeABI();
+                    const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
+    
+                    let result = await web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
+                        FaceRequestContractRepository.setContractProperty(requestId, 'validateHash', hash);
+                    });
+                    return result;
+                } else {
+                    throw new Error(`Can't get request amountF for transaction`);
+                }
+                
             }
         }
     }
