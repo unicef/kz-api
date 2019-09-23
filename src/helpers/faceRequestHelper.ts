@@ -11,6 +11,10 @@ import ProjectTranche from "../models/projectTranche";
 import ActivityRepository from "../repositories/activityRepository";
 import FaceRequestApproved from "../events/faceRequestApproved";
 import MultisignatureContract from "../services/multisignatureContract";
+import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
+import BlockchainHelper from "./blockchainHelper";
+import UserRepository from "../repositories/userRepository";
+import { Sequelize } from "sequelize";
 
 class FaceRequestHelper {
     static requestTypes = [
@@ -43,6 +47,9 @@ class FaceRequestHelper {
 
     static isMyStage = async (faceRequest, user) => {
         let isMyStage = false;
+        if (faceRequest.isFreeze === true) {
+            return isMyStage;
+        }
         switch (faceRequest.statusId) {
             case FaceRequest.WAITING_STATUS_KEY: {
                 if (user.hasRole(Role.partnerAssistId) && faceRequest.partnerId === user.partnerId) {
@@ -75,6 +82,18 @@ class FaceRequestHelper {
                 }
             }
                 break;
+            case FaceRequest.CERTIFY_STATUS_KEY: {
+                // get faceRequest chain
+                const requestChain = await FaceRequestChain.findOne({
+                    where: {
+                        requestId: faceRequest.id
+                    }
+                });
+                if (requestChain && requestChain.certifyBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+                break;
         }
         return isMyStage;
     }
@@ -100,8 +119,12 @@ class FaceRequestHelper {
         });
         const rejectRequest = await faceRequest.reject();
         const rejectChain = await requestChain.rejectRequest();
-
-        // TODO : reject smart contract
+        // reject smart contract
+        // get request contract object
+        const requestContract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
+        if (requestContract && requestContract.contractAddress) {
+            BlockchainHelper.rejectContract(requestContract.contractAddress, user);
+        }
 
         event(new FaceRequestRejected(user, faceRequest, project, rejectedActivities))
     }
@@ -148,6 +171,29 @@ class FaceRequestHelper {
         event(new FaceRequestApproved(user, faceRequest, project));
     }
 
+    static isNextUserAttachedtoChain = async (requestId: number, nextUserId: number) => {
+        const Op = Sequelize.Op;
+        const requestChain = await FaceRequestChain.findOne({
+            where: {
+                where: {
+                    requestId: requestId,
+                    [Op.or]: [
+                        {validateBy: nextUserId}, 
+                        {certifyBy: nextUserId},
+                        {approveBy: nextUserId},
+                        {verifyBy: nextUserId}
+                    ]
+                  }
+            }
+        });
+
+        if (requestChain) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static validateRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
         MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
         faceRequest.isFreeze = true;
@@ -157,6 +203,46 @@ class FaceRequestHelper {
         // set next user to chain
         requestChain.certifyBy = nextUser.id;
         requestChain.validateAt = new Date();
+        requestChain.save();
+
+        return true;
+    }
+
+    static certifyRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
+        // get request contract address
+        const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
+        if (contract === null || contract.contractAddress === null) {
+            throw new Error(`Request doesn't have contract address`);
+        }
+        const contractAddress = contract.contractAddress;
+        const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        faceRequest.isFreeze = true;
+        faceRequest.statusId = FaceRequest.APPROVE_STATUS_KEY;
+        faceRequest.save();
+        // set next user to chain
+        requestChain.approveBy = nextUser.id;
+        requestChain.certifyAt = new Date();
+        requestChain.save();
+
+        return true;
+    }
+
+    static approveRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
+        // get request contract address
+        const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
+        if (contract === null || contract.contractAddress === null) {
+            throw new Error(`Request doesn't have contract address`);
+        }
+        const contractAddress = contract.contractAddress;
+        const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        faceRequest.isFreeze = true;
+        faceRequest.statusId = FaceRequest.VERIFY_STATUS_KEY;
+        faceRequest.save();
+        // set next user to chain
+        requestChain.verifyBy = nextUser.id;
+        requestChain.approveAt = new Date();
         requestChain.save();
 
         return true;

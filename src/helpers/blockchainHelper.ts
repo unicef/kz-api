@@ -12,6 +12,7 @@ import FaceRequestContractRepository from "../repositories/faceRequestContractRe
 import User from "../models/user";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
 import ActivityRepository from "../repositories/activityRepository";
+import FaceRequest from "../models/faceRequest";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -65,6 +66,40 @@ class BlockchainHelper {
                 }
                 
             }
+        }
+    }
+
+    static rejectContract = async (contractAddress: string, user: User) => {
+        // get user wallet for rejecting
+        const userWallet = await UserRepository.findWalletById(user.id);
+        const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
+        let contract = new web3.eth.Contract(MultisignatureContract.ABI, contractAddress);
+        // method cancelfirmation from owner wallet address
+        if (userWallet) {
+            let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
+                let data = contract.methods.cancelfirmation().encodeABI();
+                const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
+                let result = web3.eth.sendSignedTransaction(serializedTx);
+                return result;
+        } else {
+            throw new Error(`User ${user.id} doesn't have wallet for rejecting cotract process`);
+        }
+    }
+
+    static confirmContract = async (contractAddress: string, faceRequestId: number, faceRequestStatus: string, user: User, nextUserWallet: string) => {
+        const userWallet = await UserRepository.findWalletById(user.id);
+        const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
+        let contract = new web3.eth.Contract(MultisignatureContract.ABI, contractAddress);
+        if (userWallet) {
+            let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
+                let data = contract.methods.confirmTransaction(0, nextUserWallet.address).encodeABI();
+                const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
+                let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
+                    FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
+                });
+                return result;
+        } else {
+            throw new Error(`User ${user.id} doesn't have wallet for confirm cotract process`);
         }
     }
 

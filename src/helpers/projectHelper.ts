@@ -239,7 +239,7 @@ class ProjectHelper {
                 if (type == 'request') {
                     // get faceRequestId
                     const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
-                    if (faceRequest) {
+                    if (faceRequest && faceRequest.isFreeze === false) {
                         // get request confirm chain
                         chain = await FaceRequestChain.findOne({
                             where: {
@@ -259,6 +259,37 @@ class ProjectHelper {
                     }
                 }
                 if (chain && chain.validateBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "certify" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest && faceRequest.isFreeze === false) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        // chain = await FaceReportChain.findOne({
+                        //     where: {
+                        //         requestId: faceReport.id
+                        //     }
+                        // });
+                    }
+                }
+                if (chain && chain.certifyBy == user.id) {
                     isMyStage = true;
                 }
             }

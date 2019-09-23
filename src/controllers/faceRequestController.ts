@@ -295,16 +295,73 @@ class FaceRequestController {
                             if (nextUser === null || !nextUser.isUnicefUser()) {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
+                            // check next user if previosly attached to chain
+                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            if (isUserOnChain) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
                             await FaceRequestHelper.validateRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
                         }
                     }
                     break;
                     case requestChain.certifyAt: {
-                        return res.json("GOOD CHOISE3");
+                        // approve by project coordinator
+                        // check userID
+                        if (requestChain.certifyBy !== req.user.id) 
+                            throw new BadRole();
+                        // checking rejected activities
+                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        if (rejectedActivities.length > 0) {
+                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                        } else {
+                            if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
+                                throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
+                            }
+                            const nextUser = await User.findOne({
+                                where: {
+                                    id: req.body.nextUser
+                                }
+                            });
+                            if (nextUser === null || !nextUser.isUnicefUser()) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
+                            // check next user if previosly attached to chain
+                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            if (isUserOnChain) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
+                            await FaceRequestHelper.certifyRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
+                        }
                     }
                     break;
                     case requestChain.approveAt: {
-                        return res.json("GOOD CHOISE4");
+                        // approve by project coordinator
+                        // check userID
+                        if (requestChain.approveBy !== req.user.id) 
+                            throw new BadRole();
+                        // checking rejected activities
+                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        if (rejectedActivities.length > 0) {
+                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                        } else {
+                            if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
+                                throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
+                            }
+                            const nextUser = await User.findOne({
+                                where: {
+                                    id: req.body.nextUser
+                                }
+                            });
+                            if (nextUser === null || !nextUser.isUnicefUser()) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
+                            // check next user if previosly attached to chain
+                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            if (isUserOnChain) {
+                                throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
+                            }
+                            await FaceRequestHelper.approveRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
+                        }
                     }
                     break;
                     case requestChain.verifyAt: {
