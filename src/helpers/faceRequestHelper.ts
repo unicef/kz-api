@@ -94,6 +94,30 @@ class FaceRequestHelper {
                 }
             }
                 break;
+            case FaceRequest.APPROVE_STATUS_KEY: {
+                // get faceRequest chain
+                const requestChain = await FaceRequestChain.findOne({
+                    where: {
+                        requestId: faceRequest.id
+                    }
+                });
+                if (requestChain && requestChain.approveBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+                break;
+            case FaceRequest.VERIFY_STATUS_KEY: {
+                // get faceRequest chain
+                const requestChain = await FaceRequestChain.findOne({
+                    where: {
+                        requestId: faceRequest.id
+                    }
+                });
+                if (requestChain && requestChain.verifyBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+                break;
         }
         return isMyStage;
     }
