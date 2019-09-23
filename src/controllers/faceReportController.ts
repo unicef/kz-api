@@ -11,6 +11,11 @@ import FaceRequestRepository from "../repositories/faceRequestRepository";
 import { GetReportActivitiesRequest } from "../requests/faceReport/getReportActivitiesRequest";
 import ActivityRepository from "../repositories/activityRepository";
 import FaceReport from "../models/faceReport";
+import { PostCreateReport } from "../requests/faceReport/postCreateReport";
+import ProjectActivity from "../models/projectActivity";
+import FaceReportActivity from "../models/faceReportActivity";
+import event from "../services/event";
+import FaceReportCreated from "../events/faceReportCreated";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -76,9 +81,9 @@ class FaceReportController {
                 }
                 totalActivities = {
                     totalA: totalA,
-                    totalB: 0,
-                    totalC: 0,
-                    totalD: 0
+                    totalB: '0',
+                    totalC: '0',
+                    totalD: '0'
                 };
             } else {
                 // get request activities
@@ -101,60 +106,52 @@ class FaceReportController {
         }
     }
 
-    // static create = async (req: PostCreateRequest, res: Response, next: NextFunction) => {
-    //     try {
-    //         const project = req.project;
-    //         const tranche = req.tranche;
+    static create = async (req: PostCreateReport, res: Response, next: NextFunction) => {
+        try {
+            const project = req.project;
+            const tranche = req.tranche;
 
-    //         // prepare request data
-    //         const requestData = FaceRequestHelper.getRequestData(req.body);
-    //         const activities = req.body.activities;
+            // prepare report data
+            const reportData = FaceReportHelper.getReportData(req.body);
+            const activities = req.body.activities;
 
-    //         requestData.trancheId = tranche.id;
-    //         requestData.statusId = FaceRequest.CONFIRM_STATUS_KEY;
+            reportData.trancheId = tranche.id;
+            reportData.statusId = FaceRequest.CONFIRM_STATUS_KEY;
 
-    //         const request = await FaceRequest.create(requestData);
-    //         event(new FaceRequestCreated(req.user, request, project));
-    //         // working with activities
-    //         for (var i=0; i<activities.length; i++) {
-    //             const activity = activities[i];
-    //             let projectActivity = null;
-    //             if (activity.id == '' || activity.id == null) {
-    //                 // create new project activity
-    //                 const projectActivityData = {
-    //                     projectId: project.id,
-    //                     title: activity.title
-    //                 }
-    //                 projectActivity = await ProjectActivity.create(projectActivityData);
-    //             } else {
-    //                 // get exists activity
-    //                 projectActivity = await ProjectActivity.findOne({
-    //                     where: {
-    //                         id: activity.id
-    //                     }
-    //                 })
-    //             }
-    //             // set request activity
-    //             await FaceRequestActivity.create({
-    //                 requestId: request.id,
-    //                 activityId: projectActivity.id,
-    //                 amountE: activity.amountE
-    //             });
-    //         }
+            const report = await FaceReport.create(reportData);
+            // working with activities
+            for (var i=0; i<activities.length; i++) {
+                const activity = activities[i];
+                let projectActivity = null;
+                // get exists activity
+                projectActivity = await ProjectActivity.findOne({
+                    where: {
+                        id: activity.id
+                    }
+                })
+                // set report activity
+                await FaceReportActivity.create({
+                    reportId: report.id,
+                    activityId: projectActivity.id,
+                    amountA: activity.amountA,
+                    amountB: activity.amountB,
+                });
+            }
+            event(new FaceReportCreated(req.user, report, project));
 
-    //         const responseData = {
-    //             message: i18n.t('faceRequestCreatedSuccesfully')
-    //         }
-    //         return ApiController.success(responseData, res);
-    //     } catch (error) {
-    //         if (error instanceof HttpException) {
-    //             error.response(res);
-    //         } else {
-    //             ApiController.failed(500, error.message, res);
-    //         }
-    //         return;
-    //     }
-    // }
+            const responseData = {
+                message: i18n.t('faceReportCreatedSuccesfully')
+            }
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
     // static update = async (req: PutUpdateRequest, res: Response, next: NextFunction) => {
     //     try{

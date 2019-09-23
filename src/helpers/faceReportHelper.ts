@@ -96,7 +96,15 @@ class FaceReportHelper {
         return isMyStage;
     }
 
+    static getReportData = (data: any) => {
+        let reportData: any = {};
+        reportData.from = new Date(data.dateFrom);
+        reportData.to = new Date(data.dateTo);
+        reportData.typeId = data.type;
+        reportData.isCertify = data.isCertify;
     
+        return reportData;
+    }
 
 }
 
