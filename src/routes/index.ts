@@ -6,6 +6,7 @@ import partner from "./partner";
 import project from "./project";
 import admin from "./admin/admin";
 import request from "./faceRequest";
+import report from "./faceReport";
 import localizationService from "../services/localization";
 import checkAuthToken from "../middlewares/checkAuthToken";
 import UserController from "../controllers/userController";
@@ -29,6 +30,7 @@ routes.use("/file", file);
 routes.use("/partner", partner);
 routes.use("/project", project);
 routes.use("/request", request);
+routes.use("/report", report);
 routes.get("/page", PageController.getPage);
 routes.get("/page/list", checkAuthToken, PageController.getList);
 
