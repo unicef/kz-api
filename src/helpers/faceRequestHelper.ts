@@ -175,15 +175,13 @@ class FaceRequestHelper {
         const Op = Sequelize.Op;
         const requestChain = await FaceRequestChain.findOne({
             where: {
-                where: {
-                    requestId: requestId,
-                    [Op.or]: [
-                        {validateBy: nextUserId}, 
-                        {certifyBy: nextUserId},
-                        {approveBy: nextUserId},
-                        {verifyBy: nextUserId}
-                    ]
-                  }
+                requestId: requestId,
+                [Op.or]: [
+                    { validateBy: nextUserId },
+                    { certifyBy: nextUserId },
+                    { approveBy: nextUserId },
+                    { verifyBy: nextUserId }
+                ]
             }
         });
 
@@ -243,6 +241,27 @@ class FaceRequestHelper {
         // set next user to chain
         requestChain.verifyBy = nextUser.id;
         requestChain.approveAt = new Date();
+        requestChain.save();
+
+        return true;
+    }
+
+    static verifyRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain) => {
+        // get request contract address
+        const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
+        if (contract === null || contract.contractAddress === null) {
+            throw new Error(`Request doesn't have contract address`);
+        }
+        const contractAddress = contract.contractAddress;
+        const nextUserWallet = {
+            address: '0x0000000000000000000000000000000000000000'
+        }
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        faceRequest.isFreeze = true;
+        faceRequest.statusId = FaceRequest.SUCCESS_STATUS_KEY;
+        faceRequest.save();
+        // set verifyAt property
+        requestChain.verifyAt = new Date();
         requestChain.save();
 
         return true;
