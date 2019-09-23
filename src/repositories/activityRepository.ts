@@ -28,9 +28,9 @@ class ActivityRepository {
         pa."id" as "id",
         pa."title" as "title",
         MAX(ra."amountG") as "amountA",
-        0 AS "amountB",
-        0 AS "amountC",
-        0 AS "amountD",
+        '0' AS "amountB",
+        '0' AS "amountC",
+        '0' AS "amountD",
         false as "isRejected",
         '' AS "rejectReason"
         FROM request_activities "ra"
