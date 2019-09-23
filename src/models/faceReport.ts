@@ -29,6 +29,9 @@ class FaceReport extends Model {
     public isAuthorised!: boolean;
     public approvedAt!: Date|null;
     public successedAt!: Date|null;
+    public analyticalDocId!: number;
+    public financialDocId!: number;
+    public justificationDocId!: number|null;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -140,6 +143,19 @@ FaceReport.init(
         },
         successedAt: {
             type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null
+        },
+        analyticalDocId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        financialDocId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        justificationDocId: {
+            type: DataTypes.INTEGER,
             allowNull: true,
             defaultValue: null
         }

@@ -1,6 +1,9 @@
 import FaceReport from "../models/faceReport";
 import Role from "../models/role";
 import FaceReportChain from "../models/faceReportChain";
+import TmpFile from "../models/tmpFile";
+import FaceReportDocument from "../models/faceReportDocument";
+import TmpFileNotFound from "../exceptions/tmpFileNotFound";
 
 class FaceReportHelper {
     static readonly requestTypes = [
@@ -104,6 +107,41 @@ class FaceReportHelper {
         reportData.isCertify = data.isCertify;
     
         return reportData;
+    }
+
+    static uploadDoc = async (tmpId: string, docKey: string) => {
+        const tmpFile = await TmpFile.findByPk(tmpId);
+        if (tmpFile) {
+            const fileFoler = tmpFile.id.substring(0, 2);
+            const fullPathToSave = FaceReportDocument.documentsFolder + fileFoler;
+            tmpFile.copyTo(fullPathToSave, tmpFile.getFullFilename());
+            let documentTitle;
+            switch (docKey) {
+                case 'analytical': {
+                    documentTitle = 'Analytical report';
+                }
+                break;
+                case 'financial': {
+                    documentTitle = 'Financial report';
+                }
+                break;
+                case 'justification': {
+                    documentTitle = 'Justification document';
+                }
+            }
+            const reportDocument = await FaceReportDocument.create({
+                userId: tmpFile.userId,
+                title: documentTitle,
+                filename: tmpFile.getFullFilename(),
+                size: tmpFile.size,
+                hash: null
+            });
+
+            tmpFile.deleteFile();
+            return reportDocument;
+        } else {
+            throw new TmpFileNotFound();
+        }
     }
 
 }

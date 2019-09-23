@@ -38,7 +38,10 @@ const requestValidation = Joi.object().options({
             amountA: Joi.number().min(0).required(),
             amountB: Joi.number().min(0).required()
         }).pattern(/./, Joi.any()).required()),
-        isCertify: Joi.boolean().allow(true).required()
+        isCertify: Joi.boolean().allow(true).required(),
+        analyticalDocId: Joi.string().max(255).required(),
+        financialDocId: Joi.string().max(255).required(),
+        justificationDocId: Joi.string().max(255).allow(null).allow('')
     }).pattern(/./, Joi.any());
 
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {
@@ -107,20 +110,30 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         if (activities.length < 1) {
             throw new BadValidationException(400, 119, i18n.t('emptyActivitiesArray'));
         }
+        let totalA = 0;
+        let totalB = 0;
         for (var i=0; i < activities.length; i++) {
             const activity = activities[i];
-            if (activity.id!==null && activity.id != '') {
                 // get activity data
-                const projectActivity = await ProjectActivity.findOne({
-                    where: {
-                        projectId: project.id,
-                        id: activity.id
-                    }
-                })
-                if (projectActivity === null) {
-                    throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
+            const projectActivity = await ProjectActivity.findOne({
+                where: {
+                    projectId: project.id,
+                    id: activity.id
                 }
+            })
+            if (projectActivity === null) {
+                throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
             }
+            totalA = totalA + parseInt(activity.amountA);
+            totalB = totalB + parseInt(activity.amountB);
+        }
+        if ((totalA + totalA*0.2)<totalB) {
+            // it should be justification document
+            if (req.body.justificationDocId == null || req.body.justificationDocId == '') {
+                throw new BadValidationException(400, 119, i18n.t('justificationDocRequired'));
+            }
+        } else {
+            req.body.justificationDocId = null;
         }
 
         next();

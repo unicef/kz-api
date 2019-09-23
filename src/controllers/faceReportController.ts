@@ -117,6 +117,15 @@ class FaceReportController {
 
             reportData.trancheId = tranche.id;
             reportData.statusId = FaceRequest.CONFIRM_STATUS_KEY;
+            // working with docs
+            const financialDoc = await FaceReportHelper.uploadDoc(req.body.financialDocId, 'financial');
+            const analyticalDoc = await FaceReportHelper.uploadDoc(req.body.analyticalDocId, 'analytical');
+            reportData.financialDocId = financialDoc.id;
+            reportData.analyticalDocId = analyticalDoc.id;
+            if (req.body.justificationDocId) {
+                const justificationDoc = await FaceReportHelper.uploadDoc(req.body.justificationDocId, 'justification');
+                reportData.justificationDocId = justificationDoc.id;
+            }
 
             const report = await FaceReport.create(reportData);
             // working with activities
