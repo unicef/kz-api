@@ -5,7 +5,7 @@ import i18n from "i18next";
 import ProjectHelper from "../helpers/projectHelper";
 import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "../models/projectTranche";
-import FaceReportHelper from "../helpers/facereportHelper";
+import FaceReportHelper from "../helpers/faceReportHelper";
 import FaceRequest from "../models/faceRequest";
 
 class FaceReportController {
