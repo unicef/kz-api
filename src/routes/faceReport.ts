@@ -6,7 +6,7 @@ import checkAuthToken from "../middlewares/checkAuthToken";
 import Role from "../models/role";
 import { middleware as postRequest } from "../requests/faceRequest/postCreateRequest";
 import { middleware as putUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
-import { middleware as getActivitiesRequest } from "../requests/faceRequest/getRequestActivitiesRequest";
+import { middleware as getActivitiesReport } from "../requests/faceReport/getReportActivitiesRequest";
 import { middleware as getRequest } from "../requests/faceRequest/getRequest";
 import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceReportController from "../controllers/faceReportController";
@@ -32,5 +32,6 @@ const middleCheckUnicefUser = acceptRoles([
 ])
 
 router.get("/properties", [checkAuthToken], FaceReportController.getProperties);
+router.get("/activities", [checkAuthToken, getActivitiesReport], FaceReportController.getActivities);
 
 export default router;

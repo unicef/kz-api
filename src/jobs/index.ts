@@ -197,7 +197,7 @@ class Jobs {
                             await ProjectTransactionRepository.writeData(projectId, trancheId, faceRequest.id, transaction);
                             const blockHash = receipt.blockHash;
                             await FaceRequestContractRepository.setContractProperty(faceRequest.id, 'verifyReceipt', blockHash);
-                            faceRequest.update({isFreeze: false, successedAt: new Date()});
+                            faceRequest.update({isFreeze: false, successedAt: new Date(), isAuthorised: true});
                             const requestChain = await FaceRequestChain.findOne({
                                 where: {
                                     requestId: requestRow.requestId

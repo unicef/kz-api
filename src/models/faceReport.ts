@@ -6,7 +6,7 @@ import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "./projectTranche";
 import FaceRequestHelper from "../helpers/faceRequestHelper";
 
-class FaceRequest extends Model {
+class FaceReport extends Model {
     static WAITING_STATUS_KEY = 'waiting';
     static CONFIRM_STATUS_KEY = 'confirm';
     static VALIDATE_STATUS_KEY = 'validate';
@@ -27,7 +27,6 @@ class FaceRequest extends Model {
     public isCertify!: boolean;
     public isValid!: boolean;
     public isAuthorised!: boolean;
-    public isFreeze!: boolean;
     public approvedAt!: Date|null;
     public successedAt!: Date|null;
     public readonly createdAt!: Date;
@@ -37,7 +36,7 @@ class FaceRequest extends Model {
         if (this.projectId) {
             return this.projectId;
         } else {
-            this.projectId = await ProjectRepository.getProjectIdByRequestId(this.id);
+            this.projectId = await ProjectRepository.getProjectIdByReportId(this.id);
             return this.projectId;
         }
     }
@@ -80,7 +79,7 @@ class FaceRequest extends Model {
     }
 }
 
-FaceRequest.init(
+FaceReport.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -112,7 +111,7 @@ FaceRequest.init(
         statusId: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: FaceRequest.CONFIRM_STATUS_KEY
+            defaultValue: FaceReport.CONFIRM_STATUS_KEY
         },
         typeId: {
             type: DataTypes.NUMBER,
@@ -134,11 +133,6 @@ FaceRequest.init(
             allowNull: false,
             defaultValue: false
         },
-        isFreeze: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
         approvedAt: {
             type: DataTypes.DATE,
             allowNull: true,
@@ -151,11 +145,11 @@ FaceRequest.init(
         }
     },
     {
-        tableName: 'face_requests',
-        modelName: 'faceRequest',
+        tableName: 'face_reports',
+        modelName: 'faceReport',
         timestamps: true,
         sequelize: sequelize
     }
 )
 
-export default FaceRequest;
+export default FaceReport;

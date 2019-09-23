@@ -286,6 +286,22 @@ class ProjectRepository {
         }
     }
 
+    static getProjectIdByReportId = async (reportId: number) => {
+        const query = `SELECT pt."projectId" FROM project_tranches pt LEFT JOIN face_reports fr ON fr."trancheId" = pt."id" WHERE fr."id"= ${reportId}`;
+
+        const projectId = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (projectId) {
+            return projectId.projectId;
+        } else {
+            return null;
+        }
+    }
+
     static getActiveRequestById = async (projectId: number) => {
         const query = `SELECT 
                 fr.* 

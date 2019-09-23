@@ -7,6 +7,10 @@ import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "../models/projectTranche";
 import FaceReportHelper from "../helpers/faceReportHelper";
 import FaceRequest from "../models/faceRequest";
+import FaceRequestRepository from "../repositories/faceRequestRepository";
+import { GetReportActivitiesRequest } from "../requests/faceReport/getReportActivitiesRequest";
+import ActivityRepository from "../repositories/activityRepository";
+import FaceReport from "../models/faceReport";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,27 +24,22 @@ class FaceReportController {
 
             // get previous request
             const projectId = req.query.projectId;
+            
             const activeTranche = await ProjectTranche.findOne({
                 where: {
                     status: ProjectTranche.IN_PROGRESS_STATUS_KEY,
                     projectId: projectId
-                },
-                attributes: ['id']
+                }
             });
             let responseData = {
                 type: reportTypes
             };
             if (activeTranche) {
-                const faceRequest = await FaceRequest.findOne({
-                    where: {
-                        trancheId: activeTranche.id
-                    },
-                    attributes: [['from', 'dateFrom'], ['to', 'dateTo'], 'typeId']
-                })
-                if (faceRequest) {
+                const faceRequest = await FaceRequestRepository.findByTrancheId(activeTranche.id);
+                if (faceRequest && faceRequest.statusId === FaceRequest.SUCCESS_STATUS_KEY) {
                     responseData.dateFrom = faceRequest.dateFrom;
                     responseData.dateTo = faceRequest.dateTo;
-                    responseData.typeId = faceRequest.typeId;
+                    responseData.typeId = faceRequest.type;
                 }
             }
 
@@ -55,42 +54,52 @@ class FaceReportController {
         }
     }
 
-    // static getActivities = async (req: GetRequestActivitiesRequest, res: Response, next: NextFunction) => {
-    //     try {
-    //         const project = req.project;
-    //         const request = req.faceRequest;
-    //         let activities;
-    //         let totalActivities;
+    static getActivities = async (req: GetReportActivitiesRequest, res: Response, next: NextFunction) => {
+        try {
+            const project = req.project;
+            const report = req.faceReport;
+            const tranche = req.tranche;
+            let activities;
+            let totalActivities;
 
-    //         if (request==null) {
-    //             // get project activities 
-    //             activities = await ActivityRepository.getByProjectId(project.id);
-    //             totalActivities = {
-    //                 totalE: 0,
-    //                 totalF: 0,
-    //                 totalG: 0
-    //             };
-    //         } else {
-    //             // get request activities
-    //             activities = await ActivityRepository.getByRequestId(request.id);
-    //             totalActivities = await ActivityRepository.getTotalRequestAmounts(request.id);
-    //         }
-    //         const responseData = {
-    //             activities: activities,
-    //             total: totalActivities
-    //         }
+            if (report==null) {
+                // request
+                const request = await FaceRequestRepository.findByTrancheId(tranche.id);
+                // get project activities 
+                activities = await ActivityRepository.getReportActivitiesByRequestId(request.id);
+                let totalA = 0;
+                if (activities.length > 0) {
+                    // count TotalA
+                    activities.forEach((activity) => {
+                        totalA = totalA + parseInt(activity.amountA);
+                    })
+                }
+                totalActivities = {
+                    totalA: totalA,
+                    totalB: 0,
+                    totalC: 0,
+                    totalD: 0
+                };
+            } else {
+                // get request activities
+                activities = await ActivityRepository.getByReportId(report.id);
+                totalActivities = await ActivityRepository.getTotalReportAmounts(report.id);
+            }
+            const responseData = {
+                activities: activities,
+                total: totalActivities
+            }
 
-    //         return ApiController.success(responseData, res);
-
-    //     } catch (error) {
-    //         if (error instanceof HttpException) {
-    //             error.response(res);
-    //         } else {
-    //             ApiController.failed(500, error.message, res);
-    //         }
-    //         return;
-    //     }
-    // }
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
     // static create = async (req: PostCreateRequest, res: Response, next: NextFunction) => {
     //     try {
