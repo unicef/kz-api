@@ -1,11 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import i18n from "i18next";
 import ApiController from "./apiController";
 import HttpException from "../exceptions/httpException";
 import FaceRequestHelper from "../helpers/faceRequestHelper";
 import ActivityRepository from "../repositories/activityRepository";
-import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
-import Project from "../models/project";
 import { PostCreateRequest } from "../requests/faceRequest/postCreateRequest";
 import { GetRequestActivitiesRequest } from "../requests/faceRequest/getRequestActivitiesRequest";
 import FaceRequest from "../models/faceRequest";
@@ -14,19 +11,16 @@ import FaceRequestActivity from "../models/faceRequestActivity";
 import { GetRequest } from "../requests/faceRequest/getRequest";
 import event from "../services/event";
 import FaceRequestCreated from "../events/faceRequestCreated";
-import ProjectHelper from "../helpers/projectHelper";
-import ProjectTranche from "../models/projectTranche";
 import UserRepository from "../repositories/userRepository";
 import { PostRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceRequestChain from "../models/faceRequestChain";
 import BadRole from "../exceptions/user/badRole";
-import iInputActivity from "../interfaces/faceRequest/iInputActivity";
 import { PutUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
 import FaceRequestUpdated from "../events/faceRequestUpdated";
 import User from "../models/user";
 import BadValidationException from "../exceptions/badValidationException";
 import i18n from "i18next";
-import { type } from "os";
+import RequestBadStatus from "../exceptions/project/requestBadStatus";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -263,8 +257,12 @@ class FaceRequestController {
                 switch (null) {
                     case requestChain.confirmAt: {
                         // check userID
-                        if (requestChain.confirmBy !== req.user.id)
+                        if (requestChain.confirmBy !== req.user.id) {
                             throw new BadRole();
+                        }
+                        if (faceRequest.statusId !== FaceRequest.CONFIRM_STATUS_KEY) {
+                            throw new RequestBadStatus();
+                        }
                         // checking rejected activities
                         const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
@@ -277,8 +275,12 @@ class FaceRequestController {
                     case requestChain.validateAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.validateBy !== req.user.id) 
+                        if (requestChain.validateBy !== req.user.id) {
                             throw new BadRole();
+                        }
+                        if (faceRequest.statusId !== FaceRequest.VALIDATE_STATUS_KEY) {
+                            throw new RequestBadStatus();
+                        }
                         // checking rejected activities
                         const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
@@ -307,8 +309,12 @@ class FaceRequestController {
                     case requestChain.certifyAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.certifyBy !== req.user.id) 
+                        if (requestChain.certifyBy !== req.user.id) {
                             throw new BadRole();
+                        }
+                        if (faceRequest.statusId !== FaceRequest.CERTIFY_STATUS_KEY) {
+                            throw new RequestBadStatus();
+                        }
                         // checking rejected activities
                         const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
@@ -337,8 +343,12 @@ class FaceRequestController {
                     case requestChain.approveAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.approveBy !== req.user.id) 
+                        if (requestChain.approveBy !== req.user.id) {
                             throw new BadRole();
+                        }
+                        if (faceRequest.statusId !== FaceRequest.APPROVE_STATUS_KEY) {
+                            throw new RequestBadStatus();
+                        }
                         // checking rejected activities
                         const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
@@ -365,7 +375,22 @@ class FaceRequestController {
                     }
                     break;
                     case requestChain.verifyAt: {
-                        return res.json("GOOD CHOISE5");
+                        // approve by project coordinator
+                        // check userID
+                        if (requestChain.verifyBy !== req.user.id) {
+                            throw new BadRole();
+                        }
+                        if (faceRequest.statusId !== FaceRequest.VERIFY_STATUS_KEY) {
+                            throw new RequestBadStatus();
+                        }
+                        // checking rejected activities
+                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        if (rejectedActivities.length > 0) {
+                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                        } else {
+                            await FaceRequestHelper.verifyRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain);
+                        }
+                        
                     }
                 }
             }

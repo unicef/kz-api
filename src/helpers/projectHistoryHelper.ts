@@ -18,7 +18,8 @@ class ProjectHistoryHelper {
         'create_face_request',
         'reject_face_request',
         'update_face_request',
-        'approve_face_request'
+        'approve_face_request',
+        'done_face_request'
     ];
 
     static CREATE_EVENT_KEY: string = 'create';
@@ -33,6 +34,7 @@ class ProjectHistoryHelper {
     static REJECT_REQUEST_KEY: string = 'reject_face_request';
     static UPDATE_REQUEST_KEY: string = 'update_face_request';
     static APPROVE_REQUEST_KEY: string = 'approve_face_request';
+    static DONE_REQUEST_KEY: string = 'done_face_request';
 
     static renderHistory = async (historyRows) => {
         const LANG = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
@@ -112,6 +114,10 @@ class ProjectHistoryHelper {
                 break;
                 case ProjectHistoryHelper.APPROVE_REQUEST_KEY: {
                     history.action = i18n.t('historyApproveRequest');
+                }
+                break;
+                case ProjectHistoryHelper.DONE_REQUEST_KEY: {
+                    history.action = i18n.t('historyDoneRequest');
                 }
                 break;
             }

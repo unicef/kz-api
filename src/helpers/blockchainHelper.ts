@@ -19,7 +19,6 @@ class BlockchainHelper {
         try {
             const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
             const receipt = await web3.eth.getTransactionReceipt(transactionHash);
-            console.log("GOT RECEIPT", receipt);
             return receipt;
         } catch (error) {
             console.log(error);

@@ -8,9 +8,14 @@ import ProjectRepository from "../repositories/projectRepository";
 import event from "../services/event";
 import FaceRequestApproved from "../events/faceRequestApproved";
 import Project from "../models/project";
+import ProjectHelper from "../helpers/projectHelper";
+import PartnerHelper from "../helpers/partnerHelper";
+import ProjectTransactionRepository from "../repositories/projectTransactionRepository";
+import FaceRequestDone from "../events/faceRequestDone";
 
 class Jobs {
     private jobs: Array<CronJob>|[] = [
+        // CRON job for getting contract address
         new CronJob('*/30 * * * * *', async () => {
             // get face request without contracts addresses
             const requestIds = await FaceRequestContractRepository.getNotContractRequests();
@@ -27,8 +32,8 @@ class Jobs {
                 }
             }
         }),
+        // CRON job for getting VALID status transaction
         new CronJob('*/30 * * * * *', async () => {
-            // get face request without contracts addresses
             const requestIds = await FaceRequestContractRepository.getNotValidRequests();
             if (requestIds.length > 0) {
                 for (var i=0; i<requestIds.length; i++) {
@@ -74,8 +79,8 @@ class Jobs {
                 }
             }
         }),
+        // CRON job for getting CERTIFY status transaction
         new CronJob('*/30 * * * * *', async () => {
-            // get face request without contracts addresses
             const requestIds = await FaceRequestContractRepository.getNotCertiriedRequests();
             if (requestIds.length > 0) {
                 for (var i=0; i<requestIds.length; i++) {
@@ -121,8 +126,8 @@ class Jobs {
                 }
             }
         }),
+        // CRON job for getting APPROVE status transaction
         new CronJob('*/30 * * * * *', async () => {
-            // get face request without contracts addresses
             const requestIds = await FaceRequestContractRepository.getNotApprovedRequests();
             if (requestIds.length > 0) {
                 for (var i=0; i<requestIds.length; i++) {
@@ -164,6 +169,58 @@ class Jobs {
                             }
                         });
                         event(new FaceRequestApproved(user, faceRequest, project));
+                    }
+                }
+            }
+        }),
+        // CRON job for getting VERIFY status transaction + done face request
+        new CronJob('*/30 * * * * *', async () => {
+            // get face request without contracts addresses
+            const requestIds = await FaceRequestContractRepository.getNotVerifiedRequests();
+            if (requestIds.length > 0) {
+                for (var i=0; i<requestIds.length; i++) {
+                    const requestRow = requestIds[i];
+                    const transaction = requestRow.verifyHash;
+                    const receipt = await BlockchainHelper.getTransactionReceipt(transaction);
+                    if (receipt && receipt.status) {
+                        // get 
+                        const faceRequest = await FaceRequest.findOne({
+                            where: {
+                                id: requestRow.requestId
+                            }
+                        });
+                        if (faceRequest) {
+                            const trancheId = faceRequest.trancheId;
+                            const projectId = await ProjectRepository.getProjectIdByRequestId(faceRequest.id);
+                            const transaction = receipt.transactionHash;
+                            // insert to request transactions
+                            await ProjectTransactionRepository.writeData(projectId, trancheId, faceRequest.id, transaction);
+                            const blockHash = receipt.blockHash;
+                            await FaceRequestContractRepository.setContractProperty(faceRequest.id, 'verifyReceipt', blockHash);
+                            faceRequest.update({isFreeze: false, successedAt: new Date()});
+                            const requestChain = await FaceRequestChain.findOne({
+                                where: {
+                                    requestId: requestRow.requestId
+                                },
+                                attributes: ['id', 'verifyAt', 'verifyBy']
+                            });
+                            requestChain.update({verifyAt: new Date()});
+                            const user = await User.findOne({
+                                where: {
+                                    id: requestChain.verifyBy
+                                },
+                                include: [
+                                    User.associations.roles,
+                                    User.associations.personalData
+                                ]
+                            });
+                            const project = await Project.findOne({
+                                where: {
+                                    id: projectId
+                                }
+                            });
+                            event(new FaceRequestDone(user, faceRequest, project));
+                        }
                     }
                 }
             }
