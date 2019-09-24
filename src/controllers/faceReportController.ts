@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import ApiController from "./apiController";
 import HttpException from "../exceptions/httpException";
 import i18n from "i18next";
+import fs from "fs";
+import mime from "mime-types";
 import ProjectHelper from "../helpers/projectHelper";
 import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "../models/projectTranche";
@@ -21,6 +23,7 @@ import { PutUpdateReport } from "../requests/faceReport/putUpdateReport";
 import FaceReportDocument from "../models/faceReportDocument";
 import FaceReportUpdated from "../events/faceReportUpdated";
 import { DeleteDocument } from "../requests/faceReport/deleteDocument";
+import { GetDocument } from "../requests/faceReport/getDocument";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -315,6 +318,37 @@ class FaceReportController {
             // get is my stage flag
             const isMyStage = await FaceReportHelper.isMyStage(faceReport, req.user);
             return ApiController.success({report: faceReport, isMyStage: isMyStage}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static getDocument = async (req: GetDocument, res: Response, next: NextFunction) => {
+        try { 
+            const reportDoc = req.faceReportDocument;
+            
+            const filePath = reportDoc.getFilePath();
+            const fileBuffer = fs.readFileSync(filePath);
+
+            const base64 = Buffer.from(fileBuffer).toString('base64');
+            const contentType = mime.contentType(reportDoc.getPublicFilename());
+            if (contentType) {
+                const responseData = {
+                        filename : reportDoc.getPublicFilename(),
+                        contentType: contentType,
+                        doc: base64
+                    };
+                ApiController.success(responseData, res);
+                return ;
+            } else {
+                ApiController.failed(500, 'document wasn\'t found', res);
+                return ;
+            }
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
