@@ -98,13 +98,14 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             throw new BadValidationException(400,119, i18n.t('badToDate'));
         }
         // check activities
-        const activities: Array<{id: number|null; title: string; amountE: number; }> = req.body.activities;
+        const activities: Array<{id: number|null; title: string; amountA: number; amountB: number; }> = req.body.activities;
         let totalA = 0;
         let totalB = 0;
         if (activities.length < 1) {
             throw new BadValidationException(400, 119, i18n.t('emptyActivitiesArray'));
         }
         for (var i=0; i < activities.length; i++) {
+            const activity = activities[i];
             const projectActivity = await ActivityRepository.findReportActivityById(activity.id);
             if (projectActivity === null) {
                 throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
