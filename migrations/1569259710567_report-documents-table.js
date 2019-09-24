@@ -7,6 +7,10 @@ exports.up = (pgm) => {
             type: "integer", 
             notNull: true
         },
+        title: {
+            type: "varchar(1000)", 
+            notNull: true
+        },
         filename: {
             type: "varchar(255)", 
             notNull: true
@@ -51,4 +55,5 @@ exports.up = (pgm) => {
 
 exports.down = (pgm) => {
     pgm.dropTable("report_documents", {});
+    pgm.dropColumns("face_reports", ['analyticalDocId', 'financialDocId', 'justificationDocId']);
 };
