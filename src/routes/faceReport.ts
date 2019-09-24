@@ -52,5 +52,6 @@ router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUpl
 router.delete("/document", [checkAuthToken, middleCheckAssistantRole, deleteDocument], FaceReportController.deleteDoc);
 router.get("/document", [checkAuthToken, getDocument], FaceReportController.getDocument);
 router.get("/", [checkAuthToken, getReport], FaceReportController.getReport);
+router.get("/users", [checkAuthToken, middleCheckUnicefUser], FaceReportController.getNextStepUsers);
 
 export default router;

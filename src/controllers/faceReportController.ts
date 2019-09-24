@@ -24,6 +24,7 @@ import FaceReportDocument from "../models/faceReportDocument";
 import FaceReportUpdated from "../events/faceReportUpdated";
 import { DeleteDocument } from "../requests/faceReport/deleteDocument";
 import { GetDocument } from "../requests/faceReport/getDocument";
+import UserRepository from "../repositories/userRepository";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -359,24 +360,24 @@ class FaceReportController {
         }
     }
 
-    // static getNextStepUsers = async (req: GetRequest, res: Response, next: NextFunction) => {
-    //     try {
-    //         const users = await UserRepository.getForFaceList(req.user.id);
+    static getNextStepUsers = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const users = await UserRepository.getForFaceList(req.user.id);
 
-    //         const responseData = {
-    //             users: users
-    //         }
-    //         return ApiController.success(responseData, res);
+            const responseData = {
+                users: users
+            }
+            return ApiController.success(responseData, res);
 
-    //     } catch (error) {
-    //         if (error instanceof HttpException) {
-    //             error.response(res);
-    //         } else {
-    //             ApiController.failed(500, error.message, res);
-    //         }
-    //         return;
-    //     }
-    // }
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
     // static approve = async (req: PostRequestApprove, res: Response, next: NextFunction) => {
     //     try {
