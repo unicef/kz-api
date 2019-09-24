@@ -236,7 +236,8 @@ class ProjectController {
                 // get is last tranche flag
                 projectInfo.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(projectInfo.id);
             }
-            projectInfo.budgetLeft = await FaceRequestRepository.getSendedAmount(projectId);
+            const spendBudget = await FaceRequestRepository.getSendedAmount(projectId);
+            projectInfo.iceLeft = parseInt(projectInfo.ice) - spendBudget;
             
             const responseData = {
                 project: projectInfo
