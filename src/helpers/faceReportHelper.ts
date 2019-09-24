@@ -215,7 +215,7 @@ class FaceReportHelper {
         const Op = sequelize.Op;
         const reportChain = await FaceReportChain.findOne({
             where: {
-                requestId: reportId,
+                reportId: reportId,
                 [Op.or]: [
                     { validateBy: nextUserId },
                     { certifyBy: nextUserId },
