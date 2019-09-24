@@ -9,7 +9,7 @@ import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import { middleware as postReport } from "../requests/faceReport/postCreateReport";
 import { middleware as putUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
 import { middleware as getActivitiesReport } from "../requests/faceReport/getReportActivitiesRequest";
-import { middleware as getReport } from "../requests/faceReports/getReport";
+import { middleware as getReport } from "../requests/faceReport/getReport";
 import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceReportController from "../controllers/faceReportController";
 import FileController from "../controllers/fileController";
