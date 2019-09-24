@@ -579,6 +579,29 @@ class ProjectController {
             return;
         }
     }
+
+    static getFaces = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+
+            const faces = await ProjectRepository.getFaces(projectId);
+
+            faces.forEach((face, index) => {
+                if (face.requestId===null) {
+                    faces.splice(index);
+                }
+            });
+
+            return ApiController.success({faces: faces}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default ProjectController;
