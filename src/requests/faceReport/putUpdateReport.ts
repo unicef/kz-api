@@ -39,9 +39,9 @@ const requestValidation = Joi.object().options({
             amountB: Joi.number().min(0).required()
         }).pattern(/./, Joi.any()).required()),
         isCertify: Joi.allow(true).required(),
-        analyticalDocId: Joi.string().max(255).required(),
-        financialDocId: Joi.string().max(255).required(),
-        justificationDocId: Joi.string().max(255).allow(null).allow('')
+        analyticalDocId: Joi.alternatives().try(Joi.string().max(255), Joi.number()).required(),
+        financialDocId: Joi.alternatives().try(Joi.string().max(255), Joi.number()).required(),
+        justificationDocId: Joi.alternatives().try(Joi.string().max(255), Joi.number()).required().allow(null).allow('')
     }).pattern(/./, Joi.any());
 
 const middleware = async (expressRequest: Request, res: Response, next: NextFunction) => {
