@@ -16,6 +16,7 @@ import ProjectActivity from "../models/projectActivity";
 import FaceReportActivity from "../models/faceReportActivity";
 import event from "../services/event";
 import FaceReportCreated from "../events/faceReportCreated";
+import { GetReport } from "../requests/faceReport/getReport";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -231,21 +232,21 @@ class FaceReportController {
     //     }
     // }
 
-    // static getRequest = async (req: GetRequest, res: Response, next: NextFunction) => {
-    //     try { 
-    //         const faceRequest = req.faceRequest;
-    //         // get is my stage flag
-    //         const isMyStage = await FaceRequestHelper.isMyStage(faceRequest, req.user);
-    //         return ApiController.success({request: faceRequest, isMyStage: isMyStage}, res);
-    //     } catch (error) {
-    //         if (error instanceof HttpException) {
-    //             error.response(res);
-    //         } else {
-    //             ApiController.failed(500, error.message, res);
-    //         }
-    //         return;
-    //     }
-    // }
+    static getReport = async (req: GetReport, res: Response, next: NextFunction) => {
+        try { 
+            const faceReport = req.faceReport;
+            // get is my stage flag
+            const isMyStage = await FaceReportHelper.isMyStage(faceReport, req.user);
+            return ApiController.success({report: faceReport, isMyStage: isMyStage}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
     // static getNextStepUsers = async (req: GetRequest, res: Response, next: NextFunction) => {
     //     try {

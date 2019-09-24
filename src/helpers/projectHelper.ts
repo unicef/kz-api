@@ -13,6 +13,7 @@ import ProjectRepository from "../repositories/projectRepository";
 import User from "../models/user";
 import Role from "../models/role";
 import FaceRequestChain from "../models/faceRequestChain";
+import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
 
 class ProjectHelper {
 

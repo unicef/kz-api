@@ -9,7 +9,7 @@ import postDocumentUploading from "../requests/partner/postDocumentUploading";
 import { middleware as postReport } from "../requests/faceReport/postCreateReport";
 import { middleware as putUpdateRequest } from "../requests/faceRequest/putUpdateRequest";
 import { middleware as getActivitiesReport } from "../requests/faceReport/getReportActivitiesRequest";
-import { middleware as getRequest } from "../requests/faceRequest/getRequest";
+import { middleware as getReport } from "../requests/faceReports/getReport";
 import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceReportController from "../controllers/faceReportController";
 import FileController from "../controllers/fileController";
@@ -46,5 +46,6 @@ router.get("/properties", [checkAuthToken], FaceReportController.getProperties);
 router.get("/activities", [checkAuthToken, getActivitiesReport], FaceReportController.getActivities);
 router.post("/", [checkAuthToken, middleCheckAssistantRole, postReport], FaceReportController.create);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
+router.get("/", [checkAuthToken, getReport], FaceReportController.getReport);
 
 export default router;

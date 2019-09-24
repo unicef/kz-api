@@ -197,6 +197,9 @@ class ProjectController {
             project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);
             if (project.stage.type===null) {
                 project.stage={};
+            } else {
+                // get is last tranche flag
+                project.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(project.id);
             }
 
             return ApiController.success({ project: project }, res);
@@ -228,6 +231,9 @@ class ProjectController {
             projectInfo.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, projectInfo);
             if (projectInfo.stage.type===null) {
                 projectInfo.stage={};
+            } else {
+                // get is last tranche flag
+                project.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(project.id);
             }
             
             const responseData = {
