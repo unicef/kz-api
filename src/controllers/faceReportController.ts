@@ -17,6 +17,9 @@ import FaceReportActivity from "../models/faceReportActivity";
 import event from "../services/event";
 import FaceReportCreated from "../events/faceReportCreated";
 import { GetReport } from "../requests/faceReport/getReport";
+import { PutUpdateReport } from "../requests/faceReport/putUpdateReport";
+import FaceReportDocument from "../models/faceReportDocument";
+import FaceReportUpdated from "../events/faceReportUpdated";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -163,74 +166,101 @@ class FaceReportController {
         }
     }
 
-    // static update = async (req: PutUpdateRequest, res: Response, next: NextFunction) => {
-    //     try{
-    //         const project = req.project;
-    //         const tranche = req.tranche;
-    //         const faceRequest = req.faceRequest;
+    static update = async (req: PutUpdateReport, res: Response, next: NextFunction) => {
+        try{
+            const project = req.project;
+            const tranche = req.tranche;
+            const faceReport = req.faceReport;
 
-    //         const faceRequestData = FaceRequestHelper.getRequestData(req.body);
-    //         const updateFaceRequest = await faceRequest.update(faceRequestData);
+            const faceReportData = FaceReportHelper.getReportData(req.body);
+            // working with documents
+            if (faceReport.financialDocId !== req.body.financialDocId) {
+                // delete old doc
+                const oldFinDoc = await FaceReportDocument.findOne({
+                    where: {
+                        id: faceReport.financialDocId
+                    }
+                });
+                if (oldFinDoc) {
+                    await oldFinDoc.deleteFile();
+                }
+                const financialDoc = await FaceReportHelper.uploadDoc(req.body.financialDocId, 'financial');
+                faceReportData.financialDocId = financialDoc.id;
+            }
+            if (faceReport.analyticalDocId !== req.body.analyticalDocId) {
+                // delete old doc
+                const oldFinDoc = await FaceReportDocument.findOne({
+                    where: {
+                        id: faceReport.analyticalDocId
+                    }
+                });
+                if (oldFinDoc) {
+                    await oldFinDoc.deleteFile();
+                }
+                const analyticalDoc = await FaceReportHelper.uploadDoc(req.body.analyticalDocId, 'analytical');
+                faceReportData.analyticalDocId = analyticalDoc.id;
+            }
+            if (faceReport.justificationDocId !== req.body.justificationDocId) {
+                // delete old doc
+                const oldFinDoc = await FaceReportDocument.findOne({
+                    where: {
+                        id: faceReport.justificationDocId
+                    }
+                });
+                if (oldFinDoc) {
+                    await oldFinDoc.deleteFile();
+                }
+                if (req.body.justificationDocId) {
+                    const justificationDoc = await FaceReportHelper.uploadDoc(req.body.justificationDocId, 'justification');
+                    faceReportData.justificationDocId = justificationDoc.id;
+                }
+            }
 
-    //         // working with activities
-    //         const activities = req.body.activities;
-    //         for (var i=0; i<activities.length; i++) {
-    //             const activity = activities[i];
-    //             if (activities[i].id === '' || activities[i].id === null) {
-    //                 // insert new activity
-    //                 const projectActivityData = {
-    //                     projectId: project.id,
-    //                     title: activity.title
-    //                 }
-    //                 const projectActivity = await ProjectActivity.create(projectActivityData);
-    //                 // set request activity
-    //                 await FaceRequestActivity.create({
-    //                     requestId: faceRequest.id,
-    //                     activityId: projectActivity.id,
-    //                     amountE: activity.amountE
-    //                 });
-    //             } else {
-    //                 const requestActivity = await FaceRequestActivity.findOne({
-    //                     where: {
-    //                         id: activity.id
-    //                     }
-    //                 });
-    //                 // get project activity object
-    //                 const projectActivity = await ProjectActivity.findOne({
-    //                     where: {
-    //                         id: requestActivity.activityId
-    //                     }
-    //                 });
+            const updateFaceReport = await faceReport.update(faceReportData);
 
-    //                 // updating process
-    //                 await requestActivity.update({
-    //                     amountE: activity.amountE,
-    //                     amountF: 0,
-    //                     amountG: 0,
-    //                     isRejected: false,
-    //                     rejectReason: null
-    //                 });
-    //                 await projectActivity.update({title: activity.title});
-    //             }   
-    //         }
+            // working with activities
+            const activities = req.body.activities;
+            for (var i=0; i<activities.length; i++) {
+                const activity = activities[i];
+                const reportActivity = await FaceReportActivity.findOne({
+                    where: {
+                        id: activity.id
+                    }
+                });
+                // get project activity object
+                const projectActivity = await ProjectActivity.findOne({
+                    where: {
+                        id: reportActivity.activityId
+                    }
+                });
+                // updating process
+                await reportActivity.update({
+                    amountA: activity.amountA,
+                    amountB: activity.amountB,
+                    amountC: 0,
+                    amountD: 0,                        
+                    isRejected: false,
+                    rejectReason: null
+                });
+            }   
 
-    //         faceRequest.statusId = FaceRequest.CONFIRM_STATUS_KEY;
-    //         await faceRequest.save();
-    //         event(new FaceRequestUpdated(req.user, faceRequest, project));
+            faceReport.statusId = FaceReport.CONFIRM_STATUS_KEY;
+            await faceReport.save();
+            event(new FaceReportUpdated(req.user, faceReport, project));
 
-    //         const responseData = {
-    //             message: i18n.t('faceRequestSuccessfullyEdited')
-    //         };
-    //         return ApiController.success(responseData, res);
-    //     } catch (error) {
-    //         if (error instanceof HttpException) {
-    //             error.response(res);
-    //         } else {
-    //             ApiController.failed(500, error.message, res);
-    //         }
-    //         return;
-    //     }
-    // }
+            const responseData = {
+                message: i18n.t('faceReportSuccessfullyEdited')
+            };
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 
     static getReport = async (req: GetReport, res: Response, next: NextFunction) => {
         try { 

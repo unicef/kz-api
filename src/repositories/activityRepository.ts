@@ -140,6 +140,30 @@ class ActivityRepository {
         return activity;
     }
 
+    static findReportActivityById = async (id: number) => {
+        const query = `SELECT 
+            ra."id" as "id", 
+            ra."activityId" as "activityId", 
+            pa."title" as "title", 
+            ra."amountA" as "amountA", 
+            ra."amountB" as "amountB", 
+            CASE WHEN ra."amountC" IS NULL THEN 0 ELSE ra."amountC" END AS "amountC", 
+            CASE WHEN ra."amountD" IS NULL THEN 0 ELSE ra."amountD" END AS "amountD",
+            ra."isRejected" as "isRejected",
+            CASE WHEN ra."rejectReason" IS NULL THEN \'\' ELSE ra."rejectReason" END AS "rejectReason" 
+            FROM project_activities "pa" 
+            LEFT JOIN report_activities "ra" ON pa."id" = ra."activityId" 
+            WHERE ra."id" = ${id}`;
+
+        const activity = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return activity;
+    }
+
     static getActivitiesAmountDFromReport = async (projectId: number, trancheNum: number) => {
         const query = `SELECT
             ra."activityId" AS "activityId",
