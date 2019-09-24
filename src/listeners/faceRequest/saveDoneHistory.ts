@@ -4,7 +4,7 @@ import HistoryRepository from "../../repositories/historyRepository";
 import ActivityRepository from "../../repositories/activityRepository";
 import FaceRequestDone from "../../events/faceRequestDone";
 
-class SaveApprovedHistory extends Listener {
+class SaveDoneHistory extends Listener {
     public handle = async (event: FaceRequestDone) => {
         const user = event.user;
         const project = event.project;
@@ -30,4 +30,4 @@ class SaveApprovedHistory extends Listener {
     }
 }
 
-export default new SaveApprovedHistory();
+export default new SaveDoneHistory();

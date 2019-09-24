@@ -57,6 +57,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         }
 
         req.faceReport = report;
+        req.faceReportDocument = reportDocument;
         
         next();
     } catch (error) {

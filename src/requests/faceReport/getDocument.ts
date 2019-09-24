@@ -60,6 +60,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
                 throw new BadPermissions();
             }
         }
+        req.faceReportDocument = reportDocument;
         
         next();
     } catch (error) {

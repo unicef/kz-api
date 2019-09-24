@@ -29,6 +29,8 @@ import { PostReportApprove } from "../requests/faceReport/postReportApprove";
 import FaceReportChain from "../models/faceReportChain";
 import BadRole from "../exceptions/user/badRole";
 import ReportBadStatus from "../exceptions/project/reportBadStatus";
+import BadValidationException from "../exceptions/badValidationException";
+import User from "../models/user";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -276,6 +278,9 @@ class FaceReportController {
             const faceReport = req.faceReport;
             const reportDoc = req.faceReportDocument;
 
+            console.log("FACE REPORT", faceReport);
+            console.log("FACE REPORT DOCUMENT", reportDoc);
+
             // set to null doc id in report object
             switch (reportDoc.id) {
                 case faceReport.financialDocId: {
@@ -415,19 +420,19 @@ class FaceReportController {
                         }
                     }
                     break;
-                    case requestChain.validateAt: {
+                    case reportChain.validateAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.validateBy !== req.user.id) {
+                        if (reportChain.validateBy !== req.user.id) {
                             throw new BadRole();
                         }
-                        if (faceRequest.statusId !== FaceRequest.VALIDATE_STATUS_KEY) {
-                            throw new RequestBadStatus();
+                        if (faceReport.statusId !== FaceReport.VALIDATE_STATUS_KEY) {
+                            throw new ReportBadStatus();
                         }
                         // checking rejected activities
-                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        const rejectedActivities = await FaceReportHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
-                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                            await FaceReportHelper.rejectReportProcess(req.user, faceReport, project, rejectedActivities, reportChain); 
                         } else {
                             if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
                                 throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
@@ -441,27 +446,27 @@ class FaceReportController {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
                             // check next user if previosly attached to chain
-                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            const isUserOnChain = await FaceReportHelper.isNextUserAttachedtoChain(faceReport.id, nextUser.id);
                             if (isUserOnChain) {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
-                            await FaceRequestHelper.validateRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
+                            await FaceReportHelper.validateReportProcess(req.user, activities, faceReport, tranche, project, reportChain, nextUser);
                         }
                     }
                     break;
-                    case requestChain.certifyAt: {
+                    case reportChain.certifyAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.certifyBy !== req.user.id) {
+                        if (reportChain.certifyBy !== req.user.id) {
                             throw new BadRole();
                         }
-                        if (faceRequest.statusId !== FaceRequest.CERTIFY_STATUS_KEY) {
-                            throw new RequestBadStatus();
+                        if (faceReport.statusId !== FaceReport.CERTIFY_STATUS_KEY) {
+                            throw new ReportBadStatus();
                         }
                         // checking rejected activities
-                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        const rejectedActivities = await FaceReportHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
-                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                            await FaceReportHelper.rejectReportProcess(req.user, faceReport, project, rejectedActivities, reportChain); 
                         } else {
                             if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
                                 throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
@@ -475,27 +480,27 @@ class FaceReportController {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
                             // check next user if previosly attached to chain
-                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            const isUserOnChain = await FaceReportHelper.isNextUserAttachedtoChain(faceReport.id, nextUser.id);
                             if (isUserOnChain) {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
-                            await FaceRequestHelper.certifyRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
+                            await FaceReportHelper.certifyReportProcess(req.user, activities, faceReport, tranche, project, reportChain, nextUser);
                         }
                     }
                     break;
-                    case requestChain.approveAt: {
+                    case reportChain.approveAt: {
                         // approve by project coordinator
                         // check userID
-                        if (requestChain.approveBy !== req.user.id) {
+                        if (reportChain.approveBy !== req.user.id) {
                             throw new BadRole();
                         }
-                        if (faceRequest.statusId !== FaceRequest.APPROVE_STATUS_KEY) {
-                            throw new RequestBadStatus();
+                        if (faceReport.statusId !== FaceReport.APPROVE_STATUS_KEY) {
+                            throw new ReportBadStatus();
                         }
                         // checking rejected activities
-                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        const rejectedActivities = await FaceReportHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
-                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                            await FaceReportHelper.rejectReportProcess(req.user, faceReport, project, rejectedActivities, reportChain); 
                         } else {
                             if (req.body.nextUser === null || req.body.nextUser === '' || typeof req.body.nextUser == 'undefined') {
                                 throw new BadValidationException(400, 129, i18n.t('chooseNextApproveUserError'), 'Next user was not selected');
@@ -509,36 +514,33 @@ class FaceReportController {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
                             // check next user if previosly attached to chain
-                            const isUserOnChain = await FaceRequestHelper.isNextUserAttachedtoChain(faceRequest.id, nextUser.id);
+                            const isUserOnChain = await FaceReportHelper.isNextUserAttachedtoChain(faceReport.id, nextUser.id);
                             if (isUserOnChain) {
                                 throw new BadValidationException(400, 129, i18n.t('badNextApproveUserError'), 'Next user not correct');
                             }
-                            await FaceRequestHelper.approveRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain, nextUser);
+                            await FaceReportHelper.approveReportProcess(req.user, activities, faceReport, tranche, project, reportChain, nextUser);
                         }
                     }
                     break;
-                    case requestChain.verifyAt: {
-                        // approve by project coordinator
+                    case reportChain.verifyAt: {
                         // check userID
-                        if (requestChain.verifyBy !== req.user.id) {
+                        if (reportChain.verifyBy !== req.user.id) {
                             throw new BadRole();
                         }
-                        if (faceRequest.statusId !== FaceRequest.VERIFY_STATUS_KEY) {
-                            throw new RequestBadStatus();
+                        if (faceReport.statusId !== FaceReport.VERIFY_STATUS_KEY) {
+                            throw new ReportBadStatus();
                         }
                         // checking rejected activities
-                        const rejectedActivities = await FaceRequestHelper.checkRejectedActivities(activities);
+                        const rejectedActivities = await FaceReportHelper.checkRejectedActivities(activities);
                         if (rejectedActivities.length > 0) {
-                            await FaceRequestHelper.rejectRequestProcess(req.user, faceRequest, project, rejectedActivities, requestChain); 
+                            await FaceReportHelper.rejectReportProcess(req.user, faceReport, project, rejectedActivities, reportChain); 
                         } else {
-                            await FaceRequestHelper.verifyRequestProcess(req.user, activities, faceRequest, tranche, project, requestChain);
+                            await FaceReportHelper.verifyReportProcess(req.user, activities, faceReport, tranche, project, reportChain);
                         }
 
                     }
                 }
             }
-
-
 
             return ApiController.success({
                 message: i18n.t('successApprovingMessage')

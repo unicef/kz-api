@@ -13,6 +13,8 @@ import event from "../services/event";
 import FaceReportRejected from "../events/faceReportRejected";
 import ProjectTranche from "../models/projectTranche";
 import FaceReportApproved from "../events/faceReportApproved";
+import sequelize = require("sequelize");
+import FaceReportDone from "../events/faceReportDone";
 
 class FaceReportHelper {
     static readonly requestTypes = [
@@ -208,6 +210,102 @@ class FaceReportHelper {
         event(new FaceReportApproved(user, faceReport, project));
         return true;
     }
+
+    static isNextUserAttachedtoChain = async (reportId: number, nextUserId: number) => {
+        const Op = sequelize.Op;
+        const reportChain = await FaceReportChain.findOne({
+            where: {
+                requestId: reportId,
+                [Op.or]: [
+                    { validateBy: nextUserId },
+                    { certifyBy: nextUserId },
+                    { approveBy: nextUserId },
+                    { verifyBy: nextUserId }
+                ]
+            }
+        });
+
+        if (reportChain) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    static validateReportProcess = async (user: User, activities: Array<iInputReportActivity>, faceReport: FaceReport, tranche: ProjectTranche, project: Project, reportChain: FaceReportChain, nextUser: User) => {
+        // update status
+        faceReport.statusId = FaceReport.CERTIFY_STATUS_KEY;
+        faceReport.save();
+        // set next user to chain
+        reportChain.certifyBy = nextUser.id;
+        reportChain.validateAt = new Date();
+        reportChain.save();
+
+        event(new FaceReportApproved(user, faceReport, project));
+
+        return true;
+    }
+
+    static certifyReportProcess = async (user: User, activities: Array<iInputReportActivity>, faceReport: FaceReport, tranche: ProjectTranche, project: Project, reportChain: FaceReportChain, nextUser: User) => {
+        faceReport.statusId = FaceReport.APPROVE_STATUS_KEY;
+        faceReport.save();
+        // set next user to chain
+        reportChain.approveBy = nextUser.id;
+        reportChain.certifyAt = new Date();
+        reportChain.save();
+
+        event(new FaceReportApproved(user, faceReport, project));
+
+        return true;
+    }
+
+    static approveReportProcess = async (user: User, activities: Array<iInputReportActivity>, faceReport: FaceReport, tranche: ProjectTranche, project: Project, reportChain: FaceReportChain, nextUser: User) => {
+        faceReport.statusId = FaceReport.VERIFY_STATUS_KEY;
+        faceReport.save();
+        // set next user to chain
+        reportChain.verifyBy = nextUser.id;
+        reportChain.approveAt = new Date();
+        reportChain.save();
+
+        event(new FaceReportApproved(user, faceReport, project));
+
+        return true;
+    }
+
+    static verifyReportProcess = async (user: User, activities: Array<iInputReportActivity>, faceReport: FaceReport, tranche: ProjectTranche, project: Project, reportChain: FaceReportChain) => {
+        faceReport.statusId = FaceReport.SUCCESS_STATUS_KEY;
+        faceReport.successedAt = new Date();
+        faceReport.isAuthorised = true;
+        faceReport.save();
+        // set verifyAt property
+        reportChain.verifyAt = new Date();
+        reportChain.save();
+
+        event(new FaceReportDone(user, faceReport, project));
+
+        // project tranche DONE
+        tranche.status = ProjectTranche.DONE_STATUS_KEY;
+        tranche.save();
+
+        // next tranche IN PROGRESS
+        const nextTranche = await ProjectTranche.findOne({
+            where: {
+                projectId: project.id,
+                num: tranche.num + 1
+            }
+        });
+        if (nextTranche) {
+            nextTranche.status = ProjectTranche.IN_PROGRESS_STATUS_KEY;
+            nextTranche.save();
+        } else {
+            // project Done
+            project.statusId = Project.COMPLETED_STATUS_ID;
+            project.save();
+        }
+
+        return true;
+    }
+
 }
 
 export default FaceReportHelper
