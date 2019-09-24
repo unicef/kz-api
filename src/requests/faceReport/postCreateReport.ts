@@ -17,6 +17,7 @@ import TrancheHasRequest from '../../exceptions/project/trancheHasRequest';
 import FaceRequestHelper from '../../helpers/faceRequestHelper';
 import ProjectActivity from '../../models/projectActivity';
 import TrancheHasReport from '../../exceptions/project/trancheHasReport';
+import FaceReport from '../../models/faceReport';
 
 interface PostCreateReport extends Request
 {
