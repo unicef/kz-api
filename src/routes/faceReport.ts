@@ -10,6 +10,7 @@ import { middleware as postReport } from "../requests/faceReport/postCreateRepor
 import { middleware as putUpdateReport } from "../requests/faceReport/putUpdateReport";
 import { middleware as getActivitiesReport } from "../requests/faceReport/getReportActivitiesRequest";
 import { middleware as getReport } from "../requests/faceReport/getReport";
+import { middleware as deleteDocument } from "../requests/faceReport/deleteDocument";
 import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
 import FaceReportController from "../controllers/faceReportController";
 import FileController from "../controllers/fileController";
@@ -47,6 +48,7 @@ router.get("/activities", [checkAuthToken, getActivitiesReport], FaceReportContr
 router.post("/", [checkAuthToken, middleCheckAssistantRole, postReport], FaceReportController.create);
 router.put("/", [checkAuthToken, middleCheckAssistantRole, putUpdateReport], FaceReportController.update);
 router.post("/document", [checkAuthToken, upload.single('file'), postDocumentUploading], FileController.uploadingTemp);
+router.delete("/document", [checkAuthToken, middleCheckAssistantRole, deleteDocument], FaceReportController.deleteDoc);
 router.get("/", [checkAuthToken, getReport], FaceReportController.getReport);
 
 export default router;

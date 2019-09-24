@@ -20,6 +20,7 @@ import { GetReport } from "../requests/faceReport/getReport";
 import { PutUpdateReport } from "../requests/faceReport/putUpdateReport";
 import FaceReportDocument from "../models/faceReportDocument";
 import FaceReportUpdated from "../events/faceReportUpdated";
+import { DeleteDocument } from "../requests/faceReport/deleteDocument";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -252,6 +253,52 @@ class FaceReportController {
                 message: i18n.t('faceReportSuccessfullyEdited')
             };
             return ApiController.success(responseData, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
+    static deleteDoc = async (req: DeleteDocument, res: Response, next: NextFunction) => {
+        try{
+            const faceReport = req.faceReport;
+            const reportDoc = req.faceReportDocument;
+
+            // set to null doc id in report object
+            switch (reportDoc.id) {
+                case faceReport.financialDocId: {
+                    await FaceReport.update({financialDocId: 0}, {
+                        where: {
+                            id: faceReport.id
+                        }
+                    })
+                }
+                break;
+                case faceReport.analyticalDocId: {
+                    await FaceReport.update({analyticalDocId: 0}, {
+                        where: {
+                            id: faceReport.id
+                        }
+                    })
+                }
+                break;
+                case faceReport.justificationDocId: {
+                    await FaceReport.update({justificationDocId: null}, {
+                        where: {
+                            id: faceReport.id
+                        }
+                    })
+                }
+                break;
+            }
+
+            await reportDoc.deleteFile();
+
+            return ApiController.success({message: i18n.t('reportDocSuccessfullyDeleted')}, res);
         } catch (error) {
             if (error instanceof HttpException) {
                 error.response(res);
