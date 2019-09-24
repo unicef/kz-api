@@ -2,6 +2,7 @@ import { QueryTypes } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import ProjectTranche from "../models/projectTranche";
+import FaceRequest from "../models/faceRequest";
 
 class FaceRequestRepository {
 
@@ -45,6 +46,26 @@ class FaceRequestRepository {
         });
 
         return faceRequest;
+    }
+
+    static getSendedAmount = async (projectId: number) => {
+        const query = `SELECT
+        SUM(ra."amountF") as "sendedAmount"
+        FROM request_activities ra
+        LEFT JOIN face_requests fr ON fr."id"=ra."requestId"
+        LEFT JOIN project_tranches pt ON pt."id"=fr."trancheId"
+        WHERE pt."projectId"=${projectId} AND fr."statusId"='${FaceRequest.SUCCESS_STATUS_KEY}'`
+
+        const sendedAmount = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (sendedAmount.sendedAmount === null) {
+            return 0;
+        }
+        return parseInt(sendedAmount.sendedAmount);
     }
     
 }

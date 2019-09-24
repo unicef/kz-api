@@ -38,6 +38,7 @@ import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
 import Pagination from "../services/pagination";
 import BadPermissions from "../exceptions/badPermissions";
+import FaceRequestRepository from "../repositories/faceRequestRepository";
 
 class ProjectController {
 
@@ -235,6 +236,7 @@ class ProjectController {
                 // get is last tranche flag
                 projectInfo.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(projectInfo.id);
             }
+            projectInfo.budgetLeft = await FaceRequestRepository.getSendedAmount(projectId);
             
             const responseData = {
                 project: projectInfo
@@ -608,7 +610,6 @@ class ProjectController {
             const projectId = req.query.id;
             const reports = await ProjectRepository.getReports(projectId);
 
-            console.log(reports);
             reports.forEach((report, index) => {
                 if (report.analyticalDocId===null) {
                     reports.splice(index);
