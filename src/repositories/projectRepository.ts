@@ -217,6 +217,56 @@ class ProjectRepository {
         return projects;
     }
 
+    static getTempListForUnicef = async(userId: number, searchPhrase: string | null, pagination: Pagination) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` AND (p."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR o."firstName${lang}" ILIKE '%${searchPhrase}%' OR o."lastName${lang}" ILIKE '%${searchPhrase}%' OR pa."name${lang}" ILIKE '%${searchPhrase}%')`;
+        }
+
+        const projectsQuery: Array<{ id: number }> | null = await sequelize.query(
+            `SELECT 
+            p."id" as "id" 
+            FROM projects p 
+            LEFT JOIN project_tranches pt ON pt."projectId"=p."id"
+            LEFT JOIN face_requests freq ON freq."trancheId"=pt."id"
+            LEFT JOIN request_confirm_chains reqcc ON reqcc."requestId"=freq."id"
+            LEFT JOIN face_reports frep ON frep."trancheId"=pt."id"
+            LEFT JOIN report_confirm_chains repcc ON repcc."reportId"=frep."id"
+            LEFT JOIN users_personal_data o ON o."userId" = p."officerId" 
+            LEFT JOIN partners pa ON pa."id" = p."partnerId" 
+            WHERE 
+            pt."status"='${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
+            AND p."statusId"='${Project.IN_PROGRESS_STATUS_ID}'
+            AND ((reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL) 
+                OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL)
+                OR (reqcc."approveBy"=${userId} AND reqcc."approveAt" IS NULL)
+                OR (reqcc."verifyBy"=${userId} AND reqcc."verifyAt" IS NULL)
+                OR (repcc."validateBy"=${userId} AND repcc."validateAt" IS NULL) 
+                OR (repcc."certifyBy"=${userId} AND repcc."certifyAt" IS NULL)
+                OR (repcc."approveBy"=${userId} AND repcc."approveAt" IS NULL)
+                OR (repcc."verifyBy"=${userId} AND repcc."verifyAt" IS NULL))
+            ` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (projectsQuery == null || projectsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(projectsQuery.length);
+        let projectsIds = projectsQuery.map(a => a.id);
+
+        let query = `SELECT p."id" as "id", p."title${lang}" as "title", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", TO_CHAR(p."deadline", \'yyyy-mm-dd HH:MI\') as "deadline", p."statusId" as "status", pr."code" as "programmeCode", pr."title${lang}" as "programmeTitle", pa."name${lang}" as "partnerName", o."firstName${lang}" || ' ' || o."lastName${lang}" AS "assistName" FROM projects "p" LEFT JOIN partners AS pa ON pa."id" = p."partnerId" LEFT JOIN programmes AS pr ON pr."id" = p."programmeId" LEFT JOIN  users_personal_data o ON o."userId" = p."officerId" WHERE p."id" IN (${projectsIds.join(', ')}) ORDER BY p."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
+        return projects;
+    }
+
     static getTranches = async (projectId: number) => {
         const tracnheString = i18n.t('tranche');
         let query = `SELECT '${tracnheString}' || ' ' || pt."num" as "num", TO_CHAR(pt."from", 'yyyy-mm') as "from", TO_CHAR(pt."to", 'yyyy-mm') as "to", pt."amount" as "amount" FROM project_tranches "pt" WHERE pt."projectId"=${projectId} ORDER BY pt."num" ASC`;

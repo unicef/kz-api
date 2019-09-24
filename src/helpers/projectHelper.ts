@@ -114,6 +114,20 @@ class ProjectHelper {
         return returnData;
     }
 
+    static getMyTemporaryList = async (req: Request) => {
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const userId = req.user.id;
+        const projects = await ProjectRepository.getTempListForUnicef(userId, searchInstanse, pagination);
+
+        const returnData = {
+            projects: projects,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+        return returnData;
+    }
+
     static transferProjectDocument = async (tmpId: number, documentTitle: string, project: Project): Promise<ProjectDocument> => {
         const tmpFile = await TmpFile.findByPk(tmpId);
         if (tmpFile) {

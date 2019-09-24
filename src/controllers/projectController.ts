@@ -91,6 +91,8 @@ class ProjectController {
                 list = await ProjectHelper.getMyPartnerList(req);
             } else if (user.hasRole(Role.unicefResponsibleId)) {
                 list = await ProjectHelper.getMyAssistantList(req);
+            }else {
+                list = await ProjectHelper.getMyTemporaryList(req);
             }
 
             return ApiController.success(list, res);
