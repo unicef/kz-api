@@ -1,0 +1,15 @@
+<h1>Report <%= faceReport %> on project <%= project.titleEn %> was rejected</h1>
+
+<p>
+    Your report on project <%= project.titleEn %> was rejected by <%= user.personalData.firstNameEn %> <%= user.personalData.lastNameEn %> the portal <b>UNICEF SMART CONTRACT IP</b><br>
+    <b>Rejected activities: </b> 
+    <ul>
+        <% activities.forEach( activity => { %>
+            <li><b><%= activity.title %></b> with reason "<%= activity.rejectReason %>"</li>
+        <% }) %>
+    </ul>
+</p>
+
+<p>
+    <i>Go back to the project and make adjustments!</i>
+</p>

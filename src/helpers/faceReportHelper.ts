@@ -4,6 +4,15 @@ import FaceReportChain from "../models/faceReportChain";
 import TmpFile from "../models/tmpFile";
 import FaceReportDocument from "../models/faceReportDocument";
 import TmpFileNotFound from "../exceptions/tmpFileNotFound";
+import iInputActivity from "../interfaces/faceRequest/iInputActivity";
+import iInputReportActivity from "../interfaces/faceReport/iInputReportActivity";
+import Project from "../models/project";
+import User from "../models/user";
+import FaceReportActivity from "../models/faceReportActivity";
+import event from "../services/event";
+import FaceReportRejected from "../events/faceReportRejected";
+import ProjectTranche from "../models/projectTranche";
+import FaceReportApproved from "../events/faceReportApproved";
 
 class FaceReportHelper {
     static readonly requestTypes = [
@@ -144,6 +153,61 @@ class FaceReportHelper {
         }
     }
 
+    static checkRejectedActivities = async (activities: Array<iInputReportActivity>) => {
+        let rejectedActivities: Array<iInputReportActivity> | [] = [];
+        activities.forEach((activity) => {
+            if (activity.isRejected) {
+                rejectedActivities.push(activity);
+            }
+        })
+        return rejectedActivities;
+    }
+
+
+    static rejectReportProcess = async (user: User, faceReport: FaceReport, project: Project, rejectedActivities: Array<iInputReportActivity>, reportChain: FaceReportChain) => {
+        // update activities in DB
+        rejectedActivities.forEach((activity: iInputReportActivity) => {
+            FaceReportActivity.update({ isRejected: true, rejectReason: activity.rejectReason }, {
+                where: {
+                    id: activity.id
+                }
+            })
+        });
+        const rejectReport = await faceReport.reject();
+        const rejectChain = await reportChain.rejectReport();
+        event(new FaceReportRejected(user, faceReport, project, rejectedActivities))
+    }
+
+
+    static confirmReportProcess = async (user: User, activities: Array<iInputReportActivity>, faceReport: FaceReport, tranche: ProjectTranche, project: Project, reportChain: FaceReportChain) => {
+        // approve process
+        // count amountC & amountD
+        for (var i = 0; i < activities.length; i++) {
+            const activity = activities[i];
+            const amountC = activity.amountB;
+            const amountD = activity.amountA - amountC;
+            const activityUpdateData = {
+                amountC: amountC,
+                amountD: amountD
+            }
+            // update report Activity
+            const update = await FaceReportActivity.update(activityUpdateData, {
+                where: {
+                    id: activity.id
+                }
+            });
+        }
+        // set report statusId
+        const confirmedAt = new Date();
+        faceReport.statusId = FaceReport.VALIDATE_STATUS_KEY;
+        faceReport.approvedAt = confirmedAt;
+        faceReport.isValid = true;
+        await faceReport.save();
+        reportChain.confirmAt = confirmedAt;
+        await reportChain.save();
+        event(new FaceReportApproved(user, faceReport, project));
+        return true;
+    }
 }
 
 export default FaceReportHelper

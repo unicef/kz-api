@@ -12,7 +12,7 @@ import { middleware as getActivitiesReport } from "../requests/faceReport/getRep
 import { middleware as getReport } from "../requests/faceReport/getReport";
 import { middleware as deleteDocument } from "../requests/faceReport/deleteDocument";
 import { middleware as getDocument } from "../requests/faceReport/getDocument";
-import { middleware as postRequestApprove } from "../requests/faceRequest/postRequestApprove";
+import { middleware as postReportApprove } from "../requests/faceReport/postReportApprove";
 import FaceReportController from "../controllers/faceReportController";
 import FileController from "../controllers/fileController";
 
@@ -53,5 +53,7 @@ router.delete("/document", [checkAuthToken, middleCheckAssistantRole, deleteDocu
 router.get("/document", [checkAuthToken, getDocument], FaceReportController.getDocument);
 router.get("/", [checkAuthToken, getReport], FaceReportController.getReport);
 router.get("/users", [checkAuthToken, middleCheckUnicefUser], FaceReportController.getNextStepUsers);
+
+router.post("/approve", [checkAuthToken, middleCheckPartnerUnicefRole, postReportApprove], FaceReportController.approve);
 
 export default router;

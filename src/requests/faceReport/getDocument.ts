@@ -55,7 +55,8 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             throw new ReportNotFound();
         }
         if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
-            if (faceReport.getPartnerId() !== req.user.partnerId) {
+            const reportPartnerId = await faceReport.getPartnerId();
+            if (reportPartnerId !== req.user.partnerId) {
                 throw new BadPermissions();
             }
         }

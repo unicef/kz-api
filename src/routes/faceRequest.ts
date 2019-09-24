@@ -36,6 +36,6 @@ router.post("/", [checkAuthToken, middleCheckAssistantRole, postRequest], FaceRe
 router.put("/", [checkAuthToken, middleCheckAssistantRole, putUpdateRequest], FaceRequestController.update);
 router.get("/", [checkAuthToken, getRequest], FaceRequestController.getRequest);
 router.get("/users", [checkAuthToken, middleCheckUnicefUser], FaceRequestController.getNextStepUsers);
-router.post("/approve", [checkAuthToken, middleCheckPartnerUnicefRole, postRequestApprove], FaceRequestController.approve)
+router.post("/approve", [checkAuthToken, middleCheckPartnerUnicefRole, postRequestApprove], FaceRequestController.approve);
 
 export default router;

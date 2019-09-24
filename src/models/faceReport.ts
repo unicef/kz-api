@@ -74,7 +74,7 @@ class FaceReport extends Model {
     }
 
     public reject = async () => {
-        this.statusId = FaceRequest.REJECT_STATUS_KEY;
+        this.statusId = FaceReport.REJECT_STATUS_KEY;
         this.isCertify = false;
         this.isValid = false;
         this.approvedAt = null;
