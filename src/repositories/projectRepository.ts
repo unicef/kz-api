@@ -241,6 +241,20 @@ class ProjectRepository {
         return tranches;
     }
 
+    static getReports = async (projectId: number) => {
+        const query = `SELECT 
+            pt."num",
+            frep."analyticalDocId" as "analyticalDocId",
+            frep."financialDocId" as "financialDocId",
+            frep."justificationDocId" as "justificationDocId"
+            FROM project_tranches pt
+            LEFT JOIN face_reports frep ON pt."id" = frep."trancheId"
+            WHERE pt."projectId" = ${projectId}`;
+
+        const reports = await sequelize.query(query, { type: QueryTypes.SELECT });
+        return reports;
+    }
+
     static isProjectExists = async (projectId: number) => {
         const query = `SELECT projects.id FROM projects WHERE projects."id"=${projectId}`;
 

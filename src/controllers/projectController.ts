@@ -602,6 +602,29 @@ class ProjectController {
             return;
         }
     }
+
+    static getReports = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+            const reports = await ProjectRepository.getReports(projectId);
+
+            console.log(reports);
+            reports.forEach((report, index) => {
+                if (report.analyticalDocId===null) {
+                    reports.splice(index);
+                }
+            });
+
+            return ApiController.success({reports: reports}, res);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
 }
 
 export default ProjectController;
