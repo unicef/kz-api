@@ -16,6 +16,7 @@ import RequestNotFound from '../../exceptions/project/requestNotFound';
 import ActivityRepository from '../../repositories/activityRepository';
 import FaceReport from '../../models/faceReport';
 import ReportNotFound from '../../exceptions/project/reportNotFound';
+import ProjectTrancheRepository from '../../repositories/projectTrancheRepository';
 
 interface PutUpdateReport extends Request
 {
@@ -114,6 +115,11 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             totalB = totalB + parseInt(activity.amountB);
         }
         if ((totalA + totalA*0.2)<totalB) {
+            // check if its last tranche
+            const isLastTranche = await ProjectTrancheRepository.getIsLastTranche(projectId);
+            if (isLastTranche) {
+                throw new BadValidationException(400, 119, i18n.t('badAmountBValue'));
+            }
             // it should be justification document
             if (req.body.justificationDocId == null || req.body.justificationDocId == '') {
                 throw new BadValidationException(400, 119, i18n.t('justificationDocRequired'));

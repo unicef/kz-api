@@ -18,6 +18,7 @@ import FaceRequestHelper from '../../helpers/faceRequestHelper';
 import ProjectActivity from '../../models/projectActivity';
 import TrancheHasReport from '../../exceptions/project/trancheHasReport';
 import FaceReport from '../../models/faceReport';
+import ProjectTrancheRepository from '../../repositories/projectTrancheRepository';
 
 interface PostCreateReport extends Request
 {
@@ -130,6 +131,11 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
         }
         if ((totalA + totalA*0.2)<totalB) {
             // it should be justification document
+            // check if its last tranche
+            const isLastTranche = await ProjectTrancheRepository.getIsLastTranche(projectId);
+            if (isLastTranche) {
+                throw new BadValidationException(400, 119, i18n.t('badAmountBValue'));
+            }
             if (req.body.justificationDocId == null || req.body.justificationDocId == '') {
                 throw new BadValidationException(400, 119, i18n.t('justificationDocRequired'));
             }
