@@ -27,17 +27,15 @@ class ActivityRepository {
         const query = `SELECT
         pa."id" as "id",
         pa."title" as "title",
-        MAX(ra."amountG") as "amountA",
+        ra."amountG" as "amountA",
         '0' AS "amountB",
         '0' AS "amountC",
         '0' AS "amountD",
         false as "isRejected",
         '' AS "rejectReason"
         FROM request_activities "ra"
-        LEFT JOIN face_requests "fr" ON ra."requestId" = fr."id"
-        LEFT JOIN project_tranches "pt" ON pt."id" = fr."trancheId"
-        LEFT JOIN project_activities "pa" ON pa."projectId" = pt."projectId"
-        WHERE ra."requestId"=${requestId} GROUP BY pa."id"`;
+        LEFT JOIN project_activities "pa" ON pa."id" = ra."activityId"
+        WHERE ra."requestId"=${requestId}`;
 
         const activities = await sequelize.query(query,{type: QueryTypes.SELECT});
 
