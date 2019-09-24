@@ -217,7 +217,7 @@ class ProjectController {
         try {
             const projectId = req.query.id;
             const projectInfo = await ProjectRepository.shortInfoById(projectId);
-
+            
             if (projectInfo === null) {
                 throw new ProjectNotFound();
             }
@@ -233,7 +233,7 @@ class ProjectController {
                 projectInfo.stage={};
             } else {
                 // get is last tranche flag
-                project.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(project.id);
+                projectInfo.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(projectInfo.id);
             }
             
             const responseData = {
