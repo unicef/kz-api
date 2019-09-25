@@ -14,7 +14,7 @@ class SaveRejectedHistory extends Listener {
             userId: user.id,
             projectId: project.id,
             event: {
-                action: ProjectHistoryHelper.REJECT_REQUEST_KEY,
+                action: ProjectHistoryHelper.REJECT_REPORT_KEY,
                 data: {
                     faceRequestNum: await faceReport.getNum(),
                     activities: activities.map((activity) => {
