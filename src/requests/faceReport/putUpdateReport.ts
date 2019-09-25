@@ -111,10 +111,10 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             if (projectActivity === null) {
                 throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
             }
-            totalA = totalA + parseInt(activity.amountA);
-            totalB = totalB + parseInt(activity.amountB);
+            totalA = totalA + parseInt(activity.amountA)*100;
+            totalB = totalB + parseInt(activity.amountB)*100;
         }
-        if ((totalA + totalA*0.2)<totalB) {
+        if ((totalA + totalA*0.2)<=totalB) {
             // check if its last tranche
             const isLastTranche = await ProjectTrancheRepository.getIsLastTranche(projectId);
             if (isLastTranche) {

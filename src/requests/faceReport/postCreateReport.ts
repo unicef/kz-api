@@ -126,13 +126,10 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             if (projectActivity === null) {
                 throw new BadValidationException(400, 119, i18n.t('activityNotFind'));
             }
-            totalA = totalA + parseInt(activity.amountA);
-            totalB = totalB + parseInt(activity.amountB);
+            totalA = totalA + parseInt(activity.amountA)*100;
+            totalB = totalB + parseInt(activity.amountB)*100;
         }
-        console.log('TATAL A!!!!', totalA + totalA*0.2);
-        console.log('TATAL B!!!', totalB);
-        console.log('TATAL     ASpdjaopsijd!!!', (totalA + totalA*0.2)<totalB);
-        if ((totalA + totalA*0.2)<totalB) {
+        if ((totalA + totalA*0.2)<=totalB) {
             // it should be justification document
             // check if its last tranche
             const isLastTranche = await ProjectTrancheRepository.getIsLastTranche(projectId);
