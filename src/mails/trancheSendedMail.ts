@@ -14,7 +14,7 @@ class TrancheSendedMail extends Mail {
         super();
         this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = toEmail;
-        this.subject = "You're get your tranche";
+        this.subject = "You have been credited with a tranche";
         this.template = 'trancheSended';
 
         this.mailData = {
