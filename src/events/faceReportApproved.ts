@@ -1,7 +1,6 @@
 import Event from "./event";
 import User from "../models/user";
 import Project from "../models/project";
-import FaceRequest from "../models/faceRequest";
 import sendReportNeedsApproveEmail from "../listeners/faceReport/sendReportNeedsApproveEmail";
 import saveApprovedHistory from "../listeners/faceReport/saveApprovedHistory";
 import FaceReport from "../models/faceReport";

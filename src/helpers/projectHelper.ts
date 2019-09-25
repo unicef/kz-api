@@ -269,7 +269,7 @@ class ProjectHelper {
                         // get request confirm chain
                         chain = await FaceReportChain.findOne({
                             where: {
-                                requestId: faceReport.id
+                                reportId: faceReport.id
                             }
                         });
                     }
@@ -300,7 +300,7 @@ class ProjectHelper {
                         // get request confirm chain
                         chain = await FaceReportChain.findOne({
                             where: {
-                                requestId: faceReport.id
+                                reportId: faceReport.id
                             }
                         });
                     }
@@ -331,7 +331,7 @@ class ProjectHelper {
                         // get request confirm chain
                         chain = await FaceReportChain.findOne({
                             where: {
-                                requestId: faceReport.id
+                                reportId: faceReport.id
                             }
                         });
                     }
@@ -362,7 +362,7 @@ class ProjectHelper {
                         // get request confirm chain
                         chain = await FaceReportChain.findOne({
                             where: {
-                                requestId: faceReport.id
+                                reportId: faceReport.id
                             }
                         });
                     }
