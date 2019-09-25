@@ -14,6 +14,7 @@ import User from "../models/user";
 import Role from "../models/role";
 import FaceRequestChain from "../models/faceRequestChain";
 import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
+import FaceReportChain from "../models/faceReportChain";
 
 class ProjectHelper {
 
@@ -266,11 +267,11 @@ class ProjectHelper {
                     const faceReport = await ProjectRepository.getActiveReportById(project.id);
                     if (faceReport) {
                         // get request confirm chain
-                        // chain = await FaceReportChain.findOne({
-                        //     where: {
-                        //         requestId: faceReport.id
-                        //     }
-                        // });
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                requestId: faceReport.id
+                            }
+                        });
                     }
                 }
                 if (chain && chain.validateBy == user.id) {
@@ -297,11 +298,11 @@ class ProjectHelper {
                     const faceReport = await ProjectRepository.getActiveReportById(project.id);
                     if (faceReport) {
                         // get request confirm chain
-                        // chain = await FaceReportChain.findOne({
-                        //     where: {
-                        //         requestId: faceReport.id
-                        //     }
-                        // });
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                requestId: faceReport.id
+                            }
+                        });
                     }
                 }
                 if (chain && chain.certifyBy == user.id) {
@@ -328,11 +329,11 @@ class ProjectHelper {
                     const faceReport = await ProjectRepository.getActiveReportById(project.id);
                     if (faceReport) {
                         // get request confirm chain
-                        // chain = await FaceReportChain.findOne({
-                        //     where: {
-                        //         requestId: faceReport.id
-                        //     }
-                        // });
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                requestId: faceReport.id
+                            }
+                        });
                     }
                 }
                 if (chain && chain.approveBy == user.id) {
@@ -359,11 +360,11 @@ class ProjectHelper {
                     const faceReport = await ProjectRepository.getActiveReportById(project.id);
                     if (faceReport) {
                         // get request confirm chain
-                        // chain = await FaceReportChain.findOne({
-                        //     where: {
-                        //         requestId: faceReport.id
-                        //     }
-                        // });
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                requestId: faceReport.id
+                            }
+                        });
                     }
                 }
                 if (chain && chain.verifyBy == user.id) {
