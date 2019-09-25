@@ -168,7 +168,7 @@ class FaceRequestHelper {
             if (amountsD !== false) {
                 amountsD.forEach(amount => {
                     if (amount.activityId === activity.activityId) {
-                        amountD = parseInt(amount.amountD);
+                        amountD = +amount.amountD;
                     }
                 });
             }

@@ -591,11 +591,15 @@ class ProjectController {
 
             const faces = await ProjectRepository.getFaces(projectId);
 
+            console.log("FACES", faces);
+
             faces.forEach((face, index) => {
                 if (face.requestId===null) {
                     faces.splice(index);
                 }
             });
+
+            console.log("FACES RETURN:::", faces);
 
             return ApiController.success({faces: faces}, res);
         } catch (error) {
