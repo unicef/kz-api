@@ -129,6 +129,9 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             totalA = totalA + parseInt(activity.amountA);
             totalB = totalB + parseInt(activity.amountB);
         }
+        console.log('TATAL A!!!!', totalA + totalA*0.2);
+        console.log('TATAL B!!!', totalB);
+        console.log('TATAL     ASpdjaopsijd!!!', (totalA + totalA*0.2)<totalB);
         if ((totalA + totalA*0.2)<totalB) {
             // it should be justification document
             // check if its last tranche
