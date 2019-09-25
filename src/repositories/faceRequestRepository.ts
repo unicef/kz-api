@@ -7,8 +7,14 @@ import FaceRequest from "../models/faceRequest";
 class FaceRequestRepository {
 
     static findByTrancheId = async (trancheId: number) => {
-        const query = `SELECT fr."id", TO_CHAR(fr."from", 'yyyy-mm-dd') as "dateFrom", TO_CHAR(fr."to", 'yyyy-mm-dd') as "dateTo", fr."typeId" as "type",
-        fr."statusId" as "statusId" FROM face_requests AS fr WHERE fr."trancheId" = ${trancheId}`;
+        const query = `SELECT 
+            fr."id", 
+            TO_CHAR(fr."from", 'yyyy-mm-dd') as "dateFrom", 
+            TO_CHAR(fr."to", 'yyyy-mm-dd') as "dateTo", 
+            fr."typeId" as "type",
+            fr."statusId" as "statusId" 
+            FROM face_requests AS fr 
+            WHERE fr."trancheId" = ${trancheId}`;
 
         const faceRequests = await sequelize.query(query, {
             type: QueryTypes.SELECT,

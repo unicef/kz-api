@@ -137,10 +137,15 @@ class FaceReportController {
             const analyticalDoc = await FaceReportHelper.uploadDoc(req.body.analyticalDocId, 'analytical');
             reportData.financialDocId = financialDoc.id;
             reportData.analyticalDocId = analyticalDoc.id;
+            console.log("Justification input: ", req.body.justificationDocId);
+            
             if (req.body.justificationDocId) {
                 const justificationDoc = await FaceReportHelper.uploadDoc(req.body.justificationDocId, 'justification');
+                console.log("Justification DOC object: ", justificationDoc);
                 reportData.justificationDocId = justificationDoc.id;
             }
+
+            console.log("REPORT DATA", reportData)
 
             const report = await FaceReport.create(reportData);
             // working with activities
@@ -211,7 +216,10 @@ class FaceReportController {
                 const analyticalDoc = await FaceReportHelper.uploadDoc(req.body.analyticalDocId, 'analytical');
                 faceReportData.analyticalDocId = analyticalDoc.id;
             }
-            if (faceReport.justificationDocId !== req.body.justificationDocId) {
+
+            console.log("Justification OLD: ",faceReport.justificationDocId);
+            console.log("Justification input: ", req.body.justificationDocId);
+            if (faceReport.justificationDocId != req.body.justificationDocId) {
                 // delete old doc
                 const oldFinDoc = await FaceReportDocument.findOne({
                     where: {
@@ -223,9 +231,12 @@ class FaceReportController {
                 }
                 if (req.body.justificationDocId) {
                     const justificationDoc = await FaceReportHelper.uploadDoc(req.body.justificationDocId, 'justification');
+                    console.log("Justification DOC object: ", justificationDoc);
                     faceReportData.justificationDocId = justificationDoc.id;
                 }
             }
+
+            console.log("UPDATE REPORT DATA", faceReportData)
 
             const updateFaceReport = await faceReport.update(faceReportData);
 
