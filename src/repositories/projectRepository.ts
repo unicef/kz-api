@@ -239,11 +239,10 @@ class ProjectRepository {
             WHERE 
             pt."status"='${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
             AND p."statusId"='${Project.IN_PROGRESS_STATUS_ID}'
-            AND p."isFreeze"=false 
-            AND ((reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL) 
-                OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL)
-                OR (reqcc."approveBy"=${userId} AND reqcc."approveAt" IS NULL)
-                OR (reqcc."verifyBy"=${userId} AND reqcc."verifyAt" IS NULL)
+            AND ((reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL AND reqcc."isFreeze"=false) 
+                OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL AND reqcc."isFreeze"=false)
+                OR (reqcc."approveBy"=${userId} AND reqcc."approveAt" IS NULL AND reqcc."isFreeze"=false)
+                OR (reqcc."verifyBy"=${userId} AND reqcc."verifyAt" IS NULL AND reqcc."isFreeze"=false)
                 OR (repcc."validateBy"=${userId} AND repcc."validateAt" IS NULL) 
                 OR (repcc."certifyBy"=${userId} AND repcc."certifyAt" IS NULL)
                 OR (repcc."approveBy"=${userId} AND repcc."approveAt" IS NULL)
