@@ -35,7 +35,8 @@ class ActivityRepository {
         '' AS "rejectReason"
         FROM request_activities "ra"
         LEFT JOIN project_activities "pa" ON pa."id" = ra."activityId"
-        WHERE ra."requestId"=${requestId}`;
+        WHERE ra."requestId"=${requestId}
+        ORDER BY pa."id" ASC`;
 
         const activities = await sequelize.query(query,{type: QueryTypes.SELECT});
 
@@ -54,7 +55,7 @@ class ActivityRepository {
             FROM project_activities "pa" 
             LEFT JOIN request_activities "ra" ON pa."id" = ra."activityId" 
             WHERE ra."requestId" = ${requestId}
-            ORDER BY ra."id" ASC`;
+            ORDER BY ra."activityId" ASC`;
 
         const activities = await sequelize.query(query,{type: QueryTypes.SELECT});
 
@@ -73,7 +74,8 @@ class ActivityRepository {
             CASE WHEN ra."rejectReason" IS NULL THEN \'\' ELSE ra."rejectReason" END AS "rejectReason" 
             FROM project_activities "pa" 
             LEFT JOIN report_activities "ra" ON pa."id" = ra."activityId" 
-            WHERE ra."reportId" = ${reportId}`;
+            WHERE ra."reportId" = ${reportId}
+            ORDER BY ra."activityId" ASC`;
 
         const activities = await sequelize.query(query,{type: QueryTypes.SELECT});
 

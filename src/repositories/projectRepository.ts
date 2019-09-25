@@ -239,6 +239,7 @@ class ProjectRepository {
             WHERE 
             pt."status"='${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
             AND p."statusId"='${Project.IN_PROGRESS_STATUS_ID}'
+            AND p."isFreeze"=false 
             AND ((reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL) 
                 OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL)
                 OR (reqcc."approveBy"=${userId} AND reqcc."approveAt" IS NULL)
@@ -285,7 +286,8 @@ class ProjectRepository {
             FROM project_tranches pt
             LEFT JOIN face_requests fr ON fr."trancheId" = pt."id"
             LEFT JOIN face_reports frep ON frep."trancheId" = pt."id"
-            WHERE pt."projectId" = ${projectId}`;
+            WHERE pt."projectId" = ${projectId}
+            ORDER BY pt."num" DESC`;
         
         const tranches = await sequelize.query(query, { type: QueryTypes.SELECT });
         return tranches;

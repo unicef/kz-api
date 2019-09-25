@@ -46,7 +46,7 @@ const requestValidation = Joi.object().options({
             amountA: Joi.number().min(0).required(),
             amountB: Joi.number().min(0).required(),
             amountC: Joi.number().min(0).allow(null),
-            amountD: Joi.number().min(0).allow(null),
+            amountD: Joi.number().allow(null),
             isRejected: Joi.boolean().required(),
             rejectReason: Joi.string().allow('').required()
         }).pattern(/./, Joi.any()).required()),
