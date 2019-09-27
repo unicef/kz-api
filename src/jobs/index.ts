@@ -8,8 +8,6 @@ import ProjectRepository from "../repositories/projectRepository";
 import event from "../services/event";
 import FaceRequestApproved from "../events/faceRequestApproved";
 import Project from "../models/project";
-import ProjectHelper from "../helpers/projectHelper";
-import PartnerHelper from "../helpers/partnerHelper";
 import ProjectTransactionRepository from "../repositories/projectTransactionRepository";
 import FaceRequestDone from "../events/faceRequestDone";
 

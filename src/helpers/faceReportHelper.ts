@@ -158,10 +158,14 @@ class FaceReportHelper {
     static checkRejectedActivities = async (activities: Array<iInputReportActivity>) => {
         let rejectedActivities: Array<iInputReportActivity> | [] = [];
         activities.forEach((activity) => {
+            console.log("ACTIVITY REJECT", activity);
+            
             if (activity.isRejected) {
                 rejectedActivities.push(activity);
             }
-        })
+        });
+        console.log("REJECTED ACTIVITIES", rejectedActivities);
+        
         return rejectedActivities;
     }
 
