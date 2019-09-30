@@ -73,6 +73,24 @@ class FaceRequestRepository {
         }
         return parseInt(sendedAmount.sendedAmount);
     }
+
+    static getTransactionAmountByReqId = async (requestId: number) => {
+        const query = `SELECT
+        SUM(ra."amountF") as "transactionAmount"
+        FROM request_activities ra
+        WHERE ra."requestId"='${requestId}'`
+
+        const sendedAmount = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        if (sendedAmount.transactionAmount === null) {
+            return 0;
+        }
+        return parseInt(sendedAmount.transactionAmount);
+    }
     
 }
 

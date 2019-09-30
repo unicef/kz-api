@@ -13,6 +13,10 @@ import User from "../models/user";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
 import ActivityRepository from "../repositories/activityRepository";
 import FaceRequest from "../models/faceRequest";
+import ProjectTransaction from "../models/projectTransaction";
+import ProjectRepository from "../repositories/projectRepository";
+import event from "../services/event";
+import GotTransactionHash from "../events/gotTransactionHash";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -95,6 +99,7 @@ class BlockchainHelper {
                 const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
                 let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
                     FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
+                    event(new GotTransactionHash(faceRequestId, hash, faceRequestStatus));
                 });
                 return result;
         } else {

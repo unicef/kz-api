@@ -131,6 +131,30 @@ class ProjectController {
         }
     }
 
+    static getTransactionsList = async (req: Request, res: Response, next: NextFunction) => {
+        try { 
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+
+            const transactions = await ProjectRepository.getTransactionsList(searchInstanse, pagination);
+
+            const responseData = {
+                transactions: transactions,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) { 
+            if (error instanceof HttpException) {
+                error.response(res);
+            } else {
+                ApiController.failed(500, error.message, res);
+            }
+            return;
+        }
+    }
+
     static create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const projectData = ProjectHelper.getProjectData(req.body);

@@ -5,6 +5,7 @@ export default {
     "APP_NAME": "localhost:3000",
     "BC_NETWORK": "ropsten",
     "INFURA_PROJECT_URL": "https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7",
+    "ETHERSCAN_TX_LINK": "https://ropsten.etherscan.io/tx/",
     "DEPLOY_SECRET": "gu24Khdn5OIdbfy334ofg8dHD7sDCSJh7eew",
     "DIGICUS_ADDRESS": "0x34e03064f017f9b5a903807a28e9aa72f41b8920",
     "DB_HOST": "postgres",

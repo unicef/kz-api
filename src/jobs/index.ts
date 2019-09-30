@@ -10,6 +10,7 @@ import FaceRequestApproved from "../events/faceRequestApproved";
 import Project from "../models/project";
 import ProjectTransactionRepository from "../repositories/projectTransactionRepository";
 import FaceRequestDone from "../events/faceRequestDone";
+import ProjectTransaction from "../models/projectTransaction";
 
 class Jobs {
     private jobs: Array<CronJob>|[] = [
@@ -176,48 +177,61 @@ class Jobs {
             // get face request without contracts addresses
             const requestIds = await FaceRequestContractRepository.getNotVerifiedRequests();
             if (requestIds.length > 0) {
-                for (var i=0; i<requestIds.length; i++) {
+                for (var i = 0; i < requestIds.length; i++) {
                     const requestRow = requestIds[i];
                     const transaction = requestRow.verifyHash;
                     const receipt = await BlockchainHelper.getTransactionReceipt(transaction);
-                    if (receipt && receipt.status) {
-                        // get 
-                        const faceRequest = await FaceRequest.findOne({
-                            where: {
-                                id: requestRow.requestId
-                            }
-                        });
-                        if (faceRequest) {
-                            const trancheId = faceRequest.trancheId;
-                            const projectId = await ProjectRepository.getProjectIdByRequestId(faceRequest.id);
-                            const transaction = receipt.transactionHash;
-                            // insert to request transactions
-                            await ProjectTransactionRepository.writeData(projectId, trancheId, faceRequest.id, transaction);
-                            const blockHash = receipt.blockHash;
-                            await FaceRequestContractRepository.setContractProperty(faceRequest.id, 'verifyReceipt', blockHash);
-                            faceRequest.update({isFreeze: false, successedAt: new Date(), isAuthorised: true});
-                            const requestChain = await FaceRequestChain.findOne({
+                    if (receipt) {
+                        if (receipt.status) {
+                            // get 
+                            const faceRequest = await FaceRequest.findOne({
                                 where: {
-                                    requestId: requestRow.requestId
-                                },
-                                attributes: ['id', 'verifyAt', 'verifyBy']
-                            });
-                            requestChain.update({verifyAt: new Date()});
-                            const user = await User.findOne({
-                                where: {
-                                    id: requestChain.verifyBy
-                                },
-                                include: [
-                                    User.associations.roles,
-                                    User.associations.personalData
-                                ]
-                            });
-                            const project = await Project.findOne({
-                                where: {
-                                    id: projectId
+                                    id: requestRow.requestId
                                 }
                             });
-                            event(new FaceRequestDone(user, faceRequest, project));
+                            if (faceRequest) {
+                                const trancheId = faceRequest.trancheId;
+                                const projectId = await ProjectRepository.getProjectIdByRequestId(faceRequest.id);
+                                const transaction = receipt.transactionHash;
+                                // insert to request transactions
+                                await ProjectTransactionRepository.writeData(projectId, trancheId, faceRequest.id, transaction);
+                                const blockHash = receipt.blockHash;
+                                await FaceRequestContractRepository.setContractProperty(faceRequest.id, 'verifyReceipt', blockHash);
+                                faceRequest.update({ isFreeze: false, successedAt: new Date(), isAuthorised: true });
+                                const requestChain = await FaceRequestChain.findOne({
+                                    where: {
+                                        requestId: requestRow.requestId
+                                    },
+                                    attributes: ['id', 'verifyAt', 'verifyBy']
+                                });
+                                requestChain.update({ verifyAt: new Date() });
+                                const user = await User.findOne({
+                                    where: {
+                                        id: requestChain.verifyBy
+                                    },
+                                    include: [
+                                        User.associations.roles,
+                                        User.associations.personalData
+                                    ]
+                                });
+                                const project = await Project.findOne({
+                                    where: {
+                                        id: projectId
+                                    }
+                                });
+                                await ProjectTransaction.update({status: ProjectTransaction.SUCCESS_STATUS}, {
+                                    where: {
+                                        txHash: transaction
+                                    }
+                                });
+                                event(new FaceRequestDone(user, faceRequest, project));
+                            }
+                        } else {
+                            await ProjectTransaction.update({status: ProjectTransaction.FAILED_STATUS}, {
+                                where: {
+                                    txHash: transaction
+                                }
+                            });
                         }
                     }
                 }
