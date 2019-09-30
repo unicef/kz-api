@@ -6,6 +6,7 @@ import Role from "../models/role";
 import PartnerHelper from "../helpers/partnerHelper";
 import Partner from "../models/partner";
 import Project from "../models/project";
+import Config from "../services/config";
 
 class PartnerRepository {
     
@@ -147,6 +148,36 @@ class PartnerRepository {
             return partner.partnerId;
         }
         return null;
+    }
+
+    static getTransactionsList = async (searchPhrase: string | null, pagination: Pagination, partnerId: number) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` AND pt."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR pt."txHash" ILIKE '%${searchPhrase}%'`;
+        }
+
+        const transactionsQuery: Array<{ id: number }> | null = await sequelize.query(`SELECT pt."id" as "id" FROM project_transactions pt JOIN projects p ON pt."projectId" = p."id" WHERE p."partnerId" = ${partnerId}` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (transactionsQuery == null || transactionsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(transactionsQuery.length);
+        let transactionsIds = transactionsQuery.map(a => a.id);
+
+        const etherscanTxLink = Config.get("ETHERSCAN_TX_LINK", "https://ropsten.etherscan.io/tx/");
+
+        let query = `SELECT pt."id" as "id", pt."txHash" as "txHash", pt."amount" as "amount", pt."type" as "type", pt."status" as "status", p."title${lang}" as "project", TO_CHAR(pt."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", '${etherscanTxLink}' || pt.txHash FROM project_transactions pt LEFT JOIN projects "p" ON pt."projectId" = p."id" WHERE p."id" IN (${transactionsIds.join(', ')}) ORDER BY p."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
+        return projects;
     }
 }
 export default PartnerRepository;

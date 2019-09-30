@@ -194,7 +194,6 @@ class Jobs {
                                 const projectId = await ProjectRepository.getProjectIdByRequestId(faceRequest.id);
                                 const transaction = receipt.transactionHash;
                                 // insert to request transactions
-                                await ProjectTransactionRepository.writeData(projectId, trancheId, faceRequest.id, transaction);
                                 const blockHash = receipt.blockHash;
                                 await FaceRequestContractRepository.setContractProperty(faceRequest.id, 'verifyReceipt', blockHash);
                                 faceRequest.update({ isFreeze: false, successedAt: new Date(), isAuthorised: true });

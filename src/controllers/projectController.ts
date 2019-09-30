@@ -39,6 +39,7 @@ import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
 import Pagination from "../services/pagination";
 import BadPermissions from "../exceptions/badPermissions";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
+import PartnerRepository from "../repositories/partnerRepository";
 
 class ProjectController {
 
@@ -136,8 +137,14 @@ class ProjectController {
             let pagination = new Pagination(req, 15);
             let searchInstanse = req.query.search?req.query.search:null;
 
-            const transactions = await ProjectRepository.getTransactionsList(searchInstanse, pagination);
+            let transactions = [];
 
+            if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
+                transactions = await PartnerRepository.getTransactionsList(searchInstanse, pagination, req.user.partnerId);
+            } else {
+                transactions = await ProjectRepository.getTransactionsList(searchInstanse, pagination,);
+            }
+            
             const responseData = {
                 transactions: transactions,
                 currentPage: pagination.getCurrentPage(),
