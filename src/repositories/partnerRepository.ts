@@ -78,7 +78,23 @@ class PartnerRepository {
         pagination.setItemsCount(partnersQuery.length);
         let partnersIds = partnersQuery.map(a => a.id);
 
-        let query = 'SELECT p."id" as "id", p."name'+lang+'" as "name", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", \'n/a\' as "coordinator", \'n/a\' as "programCode", p."statusId" as "status", aow."title' +lang+ '" as "areaOfWork" FROM partners "p" LEFT JOIN areas_of_work AS aow ON p."areaOfWorkId" = aow."id" WHERE p."id" IN (' + partnersIds.join(', ') + ') ORDER BY p."id" DESC';
+        let query = `SELECT 
+                p."id" as "id", 
+                p."name${lang}" as "name", 
+                TO_CHAR(p."createdAt", 'yyyy-mm-dd HH:MI') as "createdAt", 
+                proj."officerId" as "officerId",
+                CASE WHEN proj."officerId" IS NULL THEN 'n/a' ELSE officer."firstName${lang}" || ' ' || officer."lastName${lang}" END as "coordinator",
+                CASE WHEN prog."code" IS NULL THEN 'n/a' ELSE prog."code" END as "programCode",
+                p."statusId" as "status", 
+                aow."title${lang}" as "areaOfWork" 
+            FROM partners "p" 
+            LEFT JOIN areas_of_work AS aow ON p."areaOfWorkId" = aow."id" 
+            LEFT JOIN projects AS proj ON proj."partnerId" = p."id" 
+                AND proj."statusId" = '${Project.IN_PROGRESS_STATUS_ID}'
+            LEFT JOIN programmes prog ON prog."id"=proj."programmeId"
+            LEFT JOIN users_personal_data officer ON officer."userId" = proj."officerId"
+            WHERE p."id" IN (${partnersIds.join(', ')}) 
+            ORDER BY p."id" DESC`;
 
         query = query + pagination.getLimitOffsetParam();
 

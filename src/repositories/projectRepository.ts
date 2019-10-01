@@ -19,7 +19,7 @@ class ProjectRepository {
             `projects."descriptionEn" as "descriptionEn", projects."descriptionRu" as "descriptionRu", ` +
             `TO_CHAR(projects."createdAt", \'yyyy-Mon-dd\') as "createdAt", programmes."id" as "programme.id", programmes."title${LANG}" as "programme.title", pt."num" as "stage.num", ptype."projecttype" AS "stage.type", CASE WHEN ptype."projecttype"='request' AND pfreq."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='request' THEN pfreq."statusId" WHEN ptype."projecttype"='report' AND pfrep."statusId" IS NULL THEN 'waiting' WHEN ptype."projecttype"='report' THEN pfrep."statusId" ELSE NULL END as "stage.status", ` +
             `programmes."code" as "programme.code", officer."userId" as "officer.id", ` +
-            `officer."firstName${LANG}" || officer."lastName${LANG}" as "officer.name", ` +
+            `officer."firstName${LANG}" || ' ' || officer."lastName${LANG}" as "officer.name", ` +
             `CASE WHEN projects."partnerId" IS NULL THEN \'\' ELSE partners."name${LANG}" END AS "partnerName", ` +
             `sections."id" as "section.id", sections."title${LANG}" as "section.title" ` +
             `FROM projects ` +
