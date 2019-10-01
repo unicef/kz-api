@@ -225,6 +225,8 @@ class FaceReportController {
                 if (req.body.justificationDocId) {
                     const justificationDoc = await FaceReportHelper.uploadDoc(req.body.justificationDocId, 'justification');
                     faceReportData.justificationDocId = justificationDoc.id;
+                } else {
+                    faceReportData.justificationDocId = null;
                 }
             }
 
@@ -278,9 +280,6 @@ class FaceReportController {
         try{
             const faceReport = req.faceReport;
             const reportDoc = req.faceReportDocument;
-
-            console.log("FACE REPORT", faceReport);
-            console.log("FACE REPORT DOCUMENT", reportDoc);
 
             // set to null doc id in report object
             switch (reportDoc.id) {
