@@ -6,12 +6,22 @@ import Page from "../../models/page";
 import ApiController from "../apiController";
 import HttpException from "../../exceptions/httpException";
 import PageNotFind from "../../exceptions/page/pageNotFind";
+import BadValidationException from "../../exceptions/badValidationException";
 
 class AdminPageController {
 
     static create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let pageData = req.body;
+            // exists page
+            const existsPage = await Page.findOne({
+                where: {
+                    key: pageData.key
+                }
+            });
+            if (existsPage) {
+                throw new BadValidationException(400, 129, i18n.t('pageAllreadyExists'));
+            }
             const page = await Page.create(pageData);
     
             return ApiController.success({
@@ -118,6 +128,17 @@ class AdminPageController {
             const pageData = req.body;
             if (page == null) {
                 throw new PageNotFind();
+            }
+            if (page.key !== pageData.key) {
+                // exists page
+                const existsPage = await Page.findOne({
+                    where: {
+                        key: pageData.key
+                    }
+                });
+                if (existsPage) {
+                    throw new BadValidationException(400, 129, i18n.t('pageAllreadyExists'));
+                }
             }
 
             await page.update(pageData);
