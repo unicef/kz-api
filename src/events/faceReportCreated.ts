@@ -17,6 +17,8 @@ class FaceReportCreated extends Event {
         this.user = user;
         this.faceReport = faceReport;
         this.project = project;
+        console.log("EVENT (FACE REPORT CREATED@@@)");
+        
     }
 
     public listeners = [

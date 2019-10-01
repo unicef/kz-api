@@ -8,6 +8,8 @@ import ReportNeedsApproveMail from "../../mails/reportNeedsApproveMail";
 
 class SendReportNeedsApproveEmail extends Listener {
     public handle = async (event: FaceReportCreated) => {
+        console.log("LISTENER (SEND EMAIL NEEDS APPROVE)");
+        
         const user = event.user;
         const project = event.project;
         const faceReport = event.faceReport;
@@ -18,6 +20,8 @@ class SendReportNeedsApproveEmail extends Listener {
                 reportId: faceReport.id
             }
         });
+
+        console.log("GOT REPORT CHAIN:::", faceReportChain);
 
         if (faceReportChain) {
             let nextUserId = null;
@@ -39,6 +43,7 @@ class SendReportNeedsApproveEmail extends Listener {
                     nextUserId = faceReportChain.verifyBy;
                     break;
             }
+            console.log("NEXT USER ID::::", nextUserId);
             if (nextUserId) {
                 const reciever = await User.findOne({
                     where: {
@@ -46,6 +51,9 @@ class SendReportNeedsApproveEmail extends Listener {
                     }
                 });
                 const faceReportNum = await faceReport.getNum();
+
+                console.log("RECEIVERRRRR::::", reciever);
+                console.log("FACE REPORT NUM::::", faceReportNum);
                 if (reciever) {
                     // send email
                     let assistantEmail = new ReportNeedsApproveMail(reciever.email, user, project, faceReportNum);

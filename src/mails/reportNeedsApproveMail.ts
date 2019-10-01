@@ -22,6 +22,7 @@ class ReportNeedsApproveMail extends Mail {
             project: project,
             faceReport: faceReportNum
         };
+        console.log("REPORT NEEDS APPROVE EMAIL!!!", this.mailData);
     }
 }
 
