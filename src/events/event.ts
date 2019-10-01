@@ -5,9 +5,10 @@ abstract class Event {
     
     public async run() {
         if (this.listeners.length > 0) {
-            this.listeners.forEach(element => {
-                element.handle(this);
-            });
+            for (var i=0; i<this.listeners.length; i++) {
+                const element = this.listeners[i];
+                await element.handle(this);
+            }
         }
     }
 }
