@@ -49,7 +49,19 @@ class PartnerController {
 
         
         if (!req.query.key || req.query.key == 'companies') {
-            let companies = await sequelize.query('select p."id" as "id", p."nameEn" as "title" from users u left join partners p on u."partnerId" = p."id" left join users_has_roles uhr on u."id" = uhr."userId" left join (select us."id" as "usId", pa."id" as "parId" from users us left join partners pa on us."partnerId" = pa."id" left join users_has_roles ushr on us."id" = ushr."userId" where ushr."roleId" = \'' + Role.partnerAuthorisedId + '\') ap on ap."parId" = p.id where uhr."roleId" = \'' + Role.partnerAssistId + '\' and (ap."usId" is null)',
+            const query = `select
+            p."id" as "id",
+            p."nameEn" as "title"
+            from partners p
+            left join
+              (select p."id" as "parId", SUM(uhrassist."userId") as "ASSISTID", SUM(uhrauthorised."userId") as "AUTHORISEDID"
+            from partners p
+            left join users u on u."partnerId" = p."id"
+            left join users_has_roles uhrassist on uhrassist."userId" = u."id" and uhrassist."roleId" = '${Role.partnerAssistId}'
+            left join users_has_roles uhrauthorised on uhrauthorised."userId" = u."id" and uhrauthorised."roleId" = '${Role.partnerAuthorisedId}'
+          group by p."id") ap on ap."parId" = p.id
+          where ap."AUTHORISEDID" is null`
+            let companies = await sequelize.query(query,
             {type: QueryTypes.SELECT});
             
             responseData['companies'] = companies;
