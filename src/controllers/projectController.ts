@@ -40,16 +40,37 @@ import Pagination from "../services/pagination";
 import BadPermissions from "../exceptions/badPermissions";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
 import PartnerRepository from "../repositories/partnerRepository";
+import config from "../services/config";
+import Axios from "axios";
+import convert from "xml-js";
 
 class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
-        const projectId = parseInt(req.query.id);
-        const history = await HistoryRepository.getList(projectId, 10);
+        // const projectId = parseInt(req.query.id);
+        // const history = await HistoryRepository.getList(projectId, 10);
 
-        let histResp = await ProjectHistoryHelper.renderHistory(history);
+        // let histResp = await ProjectHistoryHelper.renderHistory(history);
 
-        return ApiController.success({ history: histResp }, res);
+        // const rateLink = config.get('CURRENCY_RATE_LINK', 'https://treasury.un.org/operationalrates/xsql2XML.php');
+        //     const request = Axios.get(
+        //         rateLink
+        //     ).then((response) => {
+        //         if (response.status == 200) {
+        //             var result1 = convert.xml2json(response.data, {compact: true, spaces: 4});
+
+        //             const result = JSON.parse(result1);
+        //             const rates = result['UN_OPERATIONAL_RATES_DATASET']['UN_OPERATIONAL_RATES'];
+
+        //             rates.forEach((rate) => {
+        //                 if (rate['f_curr_code']['_text'] == 'KZT\t') {
+        //                     const rateAmountString = rate['rate']['_text'];
+        //                     const rateAmountNumber = rateAmountString.replace('\t','');
+        //                     return ApiController.success(rateAmountNumber, res);
+        //                 }
+        //             })
+        //         }
+        //     })
     }
 
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -60,7 +81,7 @@ class ProjectController {
                 responseData['programmes'] = programmes;
             }
             if (!req.query.key || req.query.key == 'KZTRate') {
-                const usdRate: number = SettingHelper.getUSDRate();
+                const usdRate: number = await SettingHelper.getUSDRate();
                 responseData['usdRate'] = usdRate;
             }
             if (!req.query.key || req.query.key == 'sections') {

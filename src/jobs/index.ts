@@ -8,12 +8,44 @@ import ProjectRepository from "../repositories/projectRepository";
 import event from "../services/event";
 import FaceRequestApproved from "../events/faceRequestApproved";
 import Project from "../models/project";
-import ProjectTransactionRepository from "../repositories/projectTransactionRepository";
 import FaceRequestDone from "../events/faceRequestDone";
 import ProjectTransaction from "../models/projectTransaction";
+import Config from "../services/config";
+import axios from "axios";
+import convert from "xml-js";
+import Setting from "../models/setting";
+
+// '00 00 00 * * *'
 
 class Jobs {
     private jobs: Array<CronJob>|[] = [
+        new CronJob('00 00 00 * * *', async () => {
+            const rateLink = Config.get('CURRENCY_RATE_LINK', 'https://treasury.un.org/operationalrates/xsql2XML.php');
+            const request = axios.get(
+                rateLink
+            ).then((response) => {
+                if (response.status == 200) {
+                    var result1 = convert.xml2json(response.data, {compact: true, spaces: 4});
+
+                    const result = JSON.parse(result1);
+                    const rates = result['UN_OPERATIONAL_RATES_DATASET']['UN_OPERATIONAL_RATES'];
+
+                    rates.forEach((rate) => {
+                        if (rate['f_curr_code']['_text'] == 'KZT\t') {
+                            const rateAmountString = rate['rate']['_text'];
+                            const rateAmountNumber = rateAmountString.replace('\t','');
+                            Setting.update({
+                                value: rateAmountNumber
+                            }, {
+                                where: {
+                                    key: 'KZTRate'
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }),
         // CRON job for getting contract address
         new CronJob('*/30 * * * * *', async () => {
             // get face request without contracts addresses

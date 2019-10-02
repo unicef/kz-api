@@ -28,8 +28,8 @@ const putProject = (req: Request, res: Response, next: NextFunction) => {
                 id: Joi.number().allow(null),
                 title: Joi.string().max(255).allow(null),
             }).required(),
-            descriptionEn: Joi.string().max(2500).required(),
-            descriptionRu: Joi.string().max(2500).required(),
+            descriptionEn: Joi.string().required(),
+            descriptionRu: Joi.string().required(),
             documents: Joi.array().items(
                 Joi.object().keys({
                     title: Joi.string().max(255),

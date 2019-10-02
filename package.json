@@ -67,7 +67,8 @@
     "swagger-ui-express": "^4.0.2",
     "tsoa": "^2.3.8",
     "typescript": "^2.8.1",
-    "web3": "^1.2.1"
+    "web3": "^1.2.1",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "concurrently": "^3.5.1",
