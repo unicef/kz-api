@@ -188,7 +188,7 @@ class PartnerRepository {
 
         const etherscanTxLink = Config.get("ETHERSCAN_TX_LINK", "https://ropsten.etherscan.io/tx/");
 
-        let query = `SELECT pt."id" as "id", pt."txHash" as "txHash", pt."amount" as "amount", pt."type" as "type", pt."status" as "status", p."title${lang}" as "project", TO_CHAR(pt."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", '${etherscanTxLink}' || pt.txHash FROM project_transactions pt LEFT JOIN projects "p" ON pt."projectId" = p."id" WHERE p."id" IN (${transactionsIds.join(', ')}) ORDER BY p."id" DESC`;
+        let query = `SELECT pt."id" as "id", pt."txHash" as "txHash", pt."amount" as "amount", pt."type" as "type", pt."status" as "status", p."title${lang}" as "project", TO_CHAR(pt."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", '${etherscanTxLink}' || pt."txHash" FROM project_transactions pt LEFT JOIN projects "p" ON pt."projectId" = p."id" WHERE p."id" IN (${transactionsIds.join(', ')}) ORDER BY p."id" DESC`;
 
         query = query + pagination.getLimitOffsetParam();
 
