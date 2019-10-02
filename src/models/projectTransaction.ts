@@ -50,7 +50,7 @@ ProjectTransaction.init(
         }
     },
     {
-        tableName: 'project_trancactions',
+        tableName: 'project_transactions',
         modelName: 'projectTransaction',
         timestamps: true,
         sequelize: sequelize
