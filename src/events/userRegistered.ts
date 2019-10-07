@@ -1,8 +1,8 @@
 import Event from "./event";
 import User from "../models/user";
 import SendActivationLink from "../listeners/user/sendActivationLink";
-import createUserPersonalDataRow from "../listeners/user/createUserPersonalDataRow";
 import createUserWallet from "../listeners/user/createUserWallet";
+import Listener from "../listeners/listener";
 
 class UserRegistered extends Event {
     public user: User;
@@ -14,9 +14,8 @@ class UserRegistered extends Event {
         this.password = password;
     }
 
-    public listeners = [
+    public listeners: Array<Listener> = [
         SendActivationLink,
-        createUserPersonalDataRow,
         createUserWallet
     ];
 }

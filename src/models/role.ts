@@ -1,4 +1,5 @@
 import { Model, DataTypes } from "sequelize";
+import CryptoJS from "crypto-js";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 
@@ -38,6 +39,11 @@ class Role extends Model {
         });
         
         return roles;
+    }
+
+    public getEncriptedRole = (key: string) => {
+        const roleHash: string = CryptoJS.AES.encrypt(this.id, key).toString();
+        return roleHash;
     }
 }
 

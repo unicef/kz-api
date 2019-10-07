@@ -39,6 +39,9 @@ import DonorRepository from "../repositories/donorRepository";
 import BadValidationException from "../exceptions/badValidationException";
 import SetPasswordHashRepository from "../repositories/setPasswordHashRepository";
 import UserSetPassword from "../events/userSetPassword";
+import sequelize from "../services/sequelize";
+import exceptionHandler from "../services/exceptionHandler";
+import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
 
 class UserController {
     // get user Data about auth user
@@ -49,15 +52,15 @@ class UserController {
             email: user.email,
             showSeed: user.showSeed,
             showForm: user.showForm,
-            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
+            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM'),
+            roles: []
         }
         // working with rolles
-        let roles: string[] = [];
         user.roles.forEach((role: Role) => {
-            const roleHash: string = CryptoJS.AES.encrypt(role.id, user.id + responseData.createdAt).toString();
-            roles.push(roleHash);
+            const key: string = user.id + responseData.createdAt;
+            const roleHash: string = role.getEncriptedRole(key);
+            responseData.roles.push(roleHash);
         });
-        responseData.roles = roles;
 
         if (user.showSeed) {
             // get user seed phrase
@@ -70,7 +73,7 @@ class UserController {
 
             responseData.seed = {
                 phrase: seedPhrase,
-                link: 'http://' + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
+                link: Config.get("APP_PROTOCOL", "http://") + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
             }
         }
         // showForm flag
@@ -90,6 +93,7 @@ class UserController {
 
     // create partner process
     static createPartner = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             // check exists user
             let user: any = await User.findOne({
@@ -98,34 +102,41 @@ class UserController {
             if (user !== null) {
                 throw new UserAlreadyExists();
             }
-
             // creating user
             const passwordSalt: string = cryptoRandomString(10);
             user = await User.create({
                 email: req.body.email,
                 password: User.generatePassword(passwordSalt, req.body.password),
                 passwordSalt: passwordSalt
-            })
-
+            }, {transaction: transaction});
 
             // add Responsible assistant role to user
-            const role = await Role.findByPk('ra');
-            user.addRole(role);
+            await UserRepository.addRole(user.id, Role.partnerAssistId, transaction);
 
-            event(new UserRegistered(user, req.body.password));
+            // create user personal data row
+            await UserPersonalData.create({
+                userId: user.id,
+                firstNameEn: '',
+                firstNameRu: '',
+                lastNameEn: '',
+                lastNameRu: '',
+                occupationEn: '',
+                occupationRu: '',
+                tel: '',
+                mobile: ''
+            }, {transaction: transaction});
+
+            transaction.commit();
             
+            event(new UserRegistered(user, req.body.password));
             const responseData = {
                 userId: user.id,
                 message: i18n.t('successCreatedPartner')
             };
             return ApiController.success(responseData, res);
         } catch(error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            exceptionHandler(error, res);
         }
     }
 

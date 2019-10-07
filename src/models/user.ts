@@ -192,7 +192,7 @@ class User extends Model {
         }
         
         let isUnicefRole = false;
-        console.log("USER ROLES", userRoles);
+        
         userRoles.forEach((element) => {
             switch (element.roleId) {
                 case Role.unicefResponsibleId:
@@ -201,8 +201,7 @@ class User extends Model {
                 case Role.unicefOperationId:
                     isUnicefRole = true;
             }
-        })
-        console.log("IS UNICEFFF", isUnicefRole);
+        });
         return isUnicefRole;
     }
 
