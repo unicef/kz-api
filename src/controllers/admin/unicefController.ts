@@ -14,6 +14,10 @@ import BadRole from "../../exceptions/user/badRole";
 import sequelize from "../../services/sequelize";
 import BadValidationException from "../../exceptions/badValidationException";
 import Project from "../../models/project";
+import { PatchUnicefMakeAdmin } from "../../requests/unicef/patchUnicefMakeAdmin";
+import exceptionHandler from "../../services/exceptionHandler";
+import UserRepository from "../../repositories/userRepository";
+import { PatchUnicefUnmakeAdmin } from "../../requests/unicef/patchUnicefUnmakeAdmin";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -236,6 +240,45 @@ class AdminUnicefController {
                 ApiController.failed(500, error.message, res);
             }
             return;
+        }
+    }
+
+    // add admin role to UNICEF USER
+    static makeAdmin = async (req: PatchUnicefMakeAdmin, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const unicefUser = req.unicefUser;
+
+            await UserRepository.addRole(unicefUser.id, Role.adminRoleId, transaction);
+            transaction.commit();
+
+            const responseData = {
+                message: i18n.t('successMakeAdmin')
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            transaction.rollback();
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static unmakeAdmin = async (req: PatchUnicefUnmakeAdmin, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const adminUser = req.adminUser;
+
+            await UserRepository.removeRole(adminUser.id, Role.adminRoleId, transaction);
+            transaction.commit();
+
+            const responseData = {
+                message: i18n.t('successUnmakeAdmin')
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 }

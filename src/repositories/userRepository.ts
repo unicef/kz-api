@@ -2,6 +2,7 @@ import { QueryTypes, Transaction, QueryOptions } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import Role from "../models/role";
+import BadRole from "../exceptions/user/badRole";
 
 class UserRepository {
     
@@ -104,16 +105,39 @@ class UserRepository {
         if (roles.length > 0) {
             return true;
         }
+        if (Role.roles.indexOf(roleId) < 0) {
+            throw new BadRole();
+        }
+
         const insertQuery = `INSERT INTO users_has_roles ("userId", "roleId") VALUES (${userId}, '${roleId}');`;
+        
         let options: QueryOptions = {
             type: QueryTypes.INSERT
         };
         if (transaction) {
             options.transaction = transaction
-            console.log("ADD ROLE OPTIONS", options);
         }
         const insert = await sequelize.query(insertQuery, options);
         return insert;
+    }
+
+    static removeRole = async (userId: number, roleId: string, transaction?: Transaction) => {
+        const selectQuery = `SELECT uhr.* FROM users_has_roles uhr WHERE uhr."userId"= ${userId} AND uhr."roleId" = '${roleId}'`
+
+        const roles = await sequelize.query(selectQuery,{type: QueryTypes.SELECT});
+        if (roles.length < 1) {
+            return true;
+        }
+        
+        const deleteQuery = `DELETE FROM users_has_roles uhr WHERE uhr."userId" = ${userId} AND uhr."roleId" = '${roleId}'`;
+        let options: QueryOptions = {
+            type: QueryTypes.DELETE
+        };
+        if (transaction) {
+            options.transaction = transaction
+        }
+        const deleteProcess = await sequelize.query(deleteQuery, options);
+        return deleteProcess;
     }
 
     static findWalletById = async (userId: number) => {
