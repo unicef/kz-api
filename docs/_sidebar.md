@@ -67,6 +67,8 @@
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
         - [Block UNICEF account](admin_unicef.md?id=block-unicef-account "Block unicef account")
+        - [Add admin role](admin_unicef.md?id=add-admin-role "Add admin role")
+        - [Remove admin role](admin_unicef.md?id=remove-admin-role "Remove admin role")
 
     - Project
         - [Termination reasons](admin_project.md?id=termination-reasons "Termination reasons")
