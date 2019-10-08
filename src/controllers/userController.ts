@@ -143,6 +143,7 @@ class UserController {
     // activation user process
     static activationProcess = async (req: Request, res: Response) => {
         const hash = req.body.hash;
+        const transaction = await sequelize.transaction();
         try {
             // get activation hash model
             const hashModel = await ActivationHash.findOne({
@@ -169,25 +170,19 @@ class UserController {
                     }
                 });
             }
-            
             // activation process
             user.emailVerifiedAt = new Date();
-            user.save();
-
-            hashModel.destroy();
+            user.save({transaction: transaction});
+            hashModel.destroy({transaction: transaction});
+            transaction.commit();
 
             const responseData = {
                 message: i18n.t('successUserActivation')
             }
-
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
