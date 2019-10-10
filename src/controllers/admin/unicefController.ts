@@ -55,13 +55,7 @@ class AdminUnicefController {
                 userId: user.id
             }, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -88,12 +82,7 @@ class AdminUnicefController {
                 message: i18n.t('adminSuccessUnicefUpdate')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -233,13 +222,7 @@ class AdminUnicefController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 

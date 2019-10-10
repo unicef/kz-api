@@ -11,6 +11,7 @@ import i18n from "i18next";
 import ProjectDocument from "../../models/projectDocument";
 import HistoryRepository from "../../repositories/historyRepository";
 import ProjectHelper from "../../helpers/projectHelper";
+import exceptionHandler from "../../services/exceptionHandler";
 
 class AdminProjectController {
 
@@ -35,12 +36,7 @@ class AdminProjectController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         
     }
@@ -79,12 +75,7 @@ class AdminProjectController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -122,12 +113,7 @@ class AdminProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

@@ -7,6 +7,7 @@ import ApiController from "../apiController";
 import HttpException from "../../exceptions/httpException";
 import PageNotFind from "../../exceptions/page/pageNotFind";
 import BadValidationException from "../../exceptions/badValidationException";
+import exceptionHandler from "../../services/exceptionHandler";
 
 class AdminPageController {
 
@@ -29,13 +30,7 @@ class AdminPageController {
                 page: page
             }, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         
     }
@@ -91,13 +86,7 @@ class AdminPageController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -112,13 +101,7 @@ class AdminPageController {
 
             return ApiController.success(page, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -147,13 +130,7 @@ class AdminPageController {
             }, res)
 
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -170,13 +147,7 @@ class AdminPageController {
 
             return ApiController.success({message: i18n.t('successDeletePage')}, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

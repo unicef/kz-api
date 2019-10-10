@@ -28,6 +28,7 @@ import Pagination from "../services/pagination";
 import Project from "../models/project";
 import ProjectHelper from "../helpers/projectHelper";
 import ProjectRepository from "../repositories/projectRepository";
+import exceptionHandler from "../services/exceptionHandler";
 
 class PartnerController {
     static getPartnerProperties = async (req: Request, res: Response) => {
@@ -96,12 +97,13 @@ class PartnerController {
     }
 
     static updatePartner = async (req: Request, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
         try {
             const partnerId = req.body.company.id;
             const user = req.user;
             const userPartner = await UserHelper.getUserPartner(user);
 
-            if ((!user.hasRole('ra') && !user.hasRole('ap')) || userPartner==null || userPartner.id!==partnerId) {
+            if ((!user.hasRole(Role.partnerAssistId) && !user.hasRole(Role.partnerAuthorisedId)) || userPartner==null || userPartner.id!==partnerId) {
                 throw new BadPermissions();
             }
 
@@ -120,9 +122,9 @@ class PartnerController {
             if (PartnerHelper.isPartnerDataDifferent(partnerData, partner)) {
                 partnerData.statusId = Partner.partnerStatusFilled;
             }
-            await partner.update(partnerData);
+            await partner.update(partnerData, {transaction: transaction});
 
-            if (user.hasRole('ra')) {
+            if (user.hasRole(Role.partnerAssistId)) {
                 // update authorised person information
                 const authPerson = await PartnerHelper.getPartnerAuthorised(partner);
                 if (authPerson == null) {
@@ -136,19 +138,16 @@ class PartnerController {
                     occupationEn: req.body.authorisedPerson.occupationEn,
                     occupationRu: req.body.authorisedPerson.occupationRu
                 }
-                authPerson.personalData.update(authorisedData);
+                authPerson.personalData.update(authorisedData, {transaction: transaction});
             }
+            transaction.commit();
 
             return ApiController.success({
                 message: i18n.t('successPartnerSaving')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
@@ -184,12 +183,7 @@ class PartnerController {
 
             throw new PartnerNotFind();
         } catch(error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -226,12 +220,7 @@ class PartnerController {
 
             throw new PartnerNotFind();
         } catch(error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -254,30 +243,29 @@ class PartnerController {
                 message: i18n.t('successUpdatedDocuments')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
     static list = async (req: Request, res: Response) => {
-        if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
-            throw new BadRole();
+        try {
+            if (!req.user.isUnicefUser() && !req.user.isAdmin()) {
+                throw new BadRole();
+            }
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+            const partners = await PartnerRepository.getList(searchInstanse, pagination);
+    
+            const responseData = {
+                partners: partners,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+    
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
         }
-        let pagination = new Pagination(req, 15);
-        let searchInstanse = req.query.search?req.query.search:null;
-        const partners = await PartnerRepository.getList(searchInstanse, pagination);
-
-        const responseData = {
-            partners: partners,
-            currentPage: pagination.getCurrentPage(),
-            lastPage: pagination.getLastPage()
-        }
-
-        return ApiController.success(responseData, res);
     }
 
     static details = async (req: Request, res: Response) => {
@@ -293,12 +281,7 @@ class PartnerController {
             
             return ApiController.success(partner, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -312,12 +295,7 @@ class PartnerController {
             
             return ApiController.success(partner, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -339,7 +317,7 @@ class PartnerController {
                 where: {
                     partnerId: partner.id
                 }
-            })
+            });
 
             let responseData: any = [];
 
@@ -355,12 +333,7 @@ class PartnerController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -401,13 +374,7 @@ class PartnerController {
                 return ;
             }
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -441,12 +408,7 @@ class PartnerController {
             }, res)
 
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -457,12 +419,7 @@ class PartnerController {
 
             return ApiController.success({partners: partners}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -482,12 +439,7 @@ class PartnerController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

@@ -31,6 +31,7 @@ import BadRole from "../exceptions/user/badRole";
 import ReportBadStatus from "../exceptions/project/reportBadStatus";
 import BadValidationException from "../exceptions/badValidationException";
 import User from "../models/user";
+import exceptionHandler from "../services/exceptionHandler";
 
 class FaceReportController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -65,12 +66,7 @@ class FaceReportController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -112,12 +108,7 @@ class FaceReportController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -169,12 +160,7 @@ class FaceReportController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -267,12 +253,7 @@ class FaceReportController {
             };
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -313,12 +294,7 @@ class FaceReportController {
 
             return ApiController.success({message: i18n.t('reportDocSuccessfullyDeleted')}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -329,12 +305,7 @@ class FaceReportController {
             const isMyStage = await FaceReportHelper.isMyStage(faceReport, req.user);
             return ApiController.success({report: faceReport, isMyStage: isMyStage}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -360,12 +331,7 @@ class FaceReportController {
                 return ;
             }
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -379,12 +345,7 @@ class FaceReportController {
             return ApiController.success(responseData, res);
 
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -546,12 +507,7 @@ class FaceReportController {
                 message: i18n.t('successApprovingMessage')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

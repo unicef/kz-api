@@ -5,6 +5,7 @@ import HttpException from "../exceptions/httpException";
 import AuthRequiredException from "../exceptions/authRequiredException";
 import checkAuthToken from "./checkAuthToken";
 import BadRole from "../exceptions/user/badRole";
+import exceptionHandler from "../services/exceptionHandler";
 
 export const acceptRoles = (roles: string | Array<string>) => {
     return function (req: Request, res: Response, next: NextFunction) {
@@ -32,12 +33,7 @@ export const acceptRoles = (roles: string | Array<string>) => {
             }
             return;
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         return next();
     }

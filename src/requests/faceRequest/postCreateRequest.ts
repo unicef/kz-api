@@ -112,7 +112,7 @@ const middleware = async (expressRequest: Request, res: Response, next: NextFunc
             }
         }
 
-        next();
+        return next();
     } catch (error) {
         if (error instanceof HttpException) {
             error.response(res);

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import BadValidationException from "../exceptions/badValidationException";
-import HttpException from "../exceptions/httpException";
-import ApiController from "../controllers/apiController";
+import exceptionHandler from "../services/exceptionHandler";
 
 export const validationProcess = (req: Request, res: Response, next: NextFunction, request: any) => {
     try {
@@ -25,12 +24,7 @@ export const validationProcess = (req: Request, res: Response, next: NextFunctio
 
         next();
     } catch (error) {
-        if (error instanceof HttpException) {
-            error.response(res);
-        } else {
-            ApiController.failed(500, error.message, res);
-        }
-        return ;
+        return exceptionHandler(error, res);
     }
 };
 

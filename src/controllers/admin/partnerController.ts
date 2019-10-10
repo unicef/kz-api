@@ -16,6 +16,7 @@ import DocumentHelper from "../../helpers/documentHelper";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import Pagination from "../../services/pagination";
 import PartnerRepository from "../../repositories/partnerRepository";
+import exceptionHandler from "../../services/exceptionHandler";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -71,13 +72,7 @@ class AdminPartnerController {
             }, res);
             return ;
         } catch(error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -126,12 +121,7 @@ class AdminPartnerController {
                 message: i18n.t('adminSuccessPartnerSaving')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -211,12 +201,7 @@ class AdminPartnerController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

@@ -11,6 +11,7 @@ import DonorRepository from "../../repositories/donorRepository";
 import UserNotfind from "../../exceptions/userNotFind";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import Pagination from "../../services/pagination";
+import exceptionHandler from "../../services/exceptionHandler";
 
 class AdminDonorController {
 
@@ -59,13 +60,7 @@ class AdminDonorController {
                 userId: user.id
             }, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         
     }
@@ -98,12 +93,7 @@ class AdminDonorController {
                 message: i18n.t('adminSuccessDonorUpdate')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -137,13 +127,7 @@ class AdminDonorController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

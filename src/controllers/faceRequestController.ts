@@ -21,6 +21,7 @@ import User from "../models/user";
 import BadValidationException from "../exceptions/badValidationException";
 import i18n from "i18next";
 import RequestBadStatus from "../exceptions/project/requestBadStatus";
+import exceptionHandler from "../services/exceptionHandler";
 
 class FaceRequestController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,12 +36,7 @@ class FaceRequestController {
 
             return ApiController.success({type: responseTypes}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -72,12 +68,7 @@ class FaceRequestController {
             return ApiController.success(responseData, res);
             
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -127,12 +118,7 @@ class FaceRequestController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -196,12 +182,7 @@ class FaceRequestController {
             };
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -212,12 +193,7 @@ class FaceRequestController {
             const isMyStage = await FaceRequestHelper.isMyStage(faceRequest, req.user);
             return ApiController.success({request: faceRequest, isMyStage: isMyStage}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -231,12 +207,7 @@ class FaceRequestController {
             return ApiController.success(responseData, res);
 
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -395,18 +366,11 @@ class FaceRequestController {
                 }
             }
             
-
-
             return ApiController.success({
                 message: i18n.t('successApprovingMessage')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

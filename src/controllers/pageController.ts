@@ -5,6 +5,7 @@ import ApiController from "./apiController";
 import BadValidationException from "../exceptions/badValidationException";
 import Page from "../models/page";
 import PageNotFind from "../exceptions/page/pageNotFind";
+import exceptionHandler from "../services/exceptionHandler";
 
 class PageController {
     static getPage = async (req: Request, res: Response) => {
@@ -38,12 +39,7 @@ class PageController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -64,12 +60,7 @@ class PageController {
             
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }
