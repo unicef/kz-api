@@ -58,8 +58,8 @@ const requestValidationUnicef = Joi.object().options({
             id: Joi.number().allow(null).allow(''),
             title: Joi.string().max(255).required(),
             amountE: Joi.number().min(0).required(),
-            amountF: Joi.number().min(0).required(),
-            amountG: Joi.number().min(0).required(),
+            amountF: Joi.number().required(),
+            amountG: Joi.number().required(),
             isRejected: Joi.boolean().required(),
             rejectReason: Joi.string().allow('').required()
         }).pattern(/./, Joi.any()).required()),
