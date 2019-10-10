@@ -455,7 +455,7 @@ class ProjectRepository {
     }
 
     static setTerminationReason = async (projectId: number, reasonId: number, transaction?: Transaction) => {
-        const query = `INSERT INTO projects_term_reasons ("projectId", "reasonId") VALUES (${projectId}, ${reasonId})`;
+        const query = `INSERT INTO projects_term_reasons ("projectId", "reasonId") VALUES (${projectId}, '${reasonId}')`;
 
         const exec = await sequelize.query(query, {
             type: QueryTypes.INSERT,

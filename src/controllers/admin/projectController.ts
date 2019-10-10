@@ -77,12 +77,14 @@ class AdminProjectController {
             await ProjectRepository.setTerminationReason(project.id, terminationReasonKey, transaction);
 
             event(new ProjectWasTerminated(req.user, project, terminationReasonKey));
+            transaction.commit();
 
             const responseData = {
                 message: i18n.t('successProjectTermination')
             }
             return ApiController.success(responseData, res);
         } catch (error) {
+            transaction.rollback();
             return exceptionHandler(error, res);
         }
     }
