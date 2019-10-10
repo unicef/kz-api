@@ -12,6 +12,8 @@ import ProjectDocument from "../../models/projectDocument";
 import HistoryRepository from "../../repositories/historyRepository";
 import ProjectHelper from "../../helpers/projectHelper";
 import exceptionHandler from "../../services/exceptionHandler";
+import sequelize from "../../services/sequelize";
+import ProjectRepository from "../../repositories/projectRepository";
 
 class AdminProjectController {
 
@@ -42,6 +44,7 @@ class AdminProjectController {
     }
     
     static terminate = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             const projectId = req.body.id;
             const terminationReasonKey = req.body.reason.key;
@@ -61,13 +64,18 @@ class AdminProjectController {
             });
 
             project.statusId = Project.TERMINATION_STATUS_ID;
-            await project.save();
+            await project.save({transaction: transaction});
 
-            projectTranches.forEach((tranche) => {
-                tranche.status = ProjectTranche.DONE_STATUS_KEY
-                tranche.save();
-            });
-            
+            if (projectTranches.length>0) {
+                for (var i=0; i<projectTranches.length; i++) {
+                    const tranche = projectTranches[i];
+                    tranche.status = ProjectTranche.DONE_STATUS_KEY
+                    await tranche.save({transaction: transaction});
+                }
+            }
+            // set termination reason
+            await ProjectRepository.setTerminationReason(project.id, terminationReasonKey, transaction);
+
             event(new ProjectWasTerminated(req.user, project, terminationReasonKey));
 
             const responseData = {

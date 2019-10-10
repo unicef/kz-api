@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
 import fs from "fs";
-import cryptoRandomString from "crypto-random-string";
 import mime from "mime-types";
 import ApiController from "./apiController";
-import HttpException from "../exceptions/httpException";
 import ProgrammeRepository from "../repositories/programmeRepository";
 import SettingHelper from "../helpers/settingHelper";
 import SectionRepository from "../repositories/sectionRepository";
@@ -223,6 +221,14 @@ class ProjectController {
 
             if (project === null) {
                 throw new ProjectNotFound();
+            }
+            // is project terminated
+            if (project.status == Project.TERMINATION_STATUS_ID) {
+                // get terminationReason property
+                const terminationKey = await ProjectRepository.getTerminationReason(project.id);
+                if (terminationKey) {
+                    project.terminationReason = ProjectHelper.getTerminationReasonTitle(terminationKey.reasonId);
+                }
             }
             // get isMyStage flag
             project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);

@@ -1,4 +1,4 @@
-import { QueryTypes } from "sequelize";
+import { QueryTypes, Transaction } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import Project from "../models/project";
@@ -452,6 +452,29 @@ class ProjectRepository {
         } else {
             return null;
         }
+    }
+
+    static setTerminationReason = async (projectId: number, reasonId: number, transaction?: Transaction) => {
+        const query = `INSERT INTO projects_term_reasons ("projectId", "reasonId") VALUES (${projectId}, ${reasonId})`;
+
+        const exec = await sequelize.query(query, {
+            type: QueryTypes.INSERT,
+            transaction: transaction
+        });
+
+        return exec;
+    }
+
+    static getTerminationReason = async (projectId: number) => {
+        const query = `SELECT * FROM projects_term_reasons WHERE "projectId"=${projectId} LIMIT 1`;
+
+        const exec = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return exec;
     }
 
 }
