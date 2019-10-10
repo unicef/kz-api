@@ -9,9 +9,9 @@ class ActivityRepository {
         const query = `SELECT 
             pa."id" as "id",
             pa."title" as "title", 
-            0 as "amountE", 
-            0 AS "amountF", 
-            0 AS "amountG",
+            '0' as "amountE", 
+            '0' AS "amountF", 
+            '0' AS "amountG",
             false as "isRejected",
             '' AS "rejectReason"
             FROM project_activities "pa" 
