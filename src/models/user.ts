@@ -1,4 +1,4 @@
-import { Model, DataTypes, QueryTypes } from "sequelize";
+import { Model, DataTypes, QueryTypes, Transaction, SaveOptions } from "sequelize";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import Role from "./role";
@@ -43,14 +43,18 @@ class User extends Model {
         return 'active';
     }
 
-    public setPassword = (password: string): boolean => {
+    public setPassword = async (password: string, transaction?: Transaction): Promise<boolean> => {
         const passwordSalt = cryptoRandomString(10);
         const userPassword = User.generatePassword(passwordSalt, password);
 
         this.passwordSalt = passwordSalt;
         this.password = userPassword;
 
-        this.save();
+        let options: SaveOptions = {};
+        if (transaction) {
+            options.transaction = transaction;
+        }
+        await this.save(options);
 
         return true;
     }

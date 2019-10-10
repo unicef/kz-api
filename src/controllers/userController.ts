@@ -231,16 +231,8 @@ class UserController {
             
             ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            captureException(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
-        
     }
 
     static changeShowSeedFlag = async (req: Request, res: Response) => {
@@ -256,12 +248,7 @@ class UserController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -287,21 +274,17 @@ class UserController {
             
             return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
     static getUserById = async (req: Request, res: Response) => {
         const userId: number = req.query.id;
-
-        const user = await UserRepository.findUserById(userId);
-        
-        if (user && user.personalData) {
+        try {
+            const user = await UserRepository.findUserById(userId);
+            if (user === null) {
+                throw new UserNotfind();
+            }
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -319,11 +302,15 @@ class UserController {
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM'),
                 createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
             }
-            if (UserHelper.isRole(user.roles, Role.partnerAssistId) || UserHelper.isRole(user.roles, Role.partnerAuthorisedId)) {
+
+            const isUserAssist = UserHelper.isRole(user.roles, Role.partnerAssistId);
+            const isUserAuthorised = UserHelper.isRole(user.roles, Role.partnerAuthorisedId);
+            const isUserDonor = UserHelper.isRole(user.roles, Role.donorId);
+            if (isUserAssist || isUserAuthorised) {
                 const company = await UserHelper.getUserPartner(user);
-                responseData['company'] = company?company.id:null;
-                
-            } else if (UserHelper.isRole(user.roles, Role.donorId)) {
+                responseData['company'] = company ? company.id : null;
+
+            } else if (isUserDonor) {
                 const donorCompany = await DonorRepository.getCompanyData(user.id);
                 if (donorCompany) {
                     responseData['companyEn'] = donorCompany.companyEn;
@@ -331,18 +318,16 @@ class UserController {
                 }
             }
 
-            ApiController.success(responseData, res);
-
-            return ;
-        } else {
-            ApiController.failed(404, 'User not found', res);
-            return ;
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
         }
     }
 
     static setUserPassword = async (req: Request, res: Response) => {
         const setPasswordHash: string = req.body.hash;
         const newUserPassword: string = req.body.password;
+        const transaction = await sequelize.transaction();
         try {
             const hashModel = await SetPasswordHash.findOne({
                 where: {
@@ -360,29 +345,25 @@ class UserController {
                 throw new BadSetPasswordLink();
             }
             // activation process + set password
-            user.setPassword(newUserPassword);
+            await user.setPassword(newUserPassword, transaction);
             user.emailVerifiedAt = new Date();
-            user.save();
+            await user.save({transaction: transaction});
 
             event(new UserSetPassword(user, newUserPassword));
 
-            hashModel.destroy();
-            const deleteHashes = SetPasswordHashRepository.deleteHashesByUserId(user.id);
-    
+            await hashModel.destroy({transaction: transaction});
+            SetPasswordHashRepository.deleteHashesByUserId(user.id);
+            transaction.commit();
+
             const responseData = {
                 message: i18n.t('successUserPasswordSet')
             }
-    
-            ApiController.success(responseData, res);
-            return ;
+            
+            return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
-        }  
+            transaction.rollback();
+            return exceptionHandler(error, res);
+        }
     }
 
     static setNewPassword = async (req: Request, res: Response) => {
@@ -395,17 +376,12 @@ class UserController {
                 throw new WrongOldPassword();
             }
 
-            user.setPassword(newPassword);
+            await user.setPassword(newPassword);
             return ApiController.success({
                 message: i18n.t('passwordSuccessfullyChanged')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -481,13 +457,7 @@ class UserController {
             user.save();
             return ApiController.success({message: i18n.t('userDataSavedSuccessfully')}, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -516,12 +486,7 @@ class UserController {
             }, res)
 
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -552,13 +517,9 @@ class UserController {
                 message: i18n.t('activationLinkSent')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }
+
 export default UserController;

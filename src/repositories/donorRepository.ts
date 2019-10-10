@@ -36,7 +36,10 @@ class DonorRepository {
         return donors;
     }
 
-    static saveDonorCompany = async (userId: number, companyData: { companyEn: string; companyRu: string; }) => {
+    static saveDonorCompany = async (
+            userId: number, 
+            companyData: { companyEn: string; companyRu: string; }
+        ) => {
         // check if user has company row
         const userCompany = await sequelize.query('SELECT * FROM "donors_companies" WHERE "userId"=' + userId, {
             type: QueryTypes.SELECT,
