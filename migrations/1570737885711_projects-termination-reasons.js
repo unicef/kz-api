@@ -10,7 +10,7 @@ exports.up = (pgm) => {
             onDelete: 'CASCADE'
         },
         reasonId: {
-            type: "integer",
+            type: "varchar(20)",
             notNull: true
         }
     });
