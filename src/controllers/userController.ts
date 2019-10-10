@@ -5,10 +5,8 @@ import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import i18n from "i18next";
 import fs from "fs";
-import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
 import Config from "../services/config";
-import { captureException } from "@sentry/node";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import BadActivationLink from "../exceptions/badActivationLink";
 import BadEmailException from "../exceptions/badEmailException";
@@ -22,7 +20,6 @@ import UserPersonalData from "../models/userPersonalData";
 import UserHelper from "../helpers/userHelper";
 import SetPasswordHash from "../models/setPasswordHash";
 import BadSetPasswordLink from "../exceptions/badSetPasswordLink";
-import HttpException from "../exceptions/httpException";
 import putUserStepInformation from "../requests/user/putUserStepInformation";
 import putPartnerStepInformation from "../requests/partner/putPartnerStepInformation";
 import PartnerHelper from "../helpers/partnerHelper";
@@ -41,7 +38,6 @@ import SetPasswordHashRepository from "../repositories/setPasswordHashRepository
 import UserSetPassword from "../events/userSetPassword";
 import sequelize from "../services/sequelize";
 import exceptionHandler from "../services/exceptionHandler";
-import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
 
 class UserController {
     // get user Data about auth user
@@ -172,8 +168,8 @@ class UserController {
             }
             // activation process
             user.emailVerifiedAt = new Date();
-            user.save({transaction: transaction});
-            hashModel.destroy({transaction: transaction});
+            await user.save({transaction: transaction});
+            await hashModel.destroy({transaction: transaction});
             transaction.commit();
 
             const responseData = {
@@ -253,6 +249,7 @@ class UserController {
     }
 
     static setUserPersonalData = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             for (var key in req.user.personalData.dataValues) {
                 if (req.body[key]) {
@@ -265,15 +262,16 @@ class UserController {
                         companyEn: req.body.companyEn,
                         companyRu: req.body.companyRu
                     }
-                    await DonorRepository.saveDonorCompany(req.user.id, donorsCompany);
+                    await DonorRepository.saveDonorCompany(req.user.id, donorsCompany, transaction);
                 } else {
                     throw new BadValidationException(400,129, i18n.t('emptyDonorsCompanyField'), 'Bad donor company fields');
                 }
             }
-            req.user.personalData.save();
-            
+            await req.user.personalData.save({transaction: transaction});
+            transaction.commit();
             return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
         } catch (error) {
+            transaction.rollback();
             return exceptionHandler(error, res);
         }
     }
@@ -387,17 +385,18 @@ class UserController {
 
     static saveUserStepForm = async (req: Request, res: Response, next: NextFunction) => {
         const user = req.user;
+        const transaction = await sequelize.transaction();
         try {
             // work with user information
             putUserStepInformation(req, res, next);
             let userPersonalInformation = user.personalData;
             let reqUserData: any = UserHelper.getUserDataFromRequest(req.body.user);
             if (userPersonalInformation) {
-                await userPersonalInformation.update(reqUserData);
+                await userPersonalInformation.update(reqUserData, {transaction: transaction});
             } else {
                 // create user personal data
                 reqUserData['userId'] = user.id;
-                userPersonalInformation = await UserPersonalData.create(reqUserData);
+                userPersonalInformation = await UserPersonalData.create(reqUserData, {transaction: transaction});
             }
 
             if (user.hasRole(Role.donorId)) {
@@ -405,12 +404,11 @@ class UserController {
                     companyEn: req.body.user.companyEn,
                     companyRu: req.body.user.companyRu
                 }
-                await DonorRepository.saveDonorCompany(user.id, donorCompany);
+                await DonorRepository.saveDonorCompany(user.id, donorCompany, transaction);
             }
             // work with company details
             if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
                 putPartnerStepInformation(req, res, next);
-
                 let userCompany = await UserHelper.getUserPartner(user);
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
 
@@ -418,21 +416,21 @@ class UserController {
                     // assist doesn't have partner
                     if (userCompany == null) {
                         // create partner 
-                        userCompany = await Partner.create(partnerData);
+                        userCompany = await Partner.create(partnerData, {transaction: transaction});
                         // working with authorised
-                        let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                        let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany, transaction);
                         user.partnerId = userCompany.id;
-                        await user.save();
+                        await user.save({transaction: transaction});
                     } else {
                         // update user company information and update authorised data
-                        await userCompany.update(partnerData);
+                        await userCompany.update(partnerData, {transaction: transaction});
                         let authorisedPerson = await PartnerHelper.getPartnerAuthorised(userCompany);
                         if (authorisedPerson) {
                             // update authorised person
                             let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
-                            authorisedPerson.personalData.update(authorisedData);
+                            authorisedPerson.personalData.update(authorisedData, {transaction: transaction});
                         } else {
-                            authorisedPerson = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                            authorisedPerson = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany, transaction);
                         }
                     }
                 } else {
@@ -440,23 +438,25 @@ class UserController {
                     if (userCompany == null) {
                         throw new Error('Authorised person(id:'+user.id+') without company')
                     }
-                    await userCompany.update(partnerData);
+                    await userCompany.update(partnerData, {transaction: transaction});
                 }
                 
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                     req.body.documents.forEach(async (element: any) => {
-                        await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany);
+                        await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany, transaction);
                     });
                 }
 
                 userCompany.statusId = Partner.partnerStatusFilled;
-                userCompany.save();
+                await userCompany.save({transaction: transaction});
             }
             user.showForm = false;
-            user.save();
+            await user.save({transaction: transaction});
+            transaction.commit();
             return ApiController.success({message: i18n.t('userDataSavedSuccessfully')}, res);
         } catch (error) {
+            transaction.rollback();
             return exceptionHandler(error, res);
         }
     }

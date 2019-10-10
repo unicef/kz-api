@@ -9,6 +9,7 @@ import postPartnerDocuments from "../requests/partner/postPartnerDocuments";
 import FileController from "../controllers/fileController";
 import { acceptRoles } from "../middlewares/acceptRoles";
 import Role from "../models/role";
+import ApiController from "../controllers/apiController";
 
 const router = Router();
 const upload = multer({ 

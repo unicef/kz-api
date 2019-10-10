@@ -1,4 +1,4 @@
-import { Model, DataTypes, QueryTypes, Transaction, SaveOptions } from "sequelize";
+import { Model, DataTypes, QueryTypes, Transaction, SaveOptions, CreateOptions } from "sequelize";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import Role from "./role";
@@ -81,18 +81,22 @@ class User extends Model {
         return true;
     }
 
-    static generateUser = async (email: string): Promise<User> => {
+    static generateUser = async (email: string, transaction?: Transaction): Promise<User> => {
         const userExists = await User.isUserExists(email);
         if (userExists) {
             throw new Error('User allready exists');
         } else {
             const passwordSalt: string = cryptoRandomString(10);
             const password: string = cryptoRandomString(12);
+            let options: CreateOptions = {};
+            if (transaction) {
+                options.transaction = transaction;
+            }
             let user = await User.create({
                 email: email,
                 password: User.generatePassword(passwordSalt, password),
                 passwordSalt: passwordSalt
-            });
+            }, options);
     
             event(new UserRegisteredRemotely(user));
 
