@@ -119,7 +119,7 @@ class FaceRequestRepository {
             LEFT JOIN face_requests fr ON fr."id"=reqcc."requestId"
             LEFT JOIN project_tranches pt ON pt."id"=fr."trancheId"
             WHERE pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
-                AND fr.statusId!='${FaceRequest.SUCCESS_STATUS_KEY}'
+                AND fr."statusId"!='${FaceRequest.SUCCESS_STATUS_KEY}'
                 AND ((reqcc."confirmBy"=${userId} AND reqcc."confirmAt" IS NULL)
                     OR (reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL)
                     OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL)
