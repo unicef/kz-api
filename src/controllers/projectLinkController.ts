@@ -10,6 +10,7 @@ import ProjectLink from "../models/projectLink";
 import BadValidationException from "../exceptions/badValidationException";
 import event from "../services/event";
 import ProjectLinkAdded from "../events/projectLinkAdded";
+import exceptionHandler from "../services/exceptionHandler";
 
 class ProjectLinkController {
     static create = async (req: Request, res: Response, next: NextFunction) => {
@@ -55,12 +56,7 @@ class ProjectLinkController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -93,12 +89,7 @@ class ProjectLinkController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

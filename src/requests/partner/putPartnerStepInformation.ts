@@ -55,7 +55,7 @@ const putPartnerStepInformation = (req: Request, res: Response, next: NextFuncti
             abortEarly: false,
             language: LocalizationHelper.getValidationMessages()
         }).keys({
-            email: Joi.string().email({ minDomainSegments: 2 }),
+            email: Joi.string().email({ minDomainSegments: 2 }).required(),
             firstNameEn: Joi.string().max(255).required(),
             firstNameRu: Joi.string().max(255).required(),
             lastNameEn: Joi.string().max(255).required(),

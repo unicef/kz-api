@@ -6,11 +6,13 @@ import express from "express";
 import i18next from "i18next";
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
+import { CronJob } from "cron";
 import { init as SentryInit, Handlers as SentryHandlers } from "@sentry/node";
 import routes from "./routes";
 import Config from "./services/config";
 import Translation from './models/translation';
 import User from "./models/user";
+import Jobs from "./jobs";
 
 class App {
     public app: express.Application = express();
@@ -21,11 +23,13 @@ class App {
     }
 
     private config(): void{
+        // run cron job
+        const jobs = new Jobs();
         // Call midlewares
         this.app.use(cors({
             optionsSuccessStatus:200
         }));
-        SentryInit({ dsn: 'http://cb9e31b65cc84f298c7b1e15c01d6e4a@sentry.iskytest.com:8082/2', defaultIntegrations: false, logLevel: 1});
+        SentryInit({ dsn: Config.get("SENTRY_URL", "https://1fe5fdb0c4fa4524a674810b4d6ac436@sentry.io/1489635"), defaultIntegrations: false, logLevel: 1});
         this.app.use(SentryHandlers.requestHandler());
 
         this.app.use(helmet());

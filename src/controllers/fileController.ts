@@ -5,6 +5,7 @@ import fs from "fs";
 import User from "../models/user";
 import HttpException from "../exceptions/httpException";
 import TmpFile from "../models/tmpFile";
+import exceptionHandler from "../services/exceptionHandler";
 
 class FileController{
     // get users list
@@ -33,8 +34,7 @@ class FileController{
             res.status(404);
             return;
         } catch (error) {
-            ApiController.failed(503, error.message, res);
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -47,15 +47,9 @@ class FileController{
                 mimeType: req.file.mimetype,
                 size: req.file.size
             });
-            ApiController.success({id: tmpFile.id}, res);
-            return;
+            return ApiController.success({id: tmpFile.id}, res);;
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

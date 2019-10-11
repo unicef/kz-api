@@ -31,7 +31,6 @@ class Project extends Model {
     public descriptionRu!: string;
     public readonly createdAt!: Date; 
     public readonly updatedAt!: Date;
-
 }
 
 Project.init(

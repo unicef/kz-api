@@ -41,6 +41,13 @@
     - [Get project history](project.md?id=get-project-history "Get project history")
     - Face Request
         - [Get face request static properties](request.md?id=get-face-request-static-properties "Get face request static properties")
+        - [Get face request activities](request.md?id=get-face-request-activities "Get face request activities")
+        - [Create FACE request](request.md?id=create-face-request "Create FACE request")
+        - [Get users list for approve](request.md?id=get-users-list-for-approve "Get users list for approve")
+    
+- Page
+    - [Get page by key](page.md?id=get-page-by-key "Get page by key")
+    - [Get pages list](page.md?id=get-pages-list "Get pages list")
     
 - Localization
     - [Get all locales](localization.md?id=get-all-locales "Get all locales")
@@ -60,6 +67,8 @@
         - [Create new unicef account](admin_unicef.md?id=create-new-unicef-account "Create new unicef")
         - [Update unicef user](admin_unicef.md?id=update-unicef-account "Update unicef user")
         - [Block UNICEF account](admin_unicef.md?id=block-unicef-account "Block unicef account")
+        - [Add admin role](admin_unicef.md?id=add-admin-role "Add admin role")
+        - [Remove admin role](admin_unicef.md?id=remove-admin-role "Remove admin role")
 
     - Project
         - [Termination reasons](admin_project.md?id=termination-reasons "Termination reasons")
@@ -77,4 +86,5 @@
         - [Update page](admin_page.md?id=update-page "Update page")
         - [Pages list](admin_page.md?id=get-pages-list "Get pages list")
         - [Get page](admin_page.md?id=get-single-page "Get page")
+        - [Delete page](admin_page.md?id=delete-page "Delete page")
         

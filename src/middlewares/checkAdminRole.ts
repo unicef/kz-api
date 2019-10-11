@@ -8,6 +8,7 @@ import BlockedUserException from "../exceptions/blockedUserException";
 import AdminRoleException from "../exceptions/adminRoleException";
 import HttpException from "../exceptions/httpException";
 import ApiController from "../controllers/apiController";
+import exceptionHandler from "../services/exceptionHandler";
 
 export const checkAdminRole = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -48,14 +49,9 @@ export const checkAdminRole = (req: Request, res: Response, next: NextFunction) 
                         if (!user.isAdmin()) {
                             throw new AdminRoleException();
                         }
-                        next();
+                        return next();
                     }).catch((error) => {
-                        if (error instanceof HttpException) {
-                            error.response(res);
-                        } else {
-                            ApiController.failed(500, error.message, res);
-                        }
-                        return ;
+                        return exceptionHandler(error, res);
                     });     
               }
             })
@@ -63,12 +59,7 @@ export const checkAdminRole = (req: Request, res: Response, next: NextFunction) 
             throw new AuthRequiredException();
         }
     } catch (error) {
-        if (error instanceof HttpException) {
-            error.response(res);
-        } else {
-            ApiController.failed(500, error.message, res);
-        }
-        return ;
+        return exceptionHandler(error, res);
     }
 };
 

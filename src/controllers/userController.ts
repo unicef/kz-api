@@ -5,10 +5,8 @@ import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import i18n from "i18next";
 import fs from "fs";
-import { keystore } from "eth-lightwallet";
 import ApiController from "./apiController";
 import Config from "../services/config";
-import { captureException } from "@sentry/node";
 import UserAlreadyExists from "../exceptions/userAlreadyExists";
 import BadActivationLink from "../exceptions/badActivationLink";
 import BadEmailException from "../exceptions/badEmailException";
@@ -22,7 +20,6 @@ import UserPersonalData from "../models/userPersonalData";
 import UserHelper from "../helpers/userHelper";
 import SetPasswordHash from "../models/setPasswordHash";
 import BadSetPasswordLink from "../exceptions/badSetPasswordLink";
-import HttpException from "../exceptions/httpException";
 import putUserStepInformation from "../requests/user/putUserStepInformation";
 import putPartnerStepInformation from "../requests/partner/putPartnerStepInformation";
 import PartnerHelper from "../helpers/partnerHelper";
@@ -38,6 +35,9 @@ import UserRepository from "../repositories/userRepository";
 import DonorRepository from "../repositories/donorRepository";
 import BadValidationException from "../exceptions/badValidationException";
 import SetPasswordHashRepository from "../repositories/setPasswordHashRepository";
+import UserSetPassword from "../events/userSetPassword";
+import sequelize from "../services/sequelize";
+import exceptionHandler from "../services/exceptionHandler";
 
 class UserController {
     // get user Data about auth user
@@ -48,19 +48,19 @@ class UserController {
             email: user.email,
             showSeed: user.showSeed,
             showForm: user.showForm,
-            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
+            createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM'),
+            roles: []
         }
         // working with rolles
-        let roles: string[] = [];
         user.roles.forEach((role: Role) => {
-            const roleHash: string = CryptoJS.AES.encrypt(role.id, user.id + responseData.createdAt).toString();
-            roles.push(roleHash);
+            const key: string = user.id + responseData.createdAt;
+            const roleHash: string = role.getEncriptedRole(key);
+            responseData.roles.push(roleHash);
         });
-        responseData.roles = roles;
 
-        // get user seed phrase
-        const seedPhrase = keystore.generateRandomSeed();
         if (user.showSeed) {
+            // get user seed phrase
+            const seedPhrase = await user.getWalletPhrase();
             // generate txt file with seed
             fs.writeFile(__dirname + '/../../assets/users/files/' + user.passwordSalt + ".txt", seedPhrase, (err) => {
                 if (err) console.log(err);
@@ -69,7 +69,7 @@ class UserController {
 
             responseData.seed = {
                 phrase: seedPhrase,
-                link: 'http://' + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
+                link: Config.get("APP_PROTOCOL", "http://") + Config.get('APP_NAME', 'api.local.com') + '/file?id=' + user.id
             }
         }
         // showForm flag
@@ -89,6 +89,7 @@ class UserController {
 
     // create partner process
     static createPartner = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             // check exists user
             let user: any = await User.findOne({
@@ -97,40 +98,48 @@ class UserController {
             if (user !== null) {
                 throw new UserAlreadyExists();
             }
-
             // creating user
             const passwordSalt: string = cryptoRandomString(10);
             user = await User.create({
                 email: req.body.email,
                 password: User.generatePassword(passwordSalt, req.body.password),
                 passwordSalt: passwordSalt
-            })
-
+            }, {transaction: transaction});
 
             // add Responsible assistant role to user
-            const role = await Role.findByPk('ra');
-            user.addRole(role);
+            await UserRepository.addRole(user.id, Role.partnerAssistId, transaction);
 
-            event(new UserRegistered(user));
+            // create user personal data row
+            await UserPersonalData.create({
+                userId: user.id,
+                firstNameEn: '',
+                firstNameRu: '',
+                lastNameEn: '',
+                lastNameRu: '',
+                occupationEn: '',
+                occupationRu: '',
+                tel: '',
+                mobile: ''
+            }, {transaction: transaction});
+
+            transaction.commit();
             
+            event(new UserRegistered(user, req.body.password));
             const responseData = {
                 userId: user.id,
                 message: i18n.t('successCreatedPartner')
             };
             return ApiController.success(responseData, res);
         } catch(error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            exceptionHandler(error, res);
         }
     }
 
     // activation user process
     static activationProcess = async (req: Request, res: Response) => {
         const hash = req.body.hash;
+        const transaction = await sequelize.transaction();
         try {
             // get activation hash model
             const hashModel = await ActivationHash.findOne({
@@ -157,25 +166,19 @@ class UserController {
                     }
                 });
             }
-            
             // activation process
             user.emailVerifiedAt = new Date();
-            user.save();
-
-            hashModel.destroy();
+            await user.save({transaction: transaction});
+            await hashModel.destroy({transaction: transaction});
+            transaction.commit();
 
             const responseData = {
                 message: i18n.t('successUserActivation')
             }
-
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
@@ -224,16 +227,8 @@ class UserController {
             
             ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            captureException(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
-        
     }
 
     static changeShowSeedFlag = async (req: Request, res: Response) => {
@@ -249,16 +244,12 @@ class UserController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
     static setUserPersonalData = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             for (var key in req.user.personalData.dataValues) {
                 if (req.body[key]) {
@@ -271,30 +262,27 @@ class UserController {
                         companyEn: req.body.companyEn,
                         companyRu: req.body.companyRu
                     }
-                    await DonorRepository.saveDonorCompany(req.user.id, donorsCompany);
+                    await DonorRepository.saveDonorCompany(req.user.id, donorsCompany, transaction);
                 } else {
                     throw new BadValidationException(400,129, i18n.t('emptyDonorsCompanyField'), 'Bad donor company fields');
                 }
             }
-            req.user.personalData.save();
-            
+            await req.user.personalData.save({transaction: transaction});
+            transaction.commit();
             return ApiController.success({message: i18n.t('successUpdatingUserData')}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
     static getUserById = async (req: Request, res: Response) => {
         const userId: number = req.query.id;
-
-        const user = await UserRepository.findUserById(userId);
-        
-        if (user && user.personalData) {
+        try {
+            const user = await UserRepository.findUserById(userId);
+            if (user === null) {
+                throw new UserNotfind();
+            }
             let responseData: any = {
                 email: user.email,
                 firstNameEn: user.personalData.firstNameEn,
@@ -312,11 +300,15 @@ class UserController {
                 lastLogin: dateformat(user.lastLogin, 'yy-mm-dd HH:MM'),
                 createdAt: dateformat(user.createdAt, 'yy-mm-dd HH:MM')
             }
-            if (UserHelper.isRole(user.roles, Role.partnerAssistId) || UserHelper.isRole(user.roles, Role.partnerAuthorisedId)) {
+
+            const isUserAssist = UserHelper.isRole(user.roles, Role.partnerAssistId);
+            const isUserAuthorised = UserHelper.isRole(user.roles, Role.partnerAuthorisedId);
+            const isUserDonor = UserHelper.isRole(user.roles, Role.donorId);
+            if (isUserAssist || isUserAuthorised) {
                 const company = await UserHelper.getUserPartner(user);
-                responseData['company'] = company?company.id:null;
-                
-            } else if (UserHelper.isRole(user.roles, Role.donorId)) {
+                responseData['company'] = company ? company.id : null;
+
+            } else if (isUserDonor) {
                 const donorCompany = await DonorRepository.getCompanyData(user.id);
                 if (donorCompany) {
                     responseData['companyEn'] = donorCompany.companyEn;
@@ -324,18 +316,16 @@ class UserController {
                 }
             }
 
-            ApiController.success(responseData, res);
-
-            return ;
-        } else {
-            ApiController.failed(404, 'User not found', res);
-            return ;
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
         }
     }
 
     static setUserPassword = async (req: Request, res: Response) => {
         const setPasswordHash: string = req.body.hash;
         const newUserPassword: string = req.body.password;
+        const transaction = await sequelize.transaction();
         try {
             const hashModel = await SetPasswordHash.findOne({
                 where: {
@@ -353,27 +343,25 @@ class UserController {
                 throw new BadSetPasswordLink();
             }
             // activation process + set password
-            user.setPassword(newUserPassword);
+            await user.setPassword(newUserPassword, transaction);
             user.emailVerifiedAt = new Date();
-            user.save();
-    
-            hashModel.destroy();
-            const deleteHashes = SetPasswordHashRepository.deleteHashesByUserId(user.id);
-    
+            await user.save({transaction: transaction});
+
+            event(new UserSetPassword(user, newUserPassword));
+
+            await hashModel.destroy({transaction: transaction});
+            SetPasswordHashRepository.deleteHashesByUserId(user.id);
+            transaction.commit();
+
             const responseData = {
                 message: i18n.t('successUserPasswordSet')
             }
-    
-            ApiController.success(responseData, res);
-            return ;
+            
+            return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
-        }  
+            transaction.rollback();
+            return exceptionHandler(error, res);
+        }
     }
 
     static setNewPassword = async (req: Request, res: Response) => {
@@ -386,33 +374,29 @@ class UserController {
                 throw new WrongOldPassword();
             }
 
-            user.setPassword(newPassword);
+            await user.setPassword(newPassword);
             return ApiController.success({
                 message: i18n.t('passwordSuccessfullyChanged')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
     static saveUserStepForm = async (req: Request, res: Response, next: NextFunction) => {
         const user = req.user;
+        const transaction = await sequelize.transaction();
         try {
             // work with user information
             putUserStepInformation(req, res, next);
             let userPersonalInformation = user.personalData;
             let reqUserData: any = UserHelper.getUserDataFromRequest(req.body.user);
             if (userPersonalInformation) {
-                await userPersonalInformation.update(reqUserData);
+                await userPersonalInformation.update(reqUserData, {transaction: transaction});
             } else {
                 // create user personal data
                 reqUserData['userId'] = user.id;
-                userPersonalInformation = await UserPersonalData.create(reqUserData);
+                userPersonalInformation = await UserPersonalData.create(reqUserData, {transaction: transaction});
             }
 
             if (user.hasRole(Role.donorId)) {
@@ -420,12 +404,11 @@ class UserController {
                     companyEn: req.body.user.companyEn,
                     companyRu: req.body.user.companyRu
                 }
-                await DonorRepository.saveDonorCompany(user.id, donorCompany);
+                await DonorRepository.saveDonorCompany(user.id, donorCompany, transaction);
             }
             // work with company details
             if (user.hasRole(Role.partnerAssistId) || user.hasRole(Role.partnerAuthorisedId)) {
                 putPartnerStepInformation(req, res, next);
-
                 let userCompany = await UserHelper.getUserPartner(user);
                 let partnerData: any = PartnerHelper.getPartnerDataFromRequest(req.body.company.company);
 
@@ -433,21 +416,21 @@ class UserController {
                     // assist doesn't have partner
                     if (userCompany == null) {
                         // create partner 
-                        userCompany = await Partner.create(partnerData);
+                        userCompany = await Partner.create(partnerData, {transaction: transaction});
                         // working with authorised
-                        let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                        let authoriserPerson: User = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany, transaction);
                         user.partnerId = userCompany.id;
-                        await user.save();
+                        await user.save({transaction: transaction});
                     } else {
                         // update user company information and update authorised data
-                        await userCompany.update(partnerData);
+                        await userCompany.update(partnerData, {transaction: transaction});
                         let authorisedPerson = await PartnerHelper.getPartnerAuthorised(userCompany);
                         if (authorisedPerson) {
                             // update authorised person
                             let authorisedData: any = UserHelper.getUserDataFromRequest(req.body.company.authorisedPerson);
-                            authorisedPerson.personalData.update(authorisedData);
+                            authorisedPerson.personalData.update(authorisedData, {transaction: transaction});
                         } else {
-                            authorisedPerson = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany);
+                            authorisedPerson = await AuthorisedUserHelper.createAuthorisedPerson(req.body.company.authorisedPerson, userCompany, transaction);
                         }
                     }
                 } else {
@@ -455,30 +438,26 @@ class UserController {
                     if (userCompany == null) {
                         throw new Error('Authorised person(id:'+user.id+') without company')
                     }
-                    await userCompany.update(partnerData);
+                    await userCompany.update(partnerData, {transaction: transaction});
                 }
                 
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
                     req.body.documents.forEach(async (element: any) => {
-                        await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany);
+                        await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany, transaction);
                     });
                 }
 
                 userCompany.statusId = Partner.partnerStatusFilled;
-                userCompany.save();
+                await userCompany.save({transaction: transaction});
             }
             user.showForm = false;
-            user.save();
+            await user.save({transaction: transaction});
+            transaction.commit();
             return ApiController.success({message: i18n.t('userDataSavedSuccessfully')}, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
@@ -507,12 +486,7 @@ class UserController {
             }, res)
 
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -543,13 +517,9 @@ class UserController {
                 message: i18n.t('activationLinkSent')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }
+
 export default UserController;

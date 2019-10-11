@@ -11,7 +11,7 @@ const postLogin = (req: Request, res: Response, next: NextFunction) => {
             language: LocalizationHelper.getValidationMessages()
         }).keys({
             email: Joi.string().email({ minDomainSegments: 2 }),
-            password: Joi.string().min(10).regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*~^()_+`\-={}\[\]:;<>\\\/?])[A-Za-z\d#$@!%&*~^()_+`\-={}\[\]:;<>.\\\/?]{10,}$/),
+            password: Joi.string().min(10).options({language:{string: {min: i18n.t('badEmailOrPass'),regex: {base: i18n.t('badEmailOrPass')}}}}).regex(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*~^()_+`\-={}\[\]:;<>\\\/?])[A-Za-z\d#$@!%&*~^()_+`\-={}\[\]:;<>.\\\/?]{10,}$/),
             "g-recaptcha-response": Joi.string().required()
         }),
         querySchema: null

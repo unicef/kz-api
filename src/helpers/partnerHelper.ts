@@ -81,9 +81,15 @@ class PartnerHelper {
     /**
      * Get responsible assistant user from partner object
      */
-    static getPartnerAssistant = async (partner: Partner): Promise<User> => {
+    static getPartnerAssistant = async (partner: Partner|number): Promise<User> => {
+        let partnerId = 0;
+        if (typeof partner == 'number') {
+            partnerId = partner
+        } else {
+            partnerId = partner.id;
+        }
         // get assistant user ids
-        const assistantIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAssistId + '\' AND users."partnerId" = ' + partner.id, 
+        const assistantIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAssistId + '\' AND users."partnerId" = ' + partnerId, 
         {type: Sequelize.QueryTypes.SELECT});
 
         if (assistantIds.length < 1) {
@@ -111,9 +117,15 @@ class PartnerHelper {
     /**
      * Get autorised person user from partner object
      */
-    static getPartnerAuthorised = async (partner: Partner): Promise<User|null> => {
+    static getPartnerAuthorised = async (partner: Partner|number): Promise<User|null> => {
+        let partnerId = 0;
+        if (typeof partner == 'number') {
+            partnerId = partner
+        } else {
+            partnerId = partner.id;
+        }
         // get authorised user ids
-        const authorisedIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + partner.id, 
+        const authorisedIds: Array<{id: number}>|null = await sequelize.query('SELECT users."id" FROM users LEFT JOIN users_has_roles uhr ON users."id" = uhr."userId" LEFT JOIN partners p ON p.id = users."partnerId" WHERE uhr."roleId" = \'' + Role.partnerAuthorisedId + '\' AND users."partnerId" = ' + partnerId, 
         {type: Sequelize.QueryTypes.SELECT});
 
         if (authorisedIds.length < 1) {

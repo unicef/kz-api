@@ -11,6 +11,9 @@ import i18n from "i18next";
 import ProjectDocument from "../../models/projectDocument";
 import HistoryRepository from "../../repositories/historyRepository";
 import ProjectHelper from "../../helpers/projectHelper";
+import exceptionHandler from "../../services/exceptionHandler";
+import sequelize from "../../services/sequelize";
+import ProjectRepository from "../../repositories/projectRepository";
 
 class AdminProjectController {
 
@@ -35,17 +38,13 @@ class AdminProjectController {
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         
     }
     
     static terminate = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             const projectId = req.body.id;
             const terminationReasonKey = req.body.reason.key;
@@ -65,26 +64,28 @@ class AdminProjectController {
             });
 
             project.statusId = Project.TERMINATION_STATUS_ID;
-            await project.save();
+            await project.save({transaction: transaction});
 
-            projectTranches.forEach((tranche) => {
-                tranche.status = ProjectTranche.DONE_STATUS_KEY
-                tranche.save();
-            });
-            
+            if (projectTranches.length>0) {
+                for (var i=0; i<projectTranches.length; i++) {
+                    const tranche = projectTranches[i];
+                    tranche.status = ProjectTranche.DONE_STATUS_KEY
+                    await tranche.save({transaction: transaction});
+                }
+            }
+            // set termination reason
+            await ProjectRepository.setTerminationReason(project.id, terminationReasonKey, transaction);
+
             event(new ProjectWasTerminated(req.user, project, terminationReasonKey));
+            transaction.commit();
 
             const responseData = {
                 message: i18n.t('successProjectTermination')
             }
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 
@@ -122,12 +123,7 @@ class AdminProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 }

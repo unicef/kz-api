@@ -87,5 +87,7 @@ router.get("/tranches", [checkAuthToken, getPartnerDocuments], ProjectController
 // history routes block
 router.get("/history", [checkAuthToken, getPartnerDocuments], ProjectController.getShortHistory);
 router.get("/history-file", [checkAuthToken, getPartnerDocuments], ProjectController.downloadHistory);
+router.get("/faces", [checkAuthToken], ProjectController.getFaces);
+router.get("/reports", [checkAuthToken], ProjectController.getReports);
 
 export default router;

@@ -1,9 +1,19 @@
+import Setting from "../models/setting";
+
 class SettingHelper {
 
-    static getUSDRate = () => {
-        const usdRate = 384.57;
+    static getUSDRate = async () => {
 
-        return usdRate;
+        const usdRate = await Setting.findOne({
+            where: {
+                key: "KZTRate"
+            }
+        });
+        if (usdRate) {
+            return +usdRate.value;
+        } else {
+            return null;
+        }
     }
 
 }

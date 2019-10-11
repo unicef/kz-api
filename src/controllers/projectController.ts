@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
 import fs from "fs";
-import cryptoRandomString from "crypto-random-string";
 import mime from "mime-types";
 import ApiController from "./apiController";
-import HttpException from "../exceptions/httpException";
 import ProgrammeRepository from "../repositories/programmeRepository";
 import SettingHelper from "../helpers/settingHelper";
 import SectionRepository from "../repositories/sectionRepository";
@@ -38,16 +36,40 @@ import ProjectTranchesInstalled from "../events/projectTranchesInstalled";
 import ProjectHistoryHelper from "../helpers/projectHistoryHelper";
 import Pagination from "../services/pagination";
 import BadPermissions from "../exceptions/badPermissions";
+import FaceRequestRepository from "../repositories/faceRequestRepository";
+import PartnerRepository from "../repositories/partnerRepository";
+import config from "../services/config";
+import Axios from "axios";
+import convert from "xml-js";
+import exceptionHandler from "../services/exceptionHandler";
 
 class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
-        const projectId = parseInt(req.query.id);
-        const history = await HistoryRepository.getList(projectId, 10);
+        // const projectId = parseInt(req.query.id);
+        // const history = await HistoryRepository.getList(projectId, 10);
 
-        let histResp = await ProjectHistoryHelper.renderHistory(history);
+        // let histResp = await ProjectHistoryHelper.renderHistory(history);
 
-        return ApiController.success({ history: histResp }, res);
+        // const rateLink = config.get('CURRENCY_RATE_LINK', 'https://treasury.un.org/operationalrates/xsql2XML.php');
+        //     const request = Axios.get(
+        //         rateLink
+        //     ).then((response) => {
+        //         if (response.status == 200) {
+        //             var result1 = convert.xml2json(response.data, {compact: true, spaces: 4});
+
+        //             const result = JSON.parse(result1);
+        //             const rates = result['UN_OPERATIONAL_RATES_DATASET']['UN_OPERATIONAL_RATES'];
+
+        //             rates.forEach((rate) => {
+        //                 if (rate['f_curr_code']['_text'] == 'KZT\t') {
+        //                     const rateAmountString = rate['rate']['_text'];
+        //                     const rateAmountNumber = rateAmountString.replace('\t','');
+        //                     return ApiController.success(rateAmountNumber, res);
+        //                 }
+        //             })
+        //         }
+        //     })
     }
 
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,7 +80,7 @@ class ProjectController {
                 responseData['programmes'] = programmes;
             }
             if (!req.query.key || req.query.key == 'KZTRate') {
-                const usdRate: number = SettingHelper.getUSDRate();
+                const usdRate: number = await SettingHelper.getUSDRate();
                 responseData['usdRate'] = usdRate;
             }
             if (!req.query.key || req.query.key == 'sections') {
@@ -72,12 +94,7 @@ class ProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -90,16 +107,13 @@ class ProjectController {
                 list = await ProjectHelper.getMyPartnerList(req);
             } else if (user.hasRole(Role.unicefResponsibleId)) {
                 list = await ProjectHelper.getMyAssistantList(req);
+            }else {
+                list = await ProjectHelper.getMyTemporaryList(req);
             }
 
             return ApiController.success(list, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -119,12 +133,32 @@ class ProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) { 
-            if (error instanceof HttpException) {
-                error.response(res);
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static getTransactionsList = async (req: Request, res: Response, next: NextFunction) => {
+        try { 
+            let pagination = new Pagination(req, 15);
+            let searchInstanse = req.query.search?req.query.search:null;
+
+            let transactions = [];
+
+            if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
+                transactions = await PartnerRepository.getTransactionsList(searchInstanse, pagination, req.user.partnerId);
             } else {
-                ApiController.failed(500, error.message, res);
+                transactions = await ProjectRepository.getTransactionsList(searchInstanse, pagination,);
             }
-            return;
+            
+            const responseData = {
+                transactions: transactions,
+                currentPage: pagination.getCurrentPage(),
+                lastPage: pagination.getLastPage()
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) { 
+            return exceptionHandler(error, res);
         }
     }
 
@@ -165,12 +199,7 @@ class ProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -193,15 +222,26 @@ class ProjectController {
             if (project === null) {
                 throw new ProjectNotFound();
             }
+            // is project terminated
+            if (project.status == Project.TERMINATION_STATUS_ID) {
+                // get terminationReason property
+                const terminationKey = await ProjectRepository.getTerminationReason(project.id);
+                if (terminationKey) {
+                    project.terminationReason = ProjectHelper.getTerminationReasonTitle(terminationKey.reasonId);
+                }
+            }
+            // get isMyStage flag
+            project.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, project);
+            if (project.stage.type===null) {
+                project.stage={};
+            } else {
+                // get is last tranche flag
+                project.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(project.id);
+            }
 
             return ApiController.success({ project: project }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -209,10 +249,26 @@ class ProjectController {
         try {
             const projectId = req.query.id;
             const projectInfo = await ProjectRepository.shortInfoById(projectId);
-
+            
             if (projectInfo === null) {
                 throw new ProjectNotFound();
             }
+            if (req.user.hasRole(Role.partnerAssistId) || req.user.hasRole(Role.partnerAuthorisedId)) {
+                // check if partner has access to project
+                if (req.user.partnerId !== projectInfo.partnerId) {
+                    throw new BadPermissions();
+                }
+            }
+            // get isMyStage flag
+            projectInfo.isMyStage = await ProjectHelper.getIsMyStageFlag(req.user, projectInfo);
+            if (projectInfo.stage.type===null) {
+                projectInfo.stage={};
+            } else {
+                // get is last tranche flag
+                projectInfo.stage.isLast = await ProjectTrancheRepository.getIsLastTranche(projectInfo.id);
+            }
+            const spendBudget = await FaceRequestRepository.getSendedAmount(projectId);
+            projectInfo.iceLeft = parseInt(projectInfo.ice) - spendBudget;
             
             const responseData = {
                 project: projectInfo
@@ -220,12 +276,7 @@ class ProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -285,12 +336,7 @@ class ProjectController {
                 throw new BadProjectStatus();
             }
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -350,12 +396,7 @@ class ProjectController {
 
             return ApiController.success({ message: i18n.t('IPSuccessfullySelected'), project: responseProject }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -391,12 +432,7 @@ class ProjectController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -437,12 +473,7 @@ class ProjectController {
 
             return ApiController.success({message: i18n.t('successProjectDocDelete')}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -474,12 +505,7 @@ class ProjectController {
                 return ;
             }
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -493,12 +519,7 @@ class ProjectController {
 
             return ApiController.success({ history: histResp }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -532,12 +553,7 @@ class ProjectController {
                 return ;
             }
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -549,12 +565,42 @@ class ProjectController {
 
             return ApiController.success({tranches: tranches}, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static getFaces = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+
+            const faces = await ProjectRepository.getFaces(projectId);
+
+            faces.forEach((face, index) => {
+                if (face.requestId === null) {
+                    faces.splice(index, 1);
+                }
+            });
+
+            return ApiController.success({faces: faces}, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static getReports = async (req: Request, res: Response) => {
+        try {
+            const projectId = req.query.id;
+            const reports = await ProjectRepository.getReports(projectId);
+
+            reports.forEach((report, index) => {
+                if (report.analyticalDocId===null) {
+                    reports.splice(index);
+                }
+            });
+
+            return ApiController.success({reports: reports}, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
         }
     }
 }

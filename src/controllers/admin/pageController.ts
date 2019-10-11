@@ -6,12 +6,23 @@ import Page from "../../models/page";
 import ApiController from "../apiController";
 import HttpException from "../../exceptions/httpException";
 import PageNotFind from "../../exceptions/page/pageNotFind";
+import BadValidationException from "../../exceptions/badValidationException";
+import exceptionHandler from "../../services/exceptionHandler";
 
 class AdminPageController {
 
     static create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             let pageData = req.body;
+            // exists page
+            const existsPage = await Page.findOne({
+                where: {
+                    key: pageData.key
+                }
+            });
+            if (existsPage) {
+                throw new BadValidationException(400, 129, i18n.t('pageAllreadyExists'));
+            }
             const page = await Page.create(pageData);
     
             return ApiController.success({
@@ -19,13 +30,7 @@ class AdminPageController {
                 page: page
             }, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
         
     }
@@ -66,7 +71,7 @@ class AdminPageController {
     
             let pagesIds = pagesQuery.map(a => a.id);
     
-            let query = 'SELECT * FROM pages WHERE "id" IN (' + pagesIds.join(', ') + ') ORDER BY "id" DESC';
+            let query = 'SELECT pages."id", pages."key", pages."titleEn", pages."titleRu", pages."isPublic", TO_CHAR(pages."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt" FROM pages WHERE "id" IN (' + pagesIds.join(', ') + ') ORDER BY "id" DESC';
             const offset = pageCount * (page-1);
     
             query = query + ' LIMIT ' + pageCount + ' OFFSET ' + offset;
@@ -81,13 +86,7 @@ class AdminPageController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -102,13 +101,7 @@ class AdminPageController {
 
             return ApiController.success(page, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -119,6 +112,17 @@ class AdminPageController {
             if (page == null) {
                 throw new PageNotFind();
             }
+            if (page.key !== pageData.key) {
+                // exists page
+                const existsPage = await Page.findOne({
+                    where: {
+                        key: pageData.key
+                    }
+                });
+                if (existsPage) {
+                    throw new BadValidationException(400, 129, i18n.t('pageAllreadyExists'));
+                }
+            }
 
             await page.update(pageData);
             return ApiController.success({
@@ -126,13 +130,24 @@ class AdminPageController {
             }, res)
 
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static delete = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const pageId = req.query.id;
+            const page = await Page.findByPk(pageId);
+    
+            if (page == null) {
+                throw new PageNotFind();
             }
-            return;
+
+            await page.destroy();
+
+            return ApiController.success({message: i18n.t('successDeletePage')}, res);
+        } catch (error) {
+            return exceptionHandler(error, res);
         }
     }
 }

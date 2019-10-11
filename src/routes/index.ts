@@ -6,10 +6,14 @@ import partner from "./partner";
 import project from "./project";
 import admin from "./admin/admin";
 import request from "./faceRequest";
+import transaction from "./transaction";
+import report from "./faceReport";
 import localizationService from "../services/localization";
 import checkAuthToken from "../middlewares/checkAuthToken";
 import UserController from "../controllers/userController";
 import BlockchainController from "../controllers/blockchainController";
+import PageController from "../controllers/pageController";
+import checkAdminRole from "../middlewares/checkAdminRole";
 
 const routes = Router();
 
@@ -27,5 +31,12 @@ routes.use("/file", file);
 routes.use("/partner", partner);
 routes.use("/project", project);
 routes.use("/request", request);
+routes.use("/transaction", transaction);
+routes.use("/report", report);
+routes.get("/page", PageController.getPage);
+routes.get("/page/list", checkAuthToken, PageController.getList);
+
+routes.post("/wallets/generate", checkAuthToken, BlockchainController.generateUsersWallets);
+routes.post("/digicus/deploy", [checkAuthToken, checkAdminRole], BlockchainController.deployDigicus);
 
 export default routes;

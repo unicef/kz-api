@@ -10,7 +10,7 @@ const postForgotPassword = (req: Request, res: Response, next: NextFunction) => 
             abortEarly: false,
             language: LocalizationHelper.getValidationMessages()
         }).keys({
-            email: Joi.string().email({ minDomainSegments: 2 })
+            email: Joi.string().email({ minDomainSegments: 2 }).required()
         }),
         querySchema: null
     };

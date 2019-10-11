@@ -14,6 +14,13 @@ import BadRole from "../../exceptions/user/badRole";
 import sequelize from "../../services/sequelize";
 import BadValidationException from "../../exceptions/badValidationException";
 import Project from "../../models/project";
+import { PatchUnicefMakeAdmin } from "../../requests/unicef/patchUnicefMakeAdmin";
+import exceptionHandler from "../../services/exceptionHandler";
+import UserRepository from "../../repositories/userRepository";
+import { PatchUnicefUnmakeAdmin } from "../../requests/unicef/patchUnicefUnmakeAdmin";
+import FaceRequestRepository from "../../repositories/faceRequestRepository";
+import UserHasActiveRequest from "../../exceptions/user/userHasActiveRequest";
+import FaceReportRepository from "../../repositories/faceReportRepository";
 
 class AdminUnicefController {
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
@@ -51,13 +58,7 @@ class AdminUnicefController {
                 userId: user.id
             }, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -84,12 +85,7 @@ class AdminUnicefController {
                 message: i18n.t('adminSuccessUnicefUpdate')
             }, res);
         } catch (error) {
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
-            }
-            return;
+            return exceptionHandler(error, res);
         }
     }
 
@@ -143,6 +139,7 @@ class AdminUnicefController {
     }
 
     static block = async (req: Request, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
         try {
             const newUserEmail = req.body.email;
             const user = await User.findOne({
@@ -168,6 +165,12 @@ class AdminUnicefController {
             }
     
             const userUnicefRole = await UnicefHelper.getUnicefUserRole(user);
+            // if user has active face request/report - can't block user
+            const activeRequestChain = await FaceRequestRepository.getActiveChainByUserId(user.id);
+            const activeReportChain = await FaceReportRepository.getActiveChainByUserId(user.id);
+            if (activeRequestChain || activeReportChain) {
+                throw new UserHasActiveRequest();
+            }
             const isUserExists = await User.isUserExists(newUserEmail);
             let newUser: User|null = null;
             if (isUserExists) {
@@ -190,11 +193,11 @@ class AdminUnicefController {
     
             } else {
                 // blocking partner process
-                newUser = await User.generateUser(newUserEmail);
+                newUser = await User.generateUser(newUserEmail, transaction);
                 // add role to user
-                const role = await Role.findByPk(userUnicefRole);
-                newUser.addRole(role);
-                UserPersonalData.create({
+                await UserRepository.addRole(newUser.id, userUnicefRole, transaction);
+                
+                await UserPersonalData.create({
                     userId: newUser.id,
                     firstNameEn: '',
                     firstNameRu: '',
@@ -204,8 +207,8 @@ class AdminUnicefController {
                     occupationRu: '',
                     tel: '',
                     mobile: ''
-                });
-                await newUser.save();
+                }, {transaction: transaction});
+                await newUser.save({transaction: transaction});
             }
             
 
@@ -215,13 +218,15 @@ class AdminUnicefController {
                     where: {
                         officerId: user.id,
                         statusId: Project.IN_PROGRESS_STATUS_ID
-                    }
+                    },
+                    transaction: transaction
                 });
             }
     
             user.isBlocked = true;
-            await user.save();
+            await user.save({transaction: transaction});
     
+            transaction.commit();
             const responseData = {
                 message: i18n.t('unicefBlockedSuccess'),
                 newUserId: newUser.id
@@ -229,13 +234,47 @@ class AdminUnicefController {
     
             return ApiController.success(responseData, res);
         } catch (error) {
-            console.log(error);
-            if (error instanceof HttpException) {
-                error.response(res);
-            } else {
-                ApiController.failed(500, error.message, res);
+            transaction.rollback();
+            return exceptionHandler(error, res);
+        }
+    }
+
+    // add admin role to UNICEF USER
+    static makeAdmin = async (req: PatchUnicefMakeAdmin, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const unicefUser = req.unicefUser;
+
+            await UserRepository.addRole(unicefUser.id, Role.adminRoleId, transaction);
+            transaction.commit();
+
+            const responseData = {
+                message: i18n.t('successMakeAdmin')
             }
-            return;
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            transaction.rollback();
+            return exceptionHandler(error, res);
+        }
+    }
+
+    static unmakeAdmin = async (req: PatchUnicefUnmakeAdmin, res: Response, next: NextFunction) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const adminUser = req.adminUser;
+
+            await UserRepository.removeRole(adminUser.id, Role.adminRoleId, transaction);
+            transaction.commit();
+
+            const responseData = {
+                message: i18n.t('successUnmakeAdmin')
+            }
+
+            return ApiController.success(responseData, res);
+        } catch (error) {
+            transaction.rollback();
+            return exceptionHandler(error, res);
         }
     }
 }

@@ -14,8 +14,8 @@ const putAdminPage = (req: Request, res: Response, next: NextFunction) => {
             key: Joi.string().max(255).required(),
             titleEn: Joi.string().max(255).required(),
             titleRu: Joi.string().max(255).required(),
-            textEn: Joi.string().max(2500).required(),
-            textRu: Joi.string().max(2500).required(),
+            textEn: Joi.string().required(),
+            textRu: Joi.string().required(),
             isPublic: Joi.boolean().required(), 
         }),
         querySchema: null

@@ -6,6 +6,7 @@ import Role from "../models/role";
 import PartnerHelper from "../helpers/partnerHelper";
 import Partner from "../models/partner";
 import Project from "../models/project";
+import Config from "../services/config";
 
 class PartnerRepository {
     
@@ -77,7 +78,23 @@ class PartnerRepository {
         pagination.setItemsCount(partnersQuery.length);
         let partnersIds = partnersQuery.map(a => a.id);
 
-        let query = 'SELECT p."id" as "id", p."name'+lang+'" as "name", TO_CHAR(p."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", \'n/a\' as "coordinator", \'n/a\' as "programCode", p."statusId" as "status", aow."title' +lang+ '" as "areaOfWork" FROM partners "p" LEFT JOIN areas_of_work AS aow ON p."areaOfWorkId" = aow."id" WHERE p."id" IN (' + partnersIds.join(', ') + ') ORDER BY p."id" DESC';
+        let query = `SELECT 
+                p."id" as "id", 
+                p."name${lang}" as "name", 
+                TO_CHAR(p."createdAt", 'yyyy-mm-dd HH:MI') as "createdAt", 
+                proj."officerId" as "officerId",
+                CASE WHEN proj."officerId" IS NULL THEN 'n/a' ELSE officer."firstName${lang}" || ' ' || officer."lastName${lang}" END as "coordinator",
+                CASE WHEN prog."code" IS NULL THEN 'n/a' ELSE prog."code" END as "programCode",
+                p."statusId" as "status", 
+                aow."title${lang}" as "areaOfWork" 
+            FROM partners "p" 
+            LEFT JOIN areas_of_work AS aow ON p."areaOfWorkId" = aow."id" 
+            LEFT JOIN projects AS proj ON proj."partnerId" = p."id" 
+                AND proj."statusId" = '${Project.IN_PROGRESS_STATUS_ID}'
+            LEFT JOIN programmes prog ON prog."id"=proj."programmeId"
+            LEFT JOIN users_personal_data officer ON officer."userId" = proj."officerId"
+            WHERE p."id" IN (${partnersIds.join(', ')}) 
+            ORDER BY p."id" DESC`;
 
         query = query + pagination.getLimitOffsetParam();
 
@@ -129,6 +146,68 @@ class PartnerRepository {
             mapToModel: true
         });
         return partner;
+    }
+
+    static getIdByRequestId = async (requestId: number) => {
+        const query = `SELECT p."partnerId"
+            FROM projects p
+            LEFT JOIN project_tranches pt ON pt."projectId" = p."id"
+            LEFT JOIN face_requests fr ON fr."trancheId" = pt."id"
+            WHERE fr."id" = ${requestId}`;
+
+        const partner = await sequelize.query(query,{
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+        if (partner) {
+            return partner.partnerId;
+        }
+        return null;
+    }
+
+    static getTransactionsList = async (searchPhrase: string | null, pagination: Pagination, partnerId: number) => {
+        const lang = i18n.language.charAt(0).toUpperCase() + i18n.language.slice(1);
+        let searchInstanse = '';
+        if (searchPhrase) {
+            const idSearch = +searchPhrase ? +searchPhrase : 0;
+            searchInstanse = ` AND pt."id" = ${idSearch} OR p."title${lang}" ILIKE '%${searchPhrase}%' OR pt."txHash" ILIKE '%${searchPhrase}%'`;
+        }
+
+        const transactionsQuery: Array<{ id: number }> | null = await sequelize.query(`SELECT pt."id" as "id" FROM project_transactions pt JOIN projects p ON pt."projectId" = p."id" WHERE p."partnerId" = ${partnerId}` + searchInstanse, {
+            type: QueryTypes.SELECT
+        });
+
+        if (transactionsQuery == null || transactionsQuery.length < 1) {
+            // partners count = 0
+            pagination.setItemsCount(0);
+            return [];
+        }
+        pagination.setItemsCount(transactionsQuery.length);
+        let transactionsIds = transactionsQuery.map(a => a.id);
+
+        const etherscanTxLink = Config.get("ETHERSCAN_TX_LINK", "https://ropsten.etherscan.io/tx/");
+
+        let query = `SELECT 
+            pt."id" as "id", 
+            pt."txHash" as "txHash", 
+            pt."amount" as "amount", 
+            CASE WHEN pt."type" = 'income' 
+                THEN 'outcome' 
+                ELSE 'income' 
+                END AS  "type",
+            pt."status" as "status", 
+            p."title${lang}" as "project", 
+            TO_CHAR(pt."createdAt", \'yyyy-mm-dd HH:MI\') as "createdAt", '${etherscanTxLink}' || pt."txHash" as "link" 
+            FROM project_transactions pt 
+            LEFT JOIN projects "p" ON pt."projectId" = p."id" 
+            WHERE pt."id" IN (${transactionsIds.join(', ')}) 
+            ORDER BY pt."id" DESC`;
+
+        query = query + pagination.getLimitOffsetParam();
+
+        const projects = await sequelize.query(query, { type: QueryTypes.SELECT });
+        return projects;
     }
 }
 export default PartnerRepository;

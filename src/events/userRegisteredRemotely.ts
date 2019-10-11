@@ -1,7 +1,5 @@
 import Event from "./event";
 import User from "../models/user";
-import SendActivationLink from "../listeners/user/sendActivationLink";
-import createUserPersonalDataRow from "../listeners/user/createUserPersonalDataRow";
 import sendSetManualPasswordLink from "../listeners/user/sendSetManualPasswordLink";
 
 class UserRegisteredRemotely extends Event {

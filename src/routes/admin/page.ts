@@ -11,5 +11,6 @@ router.post("/", [checkAdminRole, postAdminPage], AdminPageController.create);
 router.put("/", [checkAdminRole, putAdminPage], AdminPageController.update);
 router.get("/", [checkAdminRole, getAdminPage], AdminPageController.showPage);
 router.get("/list", [checkAdminRole], AdminPageController.list);
+router.delete("/", [checkAdminRole, getAdminPage], AdminPageController.delete);
 
 export default router;

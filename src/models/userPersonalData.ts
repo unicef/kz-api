@@ -85,9 +85,4 @@ UserPersonalData.init(
     }
 )
 
-// UserPersonalData.belongsTo(User, {
-//     foreignKey: 'id',
-//     as: 'user'
-// });
-
 export default UserPersonalData;

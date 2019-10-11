@@ -1,4 +1,4 @@
-import { Model, DataTypes, QueryTypes } from "sequelize";
+import { Model, DataTypes, QueryTypes, Transaction, SaveOptions, CreateOptions } from "sequelize";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import Role from "./role";
@@ -11,6 +11,8 @@ import SetPasswordHash from "./setPasswordHash";
 import Partner from "./partner";
 import event from "../services/event";
 import UserRegisteredRemotely from "../events/userRegisteredRemotely";
+import WalletHelper from "../helpers/walletHelper";
+import UserRepository from "../repositories/userRepository";
 
 class User extends Model {
     public id!: number;
@@ -41,14 +43,18 @@ class User extends Model {
         return 'active';
     }
 
-    public setPassword = (password: string): boolean => {
+    public setPassword = async (password: string, transaction?: Transaction): Promise<boolean> => {
         const passwordSalt = cryptoRandomString(10);
         const userPassword = User.generatePassword(passwordSalt, password);
 
         this.passwordSalt = passwordSalt;
         this.password = userPassword;
 
-        this.save();
+        let options: SaveOptions = {};
+        if (transaction) {
+            options.transaction = transaction;
+        }
+        await this.save(options);
 
         return true;
     }
@@ -75,18 +81,22 @@ class User extends Model {
         return true;
     }
 
-    static generateUser = async (email: string): Promise<User> => {
+    static generateUser = async (email: string, transaction?: Transaction): Promise<User> => {
         const userExists = await User.isUserExists(email);
         if (userExists) {
             throw new Error('User allready exists');
         } else {
             const passwordSalt: string = cryptoRandomString(10);
             const password: string = cryptoRandomString(12);
+            let options: CreateOptions = {};
+            if (transaction) {
+                options.transaction = transaction;
+            }
             let user = await User.create({
                 email: email,
                 password: User.generatePassword(passwordSalt, password),
                 passwordSalt: passwordSalt
-            });
+            }, options);
     
             event(new UserRegisteredRemotely(user));
 
@@ -190,6 +200,7 @@ class User extends Model {
         }
         
         let isUnicefRole = false;
+        
         userRoles.forEach((element) => {
             switch (element.roleId) {
                 case Role.unicefResponsibleId:
@@ -198,9 +209,13 @@ class User extends Model {
                 case Role.unicefOperationId:
                     isUnicefRole = true;
             }
-        })
-
+        });
         return isUnicefRole;
+    }
+
+    public getWalletPhrase = async () => {
+        const userWallet = await UserRepository.findWalletById(this.id);
+        return await WalletHelper.getWallPhrase(userWallet, this);
     }
 }
 

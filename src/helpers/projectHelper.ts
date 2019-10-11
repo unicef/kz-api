@@ -10,6 +10,11 @@ import event from "../services/event";
 import { Request } from "express";
 import Pagination from "../services/pagination";
 import ProjectRepository from "../repositories/projectRepository";
+import User from "../models/user";
+import Role from "../models/role";
+import FaceRequestChain from "../models/faceRequestChain";
+import ProjectTrancheRepository from "../repositories/projectTrancheRepository";
+import FaceReportChain from "../models/faceReportChain";
 
 class ProjectHelper {
 
@@ -101,6 +106,20 @@ class ProjectHelper {
         let searchInstanse = req.query.search?req.query.search:null;
         const assistId = req.user.id;
         const projects = await ProjectRepository.getListForAssistant(assistId, searchInstanse, pagination);
+
+        const returnData = {
+            projects: projects,
+            currentPage: pagination.getCurrentPage(),
+            lastPage: pagination.getLastPage()
+        }
+        return returnData;
+    }
+
+    static getMyTemporaryList = async (req: Request) => {
+        let pagination = new Pagination(req, 15);
+        let searchInstanse = req.query.search?req.query.search:null;
+        const userId = req.user.id;
+        const projects = await ProjectRepository.getTempListForUnicef(userId, searchInstanse, pagination);
 
         const returnData = {
             projects: projects,
@@ -207,6 +226,155 @@ class ProjectHelper {
 
         return title;
     }
+
+    static getIsMyStageFlag = async (user: User, project: iProjectDetails) => {
+        let isMyStage = false;
+        switch(project.stage.status) {
+            case "waiting" : {
+                if (project.assistantId && project.assistantId==user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "reject" : {
+                if (project.assistantId && project.assistantId==user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "confirm" : {
+                if (user.hasRole(Role.partnerAuthorisedId) && user.partnerId === project.partnerId) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "validate" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest && faceRequest.isFreeze === false) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                reportId: faceReport.id
+                            }
+                        });
+                    }
+                }
+                if (chain && chain.validateBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "certify" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest && faceRequest.isFreeze === false) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                reportId: faceReport.id
+                            }
+                        });
+                    }
+                }
+                if (chain && chain.certifyBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "approve" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest && faceRequest.isFreeze === false) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                reportId: faceReport.id
+                            }
+                        });
+                    }
+                }
+                if (chain && chain.approveBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+            case "verify" : {
+                // is now report or request
+                const type = project.stage.type;
+                let chain;
+                if (type == 'request') {
+                    // get faceRequestId
+                    const faceRequest = await ProjectRepository.getActiveRequestById(project.id);
+                    if (faceRequest && faceRequest.isFreeze === false) {
+                        // get request confirm chain
+                        chain = await FaceRequestChain.findOne({
+                            where: {
+                                requestId: faceRequest.id
+                            }
+                        });
+                    }
+                } else {
+                    const faceReport = await ProjectRepository.getActiveReportById(project.id);
+                    if (faceReport) {
+                        // get request confirm chain
+                        chain = await FaceReportChain.findOne({
+                            where: {
+                                reportId: faceReport.id
+                            }
+                        });
+                    }
+                }
+                if (chain && chain.verifyBy == user.id) {
+                    isMyStage = true;
+                }
+            }
+            break;
+        }
+        return isMyStage;
+    }
 }
 
 interface iInputTranche {
@@ -221,6 +389,30 @@ interface iInputTranche {
 interface iInputDocs {
     title: string;
     id: string;
+}
+
+interface iProjectDetails {
+    id: number;
+    status: string;
+    titleEn: string;
+    titleRu: string;
+    type: string;
+    partnerId: number|null;
+    projectCode: string;
+    deadline: string;
+    ice: number;
+    usdRate: number;
+    descriptionEn: string;
+    descriptionRu: string;
+    createdAt: string;
+    programme: object;
+    stage: {num:number; type: string; status: string};
+    officer: object;
+    partnerName: string;
+    section: object;
+    assistantName: string;
+    assistantId: number;
+    isMyStage?: boolean;
 }
 
 export default ProjectHelper;

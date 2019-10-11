@@ -3,6 +3,12 @@ export default {
     "PORT": 3000,
     "APP_PROTOCOL": "http://",
     "APP_NAME": "api.uscip.iskytest.com",
+    "BC_NETWORK": "ropsten",
+    "INFURA_PROJECT_URL": "https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7",
+    "ETHERSCAN_TX_LINK": "https://ropsten.etherscan.io/tx/",
+    "CURRENCY_RATE_LINK": "https://treasury.un.org/operationalrates/xsql2XML.php",
+    "DEPLOY_SECRET": "gu24Khdn5OIdbfy334ofg8dHD7sDCSJh7eew",
+    "DIGICUS_ADDRESS": "0x34e03064f017f9b5a903807a28e9aa72f41b8920",
     "DB_HOST": "postgres",
     "DB_USER": "blockchain",
     "DB_PASSWORD": "testuser",
@@ -26,6 +32,7 @@ export default {
     "CLIENT_SET_PASSWORD_ROUTE": "/auth/set-password",
     "SET_PASSWORD_LIFE_DAYS": 3,
     "ACTIVATION_SECRET": "9fnncsd932fsdkceutgb",
+    "SENTRY_URL": "https://1fe5fdb0c4fa4524a674810b4d6ac436@sentry.io/1489635",
     "locales" : {
         "en" : {
             "code" : "en",

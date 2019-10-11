@@ -1,4 +1,4 @@
-import { QueryTypes } from "sequelize";
+import { QueryTypes, Transaction, QueryOptionsWithType, QueryOptions } from "sequelize";
 import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import Pagination from "../services/pagination";
@@ -36,26 +36,39 @@ class DonorRepository {
         return donors;
     }
 
-    static saveDonorCompany = async (userId: number, companyData: { companyEn: string; companyRu: string; }) => {
+    static saveDonorCompany = async (
+            userId: number, 
+            companyData: { companyEn: string; companyRu: string; },
+            transaction?: Transaction
+        ) => {
         // check if user has company row
         const userCompany = await sequelize.query('SELECT * FROM "donors_companies" WHERE "userId"=' + userId, {
             type: QueryTypes.SELECT,
             plain: true
         })
+        let options: QueryOptions = {};
+        let query: string = ''; 
 
         if (userCompany) {
-            const updateInfo = await sequelize.query('UPDATE "donors_companies" SET "companyEn"=\'' + companyData.companyEn + '\', "companyRu"=\'' + companyData.companyRu + '\' WHERE "userId"=' + userId, {
-                type: QueryTypes.UPDATE
-            });
-
-            return updateInfo;
+            query = `UPDATE "donors_companies" 
+                SET "companyEn"='${companyData.companyEn}', 
+                "companyRu"='${companyData.companyRu}' 
+                WHERE "userId"=${userId}`;
+            options.type = QueryTypes.UPDATE;
         } else {
             // create new row
-            const creteCompany = await sequelize.query('INSERT INTO "donors_companies" ("userId", "companyEn", "companyRu") VALUES ('+userId+', \''+companyData.companyEn+'\', \''+companyData.companyRu+'\');', {
-                type: QueryTypes.INSERT
-            })
-            return creteCompany;
+            query = `INSERT INTO "donors_companies"
+                ("userId", "companyEn", "companyRu") 
+                VALUES (${userId}, '${companyData.companyEn}', '${companyData.companyRu}')`;
+            options.type = QueryTypes.INSERT;
         }
+        if (transaction) {
+            options.transaction = transaction;
+        }
+
+        const executeQuery = await sequelize.query(query, options);
+
+        return executeQuery;
     }
 
     static getCompanyData = async (userId: number): Promise<{userId:number;companyEn:string;companyRu:string;}|null> => {

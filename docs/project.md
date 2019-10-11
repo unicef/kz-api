@@ -340,32 +340,40 @@ Get project data for edit form
     "data": {
         "project": {
             "id": 36,
-            "status": "Created",
-            "titleEn": "First project",
-            "titleRu": "Первый проект",
+            "status": "In progress",
+            "titleEn": "First project edit",
+            "titleRu": "Первый проект редактирование",
             "type": "SSFA",
+            "partnerId": 1,
             "projectCode": "SSFA_KAZ_2019_36",
             "deadline": "2019-09-19",
-            "ice": "400500.00",
-            "usdRate": "308.32",
-            "descriptionEn": "My first project description",
-            "descriptionRu": "Мой первый проект с описанием",
+            "ice": "400501.24",
+            "usdRate": "309.12",
+            "descriptionEn": "My first project description edit",
+            "descriptionRu": "Мой первый проект с описанием редактироввание",
             "createdAt": "2019-Aug-19",
             "programme": {
                 "id": 15,
                 "title": "IMPROVED EFFECTIVENESS OF TSA",
                 "code": "2390/A0/05/881/001/003"
             },
+            "stage": {
+                "num": 1,
+                "type": "request",
+                "status": "waiting"
+            },
             "officer": {
                 "id": 14,
                 "name": "FirstCoordinator"
             },
-            "partnerName" : "",
+            "partnerName": "First partner",
             "section": {
                 "id": 7,
                 "title": "Education"
             },
-            "assistName": ""
+            "assistantName": "Partner Assistant",
+            "assistantId": 12,
+            "isMyStage": true
         }
     }
 }
@@ -448,12 +456,18 @@ Get project data for modal summary
             "projectCode": "SSFA_KAZ_2019_36",
             "deadline": "2019-09-19",
             "createdAt": "2019-Aug-19",
-            "ice": "400501.24 KZT",
+            "ice": "400501.24",
             "description": "My first project description edit",
             "programme": {
                 "title": "IMPROVED EFFECTIVENESS OF TSA",
                 "code": "2390/A0/05/881/001/003"
-            }
+            },
+            "stage": {
+                "num": 1,
+                "type": "request",
+                "status": "waiting"
+            },
+            "totalPaid": 0
         }
     }
 }
