@@ -17,6 +17,10 @@ import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import Pagination from "../../services/pagination";
 import PartnerRepository from "../../repositories/partnerRepository";
 import exceptionHandler from "../../services/exceptionHandler";
+import UserRepository from "../../repositories/userRepository";
+import FaceRequestRepository from "../../repositories/faceRequestRepository";
+import UserHasActiveRequest from "../../exceptions/user/userHasActiveRequest";
+import sequelize from "../../services/sequelize";
 
 class AdminPartnerController {
     static createPartner = async (req: Request, res: Response) => {
@@ -140,6 +144,7 @@ class AdminPartnerController {
     }
 
     static block = async (req: Request, res: Response) => {
+        const transaction = await sequelize.transaction();
         try {
             let roleId = Role.partnerAuthorisedId;
             const user = await User.findOne({
@@ -160,6 +165,14 @@ class AdminPartnerController {
             if (!user.hasRole(Role.partnerAssistId) && !user.hasRole(Role.partnerAuthorisedId)) {
                 throw new UserNotfind();
             }
+            if (roleId == Role.partnerAuthorisedId) {
+                // check if is it opened face request
+                const faceRequest = await FaceRequestRepository.getActiveByPartnerId(user.partnerId);
+
+                if (faceRequest) {
+                    throw new UserHasActiveRequest();
+                }
+            }
             
             const newUserEmail = req.body.email;
             const isUserExists = await User.isUserExists(newUserEmail);
@@ -167,14 +180,13 @@ class AdminPartnerController {
                 throw new UserAlreadyExists();
             }
             // blocking partner process
-            const newUser = await User.generateUser(newUserEmail);
+            const newUser = await User.generateUser(newUserEmail, transaction);
 
             // add role to user
             if (user.hasRole(Role.partnerAssistId)) {
                 roleId = Role.partnerAssistId;
             }
-            const role = await Role.findByPk(roleId);
-            newUser.addRole(role);
+            await UserRepository.addRole(newUser.id, roleId, transaction);
             newUser.partnerId = user.partnerId;
 
             UserPersonalData.create({
@@ -187,13 +199,14 @@ class AdminPartnerController {
                 occupationRu: '',
                 tel: '',
                 mobile: ''
-            });
-            newUser.save();
+            }, {transaction: transaction});
+            await newUser.save({transaction:transaction});
 
             user.partnerId = null;
             user.isBlocked = true;
-            user.save();
+            await user.save({transaction: transaction});
 
+            transaction.commit();
             const responseData = {
                 message: i18n.t('partnerBlockedSuccess'),
                 newUserId: newUser.id
@@ -201,6 +214,7 @@ class AdminPartnerController {
 
             return ApiController.success(responseData, res);
         } catch (error) {
+            transaction.rollback();
             return exceptionHandler(error, res);
         }
     }

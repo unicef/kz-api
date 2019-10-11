@@ -3,6 +3,7 @@ import i18n from "i18next";
 import sequelize from "../services/sequelize";
 import ProjectTranche from "../models/projectTranche";
 import FaceRequest from "../models/faceRequest";
+import Project from "../models/project";
 
 class FaceRequestRepository {
 
@@ -91,7 +92,48 @@ class FaceRequestRepository {
         }
         return parseInt(sendedAmount.transactionAmount);
     }
-    
+
+    static getActiveByPartnerId = async (partnerId: number) => {
+        const query = `SELECT fr.* 
+            FROM face_requests fr
+            LEFT JOIN project_tranches pt ON pt."id" = fr."trancheId"
+            LEFT JOIN projects p ON p."id" = pt."projectId"
+            WHERE p."statusId" = '${Project.IN_PROGRESS_STATUS_ID}'
+            AND p."partnerId" = ${partnerId}
+            AND pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
+            AND (fr."statusId" != '${FaceRequest.SUCCESS_STATUS_KEY}' 
+                OR fr."statusId" != '${FaceRequest.REJECT_STATUS_KEY}')`;
+        
+        const exec = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return  exec;
+    }
+
+    static getActiveChainByUserId = async (userId: number) => {
+        const query = `SELECT reqcc.* 
+            FROM request_confirm_chains reqcc
+            LEFT JOIN face_requests fr ON fr."id"=reqcc."requestId"
+            LEFT JOIN project_tranches pt ON pt."id"=fr."trancheId"
+            WHERE pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
+                AND fr.statusId!='${FaceRequest.SUCCESS_STATUS_KEY}'
+                AND ((reqcc."confirmBy"=${userId} AND reqcc."confirmAt" IS NULL)
+                    OR (reqcc."validateBy"=${userId} AND reqcc."validateAt" IS NULL)
+                    OR (reqcc."certifyBy"=${userId} AND reqcc."certifyAt" IS NULL)
+                    OR (reqcc."approveBy"=${userId} AND reqcc."approveAt" IS NULL)
+                    OR (reqcc."verifyBy"=${userId} AND reqcc."verifyAt" IS NULL))`;
+
+        const exec = await sequelize.query(query, {
+            type: QueryTypes.SELECT,
+            nest: true,
+            plain: true
+        });
+
+        return exec;
+    } 
 }
 
 export default FaceRequestRepository;
