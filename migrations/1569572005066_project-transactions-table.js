@@ -42,7 +42,7 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-    pgm.dropTable("project_trancactions", {});
+    pgm.dropTable("project_transactions", {});
     pgm.dropType("transaction_type");
     pgm.dropType("transaction_status");
 };
