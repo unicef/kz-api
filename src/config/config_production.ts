@@ -32,6 +32,7 @@ export default {
     "CLIENT_SET_PASSWORD_ROUTE": "/auth/set-password",
     "SET_PASSWORD_LIFE_DAYS": 3,
     "ACTIVATION_SECRET": "9fnncsd932fsdkceutgb",
+    "SENTRY_URL": "https://1fe5fdb0c4fa4524a674810b4d6ac436@sentry.io/1489635",
     "locales" : {
         "en" : {
             "code" : "en",
