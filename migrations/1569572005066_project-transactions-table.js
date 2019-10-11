@@ -1,7 +1,6 @@
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-    pgm.dropTable("projects_transactions");
     pgm.createType("transaction_type", ["income", "outcome"]);
     pgm.createType("transaction_status", ["pending", "failed", "success"]);
     pgm.createTable("project_transactions", {
