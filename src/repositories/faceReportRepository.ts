@@ -52,7 +52,7 @@ class FaceReportRepository {
     static getActiveChainByUserId = async (userId: number) => {
         const query = `SELECT repcc.* 
             FROM report_confirm_chains repcc
-            LEFT JOIN face_requests fr ON fr."id"=repcc."requestId"
+            LEFT JOIN face_reports fr ON fr."id"=repcc."reportId"
             LEFT JOIN project_tranches pt ON pt."id"=fr."trancheId"
             WHERE pt."status" = '${ProjectTranche.IN_PROGRESS_STATUS_KEY}'
                 AND fr."statusId"!='${FaceRequest.SUCCESS_STATUS_KEY}'
