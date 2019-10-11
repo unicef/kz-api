@@ -4,7 +4,7 @@ exports.up = (pgm) => {
     pgm.createFunction('get_project_stage_type', [
         { mode: 'IN', name: 'project', type: 'integer', default: null }
     ], {
-        returns: 'TABLE(projectId int, projectType text)',
+        returns: 'TABLE("projectId" int, "projectType" text)',
         language: 'plpgsql',
         replace: true
     }, `declare
