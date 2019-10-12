@@ -67,5 +67,5 @@ exports.up = (pgm) => {
 
 exports.down = (pgm) => {
     pgm.dropTable("face_requests", {});
-    pgm.dropType("face_request_status");
+    pgm.dropType("face_status");
 };

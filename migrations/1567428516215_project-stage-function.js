@@ -16,7 +16,7 @@ exports.up = (pgm) => {
         THEN 
         return query SELECT project as "projectId", CASE WHEN pfrep."id" IS NULL AND (pfreq."id" IS NULL OR pfreq."statusId"!='success') THEN 'request' ELSE 'report' END as "projectType" FROM "project_tranches" pt LEFT JOIN "face_requests" pfreq ON pfreq."trancheId"=pt."id" LEFT JOIN face_reports pfrep ON pfrep."trancheId"=pt."id" WHERE pt."projectId" = project AND pt."status" = 'in progress' LIMIT 1;
         ELSE
-        return query SELECT 0 as "projectId", '' as "projectType";
+        return query SELECT 0 as "projectId", CAST('' as text) as "projectType";
         END IF;
     END;
     `);
