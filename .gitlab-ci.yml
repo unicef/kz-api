@@ -1,13 +1,13 @@
 variables:
-  DOMAIN: "uscip.api-master"
+  DOMAIN: "uscip.api"
 
 Deploy:
   stage: build
   script:
-     - git pull origin master
+     - git pull origin develop
      - rm -f -r /home/gitlab-runner/$CI_PROJECT_DIR/.git
      - "/home/gitlab-runner/kubernetes.sh $CI_PROJECT_DIR $CI_BUILD_REF $DOMAIN"
-     - ssh -p 5253 -tt kubernetes@148.251.135.120 'cp /home/kubernetes/projects/uscip.api-master/.env.example /home/kubernetes/projects/uscip.api-master/.env'
-     - ssh -p 5253 -tt kubernetes@148.251.135.120 'cd /home/kubernetes/projects/uscip.api-master/ && docker build . -f ./deploy/Dockerfile -t sadist/uscip-apii:latest && docker login && docker push sadist/uscip-apii'
+     - ssh -p 5253 -tt kubernetes@148.251.135.120 'cp /home/kubernetes/projects/uscip.api/.env.example /home/kubernetes/projects/uscip.api/.env'
+     - ssh -p 5253 -tt kubernetes@148.251.135.120 'cd /home/kubernetes/projects/uscip.api/ && docker build . -f ./deploy/Dockerfile -t sadist/uscip-api:latest && docker login && docker push sadist/uscip-api && kubectl delete deployment deployment-uscip-api && kubectl create configmap uscip-api-env-file --from-env-file=.env -o yaml --dry-run | kubectl replace -f -&& kubectl apply -f ./deploy/deployment-uscip-api.yaml'
   only:
-    - master
+    - develop
