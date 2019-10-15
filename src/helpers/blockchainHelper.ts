@@ -21,7 +21,7 @@ import GotTransactionHash from "../events/gotTransactionHash";
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
         try {
-            const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
+            const web3: Web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
             const receipt = await web3.eth.getTransactionReceipt(transactionHash);
             return receipt;
         } catch (error) {
@@ -51,6 +51,9 @@ class BlockchainHelper {
                 // get receiver wallet
                 const partnerId = await PartnerRepository.getIdByRequestId(requestId);
                 const authorised = await PartnerHelper.getPartnerAuthorised(partnerId);
+                if (authorised==null) {
+                    throw new Error('Authorised not found');
+                }
                 const authWallet = await UserRepository.findWalletById(authorised.id);
                 let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
                 // get total amount F
@@ -107,7 +110,7 @@ class BlockchainHelper {
         }
     }
 
-    static serializeTx = async (web3, contractInstance, publicKey, privateKey, funcData) => {
+    static serializeTx = async (web3: Web3, contractInstance, publicKey, privateKey, funcData) => {
       let privateKeyBuff = new Buffer(privateKey, 'hex');
       const gasLimit = 500000;
       const nonceNumber = await web3.eth.getTransactionCount(publicKey);

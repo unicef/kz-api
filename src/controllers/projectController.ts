@@ -38,38 +38,19 @@ import Pagination from "../services/pagination";
 import BadPermissions from "../exceptions/badPermissions";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
 import PartnerRepository from "../repositories/partnerRepository";
-import config from "../services/config";
-import Axios from "axios";
-import convert from "xml-js";
 import exceptionHandler from "../services/exceptionHandler";
+import Web3 from "web3";
+import Config from "../services/config";
 
 class ProjectController {
 
     static testing = async (req: Request, res: Response, next: NextFunction) => {
-        // const projectId = parseInt(req.query.id);
-        // const history = await HistoryRepository.getList(projectId, 10);
+        const address = req.query.addr;
+        const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
 
-        // let histResp = await ProjectHistoryHelper.renderHistory(history);
+        const balance = await web3.eth.getBalance(address);
 
-        // const rateLink = config.get('CURRENCY_RATE_LINK', 'https://treasury.un.org/operationalrates/xsql2XML.php');
-        //     const request = Axios.get(
-        //         rateLink
-        //     ).then((response) => {
-        //         if (response.status == 200) {
-        //             var result1 = convert.xml2json(response.data, {compact: true, spaces: 4});
-
-        //             const result = JSON.parse(result1);
-        //             const rates = result['UN_OPERATIONAL_RATES_DATASET']['UN_OPERATIONAL_RATES'];
-
-        //             rates.forEach((rate) => {
-        //                 if (rate['f_curr_code']['_text'] == 'KZT\t') {
-        //                     const rateAmountString = rate['rate']['_text'];
-        //                     const rateAmountNumber = rateAmountString.replace('\t','');
-        //                     return ApiController.success(rateAmountNumber, res);
-        //                 }
-        //             })
-        //         }
-        //     })
+        return ApiController.success({balance: balance}, res);
     }
 
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
