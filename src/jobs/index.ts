@@ -14,6 +14,8 @@ import Config from "../services/config";
 import axios from "axios";
 import convert from "xml-js";
 import Setting from "../models/setting";
+import exceptionHandler from "../services/exceptionHandler";
+import { captureException } from "@sentry/core";
 
 // '00 00 00 * * *'
 
@@ -58,7 +60,11 @@ class Jobs {
                         const contractAddress =  receipt.contractAddress;
                         await FaceRequestContractRepository.setContractProperty(requestIds[i].requestId, 'contractAddress', contractAddress);
                         // send submit tranzaction web3 request
-                        await BlockchainHelper.sendSubmitTransaction(contractAddress, requestIds[i].requestId);
+                        try {
+                            await BlockchainHelper.sendSubmitTransaction(contractAddress, requestIds[i].requestId);
+                        } catch (error) {
+                            captureException(error);
+                        }
                     }
                 }
             }

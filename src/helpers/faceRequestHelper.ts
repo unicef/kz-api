@@ -217,7 +217,7 @@ class FaceRequestHelper {
     }
 
     static validateRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
-        MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
+        await MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
         faceRequest.isFreeze = true;
         // update status
         faceRequest.statusId = FaceRequest.CERTIFY_STATUS_KEY;
@@ -238,7 +238,7 @@ class FaceRequestHelper {
         }
         const contractAddress = contract.contractAddress;
         const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
-        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.APPROVE_STATUS_KEY;
         faceRequest.save();
@@ -258,7 +258,7 @@ class FaceRequestHelper {
         }
         const contractAddress = contract.contractAddress;
         const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
-        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.VERIFY_STATUS_KEY;
         faceRequest.save();
@@ -280,7 +280,7 @@ class FaceRequestHelper {
         const nextUserWallet = {
             address: '0x0000000000000000000000000000000000000000'
         }
-        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.SUCCESS_STATUS_KEY;
         faceRequest.save();

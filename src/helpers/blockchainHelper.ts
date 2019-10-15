@@ -17,6 +17,8 @@ import ProjectTransaction from "../models/projectTransaction";
 import ProjectRepository from "../repositories/projectRepository";
 import event from "../services/event";
 import GotTransactionHash from "../events/gotTransactionHash";
+import UserHasNoBalance from "../exceptions/user/userHasNoBalance";
+import i18next from "i18next";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -47,7 +49,7 @@ class BlockchainHelper {
             });
             const userWallet = await UserRepository.findWalletById(faceRequestChain.validateBy);
             if (user && userWallet) {
-                const dataString = web3.utils.toHex("This is test data )");
+                const dataString = web3.utils.toHex("This is test data)");
                 // get receiver wallet
                 const partnerId = await PartnerRepository.getIdByRequestId(requestId);
                 const authorised = await PartnerHelper.getPartnerAuthorised(partnerId);
@@ -111,26 +113,31 @@ class BlockchainHelper {
     }
 
     static serializeTx = async (web3: Web3, contractInstance, publicKey, privateKey, funcData) => {
-      let privateKeyBuff = new Buffer(privateKey, 'hex');
-      const gasLimit = 500000;
-      const nonceNumber = await web3.eth.getTransactionCount(publicKey);
-      const nonce = web3.utils.toHex(nonceNumber);
-      const gasPrice = web3.utils.toHex(await web3.eth.getGasPrice() * 2);
-      const gasLimitHex = web3.utils.toHex(gasLimit);
-      const rawTx = {
-          'nonce': nonce,
-          'gasPrice': gasPrice,
-          'gasLimit': gasLimitHex,
-          'from': publicKey,
-          'to': contractInstance._address,
-          'data': funcData
-      };
-  
-      let tx = new Transaction(rawTx, {chain: Config.get("BC_NETWORK", 'ropsten')});
-      tx.sign(privateKeyBuff);
-  
-      return '0x' + tx.serialize().toString('hex');
-  };
+        let privateKeyBuff = new Buffer(privateKey, 'hex');
+        const gasLimit = Config.get("GAS_LIMIT", 50000);
+        // check if user wallet has enough wei for make transaction
+        const balance = await web3.eth.getBalance(publicKey);
+        if (gasLimit > parseInt(balance)) {
+            throw new UserHasNoBalance(400, 364, i18next.t('userWalletAddressHasNoBalance', { address: publicKey }));
+        }
+        const nonceNumber = await web3.eth.getTransactionCount(publicKey);
+        const nonce = web3.utils.toHex(nonceNumber);
+        const gasPrice = web3.utils.toHex(await web3.eth.getGasPrice() * 2);
+        const gasLimitHex = web3.utils.toHex(gasLimit);
+        const rawTx = {
+            'nonce': nonce,
+            'gasPrice': gasPrice,
+            'gasLimit': gasLimitHex,
+            'from': publicKey,
+            'to': contractInstance._address,
+            'data': funcData
+        };
+
+        let tx = new Transaction(rawTx, { chain: Config.get("BC_NETWORK", 'ropsten') });
+        tx.sign(privateKeyBuff);
+
+        return '0x' + tx.serialize().toString('hex');
+    };
 }
 
 export default BlockchainHelper;
