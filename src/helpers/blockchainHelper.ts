@@ -100,13 +100,13 @@ class BlockchainHelper {
         let contract = new web3.eth.Contract(MultisignatureContract.ABI, contractAddress);
         if (userWallet) {
             let privateKey = await WalletHelper.getWallPrivate(userWallet, user);
-                let data = contract.methods.confirmTransaction(0, nextUserWallet.address).encodeABI();
-                const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
-                let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
-                    FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
-                    event(new GotTransactionHash(faceRequestId, hash, faceRequestStatus));
-                });
-                return result;
+            let data = contract.methods.confirmTransaction(0, nextUserWallet.address).encodeABI();
+            const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
+            let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
+                FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
+                event(new GotTransactionHash(faceRequestId, hash, faceRequestStatus));
+            });
+            return result;
         } else {
             throw new Error(`User ${user.id} doesn't have wallet for confirm cotract process`);
         }
