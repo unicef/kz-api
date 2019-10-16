@@ -1,7 +1,8 @@
-variables:
-  DOMAIN: "uscip.api"
+
 
 Deploy to test:
+  variables:
+    DOMAIN: "uscip.api"
   stage: build
   script:
      - git pull origin develop
@@ -12,10 +13,9 @@ Deploy to test:
   only:
     - develop
 
-variables:
-  DOMAIN: "uscip.api-master"
-
 Deploy to master:
+  variables:
+    DOMAIN: "uscip.api-master"
   stage: build
   script:
      - git pull origin master
