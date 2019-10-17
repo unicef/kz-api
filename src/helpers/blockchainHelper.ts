@@ -75,7 +75,6 @@ class BlockchainHelper {
                 } else {
                     throw new Error(`Can't get request amountF for transaction`);
                 }
-                
             }
         }
     }
