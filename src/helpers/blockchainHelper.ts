@@ -63,6 +63,7 @@ class BlockchainHelper {
                 const requestAmount = await ActivityRepository.getTotalRequestAmounts(requestId);
                 if (requestAmount && requestAmount.totalF) {
                     const transactionAmount = requestAmount.totalF*100;
+                    console.log("SUBMIT TRANSACTION", authWallet.address, transactionAmount, dataString);
                     let data = contract.methods.submitTransaction(authWallet.address, transactionAmount, dataString).encodeABI();
                     const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
     
