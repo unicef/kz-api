@@ -24,7 +24,7 @@ class SendPartnerAssignedEmail extends Listener {
 
         
         // set as responsible officer
-        const assistantId = await partner.assistId;
+        const assistantId = await partner.getAssistId();
         const assistant = await User.findOne({
             where: {
                 id: assistantId

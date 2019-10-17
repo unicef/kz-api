@@ -59,7 +59,7 @@ class Partner extends Model {
         } else {
             this.assistId = null;
         }
-
+        return this.assistId;
     }
 
     async getAuthorisedId() {

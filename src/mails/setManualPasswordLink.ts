@@ -14,7 +14,7 @@ class SetManualPasswordLink extends Mail {
         super();
         this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = user.email;
-        this.subject = "Hello! ✔ You was registered on USCIP system. Only one step left";
+        this.subject = "Hello! ✔ You were registered on USCIP system. Only one step left";
         this.template = 'setManualPasswordLink';
 
         this.mailData = {
