@@ -15,6 +15,10 @@ import FaceRequestContractRepository from "../repositories/faceRequestContractRe
 import BlockchainHelper from "./blockchainHelper";
 import UserRepository from "../repositories/userRepository";
 import { Sequelize } from "sequelize";
+import WalletHelper from "./walletHelper";
+import UserHasNoBalance from "../exceptions/user/userHasNoBalance";
+import i18next from "i18next";
+import Config from "../services/config";
 
 class FaceRequestHelper {
     static requestTypes = [
@@ -217,7 +221,10 @@ class FaceRequestHelper {
     }
 
     static validateRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
-        await MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
+        if (!FaceRequestHelper.isEnoughBalance(user.id)) {
+            throw new UserHasNoBalance(400, 363, i18next.t('userDoesntHaveWallet'));
+        }
+        MultisignatureContract.deployContract(user, nextUser.id, faceRequest);
         faceRequest.isFreeze = true;
         // update status
         faceRequest.statusId = FaceRequest.CERTIFY_STATUS_KEY;
@@ -231,6 +238,9 @@ class FaceRequestHelper {
     }
 
     static certifyRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
+        if (!FaceRequestHelper.isEnoughBalance(user.id)) {
+            throw new UserHasNoBalance(400, 363, i18next.t('userDoesntHaveWallet'));
+        }
         // get request contract address
         const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
         if (contract === null || contract.contractAddress === null) {
@@ -238,7 +248,7 @@ class FaceRequestHelper {
         }
         const contractAddress = contract.contractAddress;
         const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
-        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.APPROVE_STATUS_KEY;
         faceRequest.save();
@@ -251,6 +261,9 @@ class FaceRequestHelper {
     }
 
     static approveRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain, nextUser: User) => {
+        if (!FaceRequestHelper.isEnoughBalance(user.id)) {
+            throw new UserHasNoBalance(400, 363, i18next.t('userDoesntHaveWallet'));
+        }
         // get request contract address
         const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
         if (contract === null || contract.contractAddress === null) {
@@ -258,7 +271,7 @@ class FaceRequestHelper {
         }
         const contractAddress = contract.contractAddress;
         const nextUserWallet = await UserRepository.findWalletById(nextUser.id);
-        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.VERIFY_STATUS_KEY;
         faceRequest.save();
@@ -271,6 +284,9 @@ class FaceRequestHelper {
     }
 
     static verifyRequestProcess = async (user: User, activities: Array<iInputActivity>, faceRequest: FaceRequest, tranche: ProjectTranche, project: Project, requestChain: FaceRequestChain) => {
+        if (!FaceRequestHelper.isEnoughBalance(user.id)) {
+            throw new UserHasNoBalance(400, 363, i18next.t('userDoesntHaveWallet'));
+        }
         // get request contract address
         const contract = await FaceRequestContractRepository.findByRequestId(faceRequest.id);
         if (contract === null || contract.contractAddress === null) {
@@ -280,13 +296,28 @@ class FaceRequestHelper {
         const nextUserWallet = {
             address: '0x0000000000000000000000000000000000000000'
         }
-        await BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
+        BlockchainHelper.confirmContract(contractAddress, faceRequest.id, faceRequest.statusId, user, nextUserWallet);
         faceRequest.isFreeze = true;
         faceRequest.statusId = FaceRequest.SUCCESS_STATUS_KEY;
         faceRequest.save();
         // set verifyAt property
         requestChain.verifyAt = new Date();
         requestChain.save();
+
+        return true;
+    }
+
+    static isEnoughBalance = async (userId: number) => {
+        // check user wallet balance
+        const userWallet = await UserRepository.findWalletById(userId);
+        if (userWallet == null) {
+            throw new UserHasNoBalance(400, 363, i18next.t('userDoesntHaveWallet'));
+        }
+        const walletBalance = await WalletHelper.getWalletBalance(userWallet.address);
+        const gasLimit = Config.get("GAS_LIMIT", 50000);
+        if (gasLimit>parseInt(walletBalance)) {
+            throw new UserHasNoBalance(400, 364, i18next.t('userWalletAddressHasNoBalance', { address:userWallet.address }));
+        }
 
         return true;
     }

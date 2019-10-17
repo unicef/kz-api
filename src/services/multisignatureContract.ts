@@ -8,6 +8,7 @@ import FaceRequest from "../models/faceRequest";
 import FaceRequestContractRepository from "../repositories/faceRequestContractRepository";
 import UserHasNoBalance from "../exceptions/user/userHasNoBalance";
 import i18next from "i18next";
+import { captureException } from "@sentry/node";
 
 class MultisignatureContract {
     static readonly ABI = [
@@ -547,7 +548,8 @@ class MultisignatureContract {
             gasPrice: gasPriceHex,
             data: contractData.encodeABI()
         };
-        const tx = new Transaction(rawTx, { chain: 'ropsten' });
+        const chain = Config.get("BC_NETWORK", "ropsten");
+        const tx = new Transaction(rawTx, { chain: chain });
         let privateKey = await WalletHelper.getWallPrivate(userWallet, coordinator);
         let privateBuffer = new Buffer(privateKey, 'hex');
         tx.sign(privateBuffer);
@@ -555,6 +557,8 @@ class MultisignatureContract {
         return web3.eth.sendSignedTransaction('0x' + serializedTx.toString("hex")).on('transactionHash', function (hash) {
             // set into request contracts
             FaceRequestContractRepository.setRequestContract(faceRequest.id, hash);
+        }).on('error', function (error) {
+          captureException(error);
         });
     }
 }

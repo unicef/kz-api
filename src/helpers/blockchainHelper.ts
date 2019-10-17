@@ -19,6 +19,7 @@ import event from "../services/event";
 import GotTransactionHash from "../events/gotTransactionHash";
 import UserHasNoBalance from "../exceptions/user/userHasNoBalance";
 import i18next from "i18next";
+import { captureException } from "@sentry/core";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -67,7 +68,9 @@ class BlockchainHelper {
     
                     let result = await web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
                         FaceRequestContractRepository.setContractProperty(requestId, 'validateHash', hash);
-                    });
+                    }).on('error', function (error) {
+                        captureException(error);
+                    });;
                     return result;
                 } else {
                     throw new Error(`Can't get request amountF for transaction`);
@@ -105,6 +108,8 @@ class BlockchainHelper {
             let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
                 FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
                 event(new GotTransactionHash(faceRequestId, hash, faceRequestStatus));
+            }).on('error', function (error) {
+                captureException(error);
             });
             return result;
         } else {
