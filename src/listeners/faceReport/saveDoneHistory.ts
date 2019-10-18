@@ -15,7 +15,7 @@ class SaveApprovedHistory extends Listener {
             userId: user.id,
             projectId: project.id,
             event: {
-                action: ProjectHistoryHelper.DONE_REQUEST_KEY,
+                action: ProjectHistoryHelper.DONE_REPORT_KEY,
                 data: {
                     faceRequestNum: await faceReport.getNum(),
                 }
