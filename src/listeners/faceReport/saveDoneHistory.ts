@@ -1,8 +1,6 @@
 import Listener from "../listener";
 import ProjectHistoryHelper from "../../helpers/projectHistoryHelper";
 import HistoryRepository from "../../repositories/historyRepository";
-import ActivityRepository from "../../repositories/activityRepository";
-import FaceRequestDone from "../../events/faceRequestDone";
 import FaceReportDone from "../../events/faceReportDone";
 
 class SaveApprovedHistory extends Listener {
