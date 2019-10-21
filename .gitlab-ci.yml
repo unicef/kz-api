@@ -1,5 +1,4 @@
 
-
 Deploy to test:
   variables:
     DOMAIN: "uscip.api"
