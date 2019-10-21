@@ -1,11 +1,11 @@
-<h1>Request <%= faceRequest %> on project <%= project.titleEn %> was rejected</h1>
+<h1>Request <%= faceRequest %> on the project <%= project.titleEn %> was rejected</h1>
 
 <p>
-    Your request on project <%= project.titleEn %> was rejected by <%= user.personalData.firstNameEn %> <%= user.personalData.lastNameEn %> the portal <b>UNICEF SMART CONTRACT IP</b><br>
+    Your request on the project <%= project.titleEn %> was rejected by <%= user.personalData.firstNameEn %> <%= user.personalData.lastNameEn %> on the portal <b>UNICEF SMART CONTRACT IP</b><br>
     <b>Rejected activities: </b> 
     <ul>
         <% activities.forEach( activity => { %>
-            <li><b><%= activity.title %></b> with reason "<%= activity.rejectReason %>"</li>
+            <li><b><%= activity.title %></b> with the reason "<%= activity.rejectReason %>"</li>
         <% }) %>
     </ul>
 </p>
