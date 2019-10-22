@@ -8,6 +8,8 @@ import { QueryTypes } from "sequelize";
 import UserRepository from "../repositories/userRepository";
 import event from "../services/event";
 import UserWalletCreated from "../events/userWalletCreated";
+import Web3 from "web3";
+import Config from "../services/config";
 
 class WalletHelper {
 
@@ -86,6 +88,13 @@ class WalletHelper {
         })
 
         return true;
+    }
+
+    static getWalletBalance = async (walletAddress: string) => {
+        const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
+        const balance = await web3.eth.getBalance(walletAddress);
+        
+        return balance;
     }
 }
 

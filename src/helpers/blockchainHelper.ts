@@ -19,6 +19,7 @@ import event from "../services/event";
 import GotTransactionHash from "../events/gotTransactionHash";
 import UserHasNoBalance from "../exceptions/user/userHasNoBalance";
 import i18next from "i18next";
+import { captureException } from "@sentry/core";
 
 class BlockchainHelper {
     static getTransactionReceipt = async (transactionHash: string) => {
@@ -62,17 +63,19 @@ class BlockchainHelper {
                 const requestAmount = await ActivityRepository.getTotalRequestAmounts(requestId);
                 if (requestAmount && requestAmount.totalF) {
                     const transactionAmount = requestAmount.totalF*100;
-                    let data = contract.methods.submitTransaction(authWallet.address, transactionAmount, dataString).encodeABI();
+                    const floorAmount = Math.floor(transactionAmount * 100) / 100;
+                    let data = contract.methods.submitTransaction(authWallet.address, floorAmount, dataString).encodeABI();
                     const serializedTx = await BlockchainHelper.serializeTx(web3, contract, userWallet.address, privateKey, data);
     
                     let result = await web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
                         FaceRequestContractRepository.setContractProperty(requestId, 'validateHash', hash);
-                    });
+                    }).on('error', function (error) {
+                        captureException(error);
+                    });;
                     return result;
                 } else {
                     throw new Error(`Can't get request amountF for transaction`);
                 }
-                
             }
         }
     }
@@ -105,6 +108,8 @@ class BlockchainHelper {
             let result = web3.eth.sendSignedTransaction(serializedTx).on('transactionHash', function (hash) {
                 FaceRequestContractRepository.setContractProperty(faceRequestId, `${faceRequestStatus}Hash`, hash);
                 event(new GotTransactionHash(faceRequestId, hash, faceRequestStatus));
+            }).on('error', function (error) {
+                captureException(error);
             });
             return result;
         } else {

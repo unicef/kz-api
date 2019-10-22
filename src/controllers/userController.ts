@@ -443,9 +443,11 @@ class UserController {
                 
                 // working with company docs
                 if (req.body.documents instanceof Array && req.body.documents.length > 0) {
-                    req.body.documents.forEach(async (element: any) => {
+                    const partnerDocs = req.body.documents;
+                    for (var i=0; i<partnerDocs.length; i++) {
+                        const element = partnerDocs[i];
                         await DocumentHelper.transferDocumentFromTemp(element.id, element.title, userCompany, transaction);
-                    });
+                    }
                 }
 
                 userCompany.statusId = Partner.partnerStatusFilled;

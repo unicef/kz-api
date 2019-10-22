@@ -243,7 +243,7 @@ class FaceReportHelper {
         // set next user to chain
         reportChain.certifyBy = nextUser.id;
         reportChain.validateAt = new Date();
-        reportChain.save();
+        await reportChain.save();
 
         event(new FaceReportApproved(user, faceReport, project));
 
@@ -256,7 +256,7 @@ class FaceReportHelper {
         // set next user to chain
         reportChain.approveBy = nextUser.id;
         reportChain.certifyAt = new Date();
-        reportChain.save();
+        await reportChain.save();
 
         event(new FaceReportApproved(user, faceReport, project));
 
@@ -269,7 +269,7 @@ class FaceReportHelper {
         // set next user to chain
         reportChain.verifyBy = nextUser.id;
         reportChain.approveAt = new Date();
-        reportChain.save();
+        await reportChain.save();
 
         event(new FaceReportApproved(user, faceReport, project));
 
@@ -283,7 +283,7 @@ class FaceReportHelper {
         faceReport.save();
         // set verifyAt property
         reportChain.verifyAt = new Date();
-        reportChain.save();
+        await reportChain.save();
 
         event(new FaceReportDone(user, faceReport, project));
 

@@ -14,7 +14,7 @@ class RequestNeedsApproveMail extends Mail {
         super();
         this.from = Config.get("MAIL_FROM", 'noreply@local.com');
         this.to = toEmail;
-        this.subject = "FACE request needs your approve";
+        this.subject = "FACE request needs your approval";
         this.template = 'requestNeedsApprove';
 
         this.mailData = {

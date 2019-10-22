@@ -1,8 +1,6 @@
 import Listener from "../listener";
 import ProjectHistoryHelper from "../../helpers/projectHistoryHelper";
 import HistoryRepository from "../../repositories/historyRepository";
-import ActivityRepository from "../../repositories/activityRepository";
-import FaceRequestDone from "../../events/faceRequestDone";
 import FaceReportDone from "../../events/faceReportDone";
 
 class SaveApprovedHistory extends Listener {
@@ -15,7 +13,7 @@ class SaveApprovedHistory extends Listener {
             userId: user.id,
             projectId: project.id,
             event: {
-                action: ProjectHistoryHelper.DONE_REQUEST_KEY,
+                action: ProjectHistoryHelper.DONE_REPORT_KEY,
                 data: {
                     faceRequestNum: await faceReport.getNum(),
                 }

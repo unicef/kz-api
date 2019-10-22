@@ -16,11 +16,31 @@ import convert from "xml-js";
 import Setting from "../models/setting";
 import exceptionHandler from "../services/exceptionHandler";
 import { captureException } from "@sentry/core";
+import TmpFile from "../models/tmpFile";
+import { Sequelize } from "sequelize";
+
 
 // '00 00 00 * * *'
 
 class Jobs {
     private jobs: Array<CronJob>|[] = [
+        // Cron for deleting temporary files
+        new CronJob('00 00 00 * * *', async () => {
+            const Op = Sequelize.Op;
+            const tempFiles = await TmpFile.findAll({
+                where: {
+                    createdAt: {
+                        [Op.lt]: new Date(Date.now() - (60 * 60 * 1000)),
+                    }
+                }
+            });
+            if (tempFiles.length > 0) {
+                tempFiles.forEach(tmpFile => {
+                    tmpFile.deleteFile();
+                });
+            }
+        }),
+        // cron job for updating currency rate
         new CronJob('00 00 00 * * *', async () => {
             const rateLink = Config.get('CURRENCY_RATE_LINK', 'https://treasury.un.org/operationalrates/xsql2XML.php');
             const request = axios.get(
