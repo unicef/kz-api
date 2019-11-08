@@ -7,9 +7,7 @@ import ApiController from "./apiController";
 import Role from "../models/role";
 import Country from "../models/country";
 import Partner from "../models/partner";
-import TmpFile from "../models/tmpFile";
 import PartnerDocument from "../models/partnerDocument";
-import HttpException from "../exceptions/httpException";
 import PartnerNotFind from "../exceptions/partner/partnerNotFind";
 import BadPermissions from "../exceptions/badPermissions";
 import BadValidationException from "../exceptions/badValidationException";
@@ -25,8 +23,6 @@ import PartnerApproved from "../events/partnerApproved";
 import PartnerRejected from "../events/partnerRejected";
 import PartnerRepository from "../repositories/partnerRepository";
 import Pagination from "../services/pagination";
-import Project from "../models/project";
-import ProjectHelper from "../helpers/projectHelper";
 import ProjectRepository from "../repositories/projectRepository";
 import exceptionHandler from "../services/exceptionHandler";
 

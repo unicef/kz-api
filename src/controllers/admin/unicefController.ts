@@ -7,7 +7,6 @@ import User from "../../models/user";
 import UserAlreadyExists from "../../exceptions/userAlreadyExists";
 import UnicefHelper from "../../helpers/unicefHelper";
 import UserPersonalData from "../../models/userPersonalData";
-import HttpException from "../../exceptions/httpException";
 import UserNotfind from "../../exceptions/userNotFind";
 import UserIsNotActivated from "../../exceptions/userIsNotActivated";
 import BadRole from "../../exceptions/user/badRole";

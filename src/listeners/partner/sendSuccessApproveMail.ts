@@ -1,7 +1,6 @@
 import Listener from "../listener";
 import PartnerApproved from "../../events/partnerApproved";
 import SuccessApprovingMail from "../../mails/successApprovingMail";
-import User from "../../models/user";
 import PartnerHelper from "../../helpers/partnerHelper";
 
 

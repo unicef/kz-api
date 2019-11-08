@@ -5,7 +5,6 @@ import axios from "axios";
 import User from "../models/user";
 import sequelize from "../services/sequelize";
 import { QueryTypes } from "sequelize";
-import UserRepository from "../repositories/userRepository";
 import event from "../services/event";
 import UserWalletCreated from "../events/userWalletCreated";
 import Web3 from "web3";

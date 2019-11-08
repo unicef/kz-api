@@ -4,7 +4,6 @@ import Sequelize from "sequelize";
 import sequelize from "../../services/sequelize";
 import Page from "../../models/page";
 import ApiController from "../apiController";
-import HttpException from "../../exceptions/httpException";
 import PageNotFind from "../../exceptions/page/pageNotFind";
 import BadValidationException from "../../exceptions/badValidationException";
 import exceptionHandler from "../../services/exceptionHandler";

@@ -63,7 +63,6 @@ const middleChekUnicefPartnerRoles = acceptRoles([
 
 router.post("/", [checkAuthToken, middleCheckAdminUnicefRoles, postProject], ProjectController.create);
 router.put("/", [checkAuthToken, middleCheckAdminUnicefRoles, putProject], ProjectController.update);
-router.get("/test", ProjectController.testing);
 router.get("/properties", [checkAuthToken], ProjectController.getProperties);
 router.get("/", [checkAuthToken], ProjectController.getInfo);
 router.get("/short", [checkAuthToken, getShortProjectInfo], ProjectController.getShortInfo);

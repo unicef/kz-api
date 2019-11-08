@@ -3,7 +3,6 @@ import ApiController from "./apiController";
 import mime from "mime-types";
 import fs from "fs";
 import User from "../models/user";
-import HttpException from "../exceptions/httpException";
 import TmpFile from "../models/tmpFile";
 import exceptionHandler from "../services/exceptionHandler";
 

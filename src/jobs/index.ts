@@ -14,7 +14,6 @@ import Config from "../services/config";
 import axios from "axios";
 import convert from "xml-js";
 import Setting from "../models/setting";
-import exceptionHandler from "../services/exceptionHandler";
 import { captureException } from "@sentry/core";
 import TmpFile from "../models/tmpFile";
 import { Sequelize } from "sequelize";

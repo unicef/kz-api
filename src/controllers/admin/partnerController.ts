@@ -9,7 +9,6 @@ import UserPersonalData from "../../models/userPersonalData";
 import PartnerHelper from "../../helpers/partnerHelper";
 import Partner from "../../models/partner";
 import ApiController from "../apiController";
-import HttpException from "../../exceptions/httpException";
 import UserNotfind from "../../exceptions/userNotFind";
 import PartnerNotFind from "../../exceptions/partner/partnerNotFind";
 import DocumentHelper from "../../helpers/documentHelper";

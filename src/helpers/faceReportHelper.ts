@@ -4,7 +4,6 @@ import FaceReportChain from "../models/faceReportChain";
 import TmpFile from "../models/tmpFile";
 import FaceReportDocument from "../models/faceReportDocument";
 import TmpFileNotFound from "../exceptions/tmpFileNotFound";
-import iInputActivity from "../interfaces/faceRequest/iInputActivity";
 import iInputReportActivity from "../interfaces/faceReport/iInputReportActivity";
 import Project from "../models/project";
 import User from "../models/user";
