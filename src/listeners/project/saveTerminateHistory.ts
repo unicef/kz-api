@@ -1,5 +1,4 @@
 import Listener from "../listener";
-import ProjectWasCreated from "../../events/projectWasCreated";
 import ProjectHistoryHelper from "../../helpers/projectHistoryHelper";
 import HistoryRepository from "../../repositories/historyRepository";
 import ProjectWasTerminated from "../../events/projectWasTerminated";

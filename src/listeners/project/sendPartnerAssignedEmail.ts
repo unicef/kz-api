@@ -1,6 +1,4 @@
 import Listener from "../listener";
-import ProjectCreatedMail from "../../mails/projectCreatedMail";
-import ProjectOfficerAssignedMail from "../../mails/projectOfficerAssignedMail";
 import User from "../../models/user";
 import ProjectPartnerAssigned from "../../events/projectPartnerAssigned";
 import ProjectPartnerAssignedUnicef from "../../mails/projectPartnerAssignedUnicef";

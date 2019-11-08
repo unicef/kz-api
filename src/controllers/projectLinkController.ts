@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
 import ApiController from "./apiController";
-import HttpException from "../exceptions/httpException";
 import Project from "../models/project";
 import ProjectNotFound from "../exceptions/project/projectNotFound";
 import Role from "../models/role";

@@ -1,10 +1,5 @@
-import sequelize from "../services/sequelize";
-import Sequelize from "sequelize";
 import Role from "../models/role";
-import PartnerWithoutAssistant from "../exceptions/partner/partnerWithoutAssistant";
-import PartnerHasManyAssists from "../exceptions/partner/partnerHasManyAssists";
 import User from "../models/user";
-import UserNotfind from "../exceptions/userNotFind";
 import { number } from "@hapi/joi";
 
 class UnicefHelper {

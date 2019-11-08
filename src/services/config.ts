@@ -10,7 +10,7 @@ class Config {
     constructor () {
         this.env = process.env.NODE_ENV||"dev";
         switch (this.env) {
-            case 'dev':
+            case 'development':
                 this.confObj = config_dev;
                 break;
             case 'test':

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import ApiController from "./apiController";
-import HttpException from "../exceptions/httpException";
 import FaceRequestHelper from "../helpers/faceRequestHelper";
 import ActivityRepository from "../repositories/activityRepository";
 import { PostCreateRequest } from "../requests/faceRequest/postCreateRequest";

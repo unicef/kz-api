@@ -1,11 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import ApiController from "./apiController";
-import HttpException from "../exceptions/httpException";
 import i18n from "i18next";
 import fs from "fs";
 import mime from "mime-types";
-import ProjectHelper from "../helpers/projectHelper";
-import ProjectRepository from "../repositories/projectRepository";
 import ProjectTranche from "../models/projectTranche";
 import FaceReportHelper from "../helpers/faceReportHelper";
 import FaceRequest from "../models/faceRequest";

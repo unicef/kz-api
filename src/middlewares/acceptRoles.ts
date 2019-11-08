@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
-import ApiController from "../controllers/apiController";
-import HttpException from "../exceptions/httpException";
 import AuthRequiredException from "../exceptions/authRequiredException";
-import checkAuthToken from "./checkAuthToken";
 import BadRole from "../exceptions/user/badRole";
 import exceptionHandler from "../services/exceptionHandler";
 

@@ -16,6 +16,7 @@ export default {
     "CURRENCY_RATE_LINK": "https://treasury.un.org/operationalrates/xsql2XML.php",
     "DEPLOY_SECRET": "gu24Khdn5OIdbfy334ofg8dHD7sDCSJh7eew",
     "DIGICUS_ADDRESS": "0x34e03064f017f9b5a903807a28e9aa72f41b8920",
+    "ADMIN_ACCOUNT_EMAIL": "uscipadmin@maildrop.cc",
     "GAS_LIMIT": 6612388,
     "MONGO_PORT": 27017,
     "MONGO_DATABASE": "history",

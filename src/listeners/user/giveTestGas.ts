@@ -1,7 +1,3 @@
-import { keystore } from "eth-lightwallet";
-import sequelize from "../../services/sequelize";
-import { QueryTypes } from "sequelize";
-import CryptoJS from "crypto-js";
 import Listener from "../listener";
 import WalletHelper from "../../helpers/walletHelper";
 import UserWalletCreated from "../../events/userWalletCreated";

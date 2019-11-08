@@ -1,6 +1,4 @@
-import { Request } from "express";
 import Partner from "../models/partner";
-import Sequelize from "sequelize";
 import User from "../models/user";
 
 class UserHelper {

@@ -263,10 +263,11 @@ class DigicusContract {
         const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
         let contract = new web3.eth.Contract(DigicusContract.abi);
 
+        const adminEmail = Config.get("ADMIN_ACCOUNT_EMAIL", 'uscipadmin@maildrop.cc');
         // get admin account
         const admin = await User.findOne({
           where: {
-            email: 'uscipadmin@maildrop.cc'
+            email: adminEmail
           }
         });
         if (admin) {
@@ -287,7 +288,9 @@ class DigicusContract {
             gasPrice: gasPriceHex,
             data: contractData.encodeABI()
           };
-          const tx = new Transaction(rawTx, {chain: 'ropsten'});
+          const network = Config.get('BC_NETWORK', 'ropsten');
+
+          const tx = new Transaction(rawTx, {chain: network});
           let privateKey = await WalletHelper.getWallPrivate(adminWallet, admin);
           let privateBuffer = new Buffer(privateKey, 'hex');
           tx.sign(privateBuffer);
