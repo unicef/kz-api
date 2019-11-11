@@ -6,8 +6,6 @@ import BadTokenException from "../exceptions/badTokenException";
 import User from "../models/user";
 import BlockedUserException from "../exceptions/blockedUserException";
 import AdminRoleException from "../exceptions/adminRoleException";
-import HttpException from "../exceptions/httpException";
-import ApiController from "../controllers/apiController";
 import exceptionHandler from "../services/exceptionHandler";
 
 export const checkAdminRole = (req: Request, res: Response, next: NextFunction) => {

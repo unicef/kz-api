@@ -1,6 +1,4 @@
 import Listener from "../listener";
-import ProjectHistoryHelper from "../../helpers/projectHistoryHelper";
-import HistoryRepository from "../../repositories/historyRepository";
 import ActivityRepository from "../../repositories/activityRepository";
 import FaceRequestDone from "../../events/faceRequestDone";
 import PartnerHelper from "../../helpers/partnerHelper";

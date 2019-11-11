@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
 import ApiController from "../apiController";
-import HttpException from "../../exceptions/httpException";
 import User from "../../models/user";
 import UserAlreadyExists from "../../exceptions/userAlreadyExists";
 import Role from "../../models/role";

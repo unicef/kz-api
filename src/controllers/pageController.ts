@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import i18n from "i18next";
-import HttpException from "../exceptions/httpException";
 import ApiController from "./apiController";
 import BadValidationException from "../exceptions/badValidationException";
 import Page from "../models/page";

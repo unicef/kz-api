@@ -39,19 +39,8 @@ import BadPermissions from "../exceptions/badPermissions";
 import FaceRequestRepository from "../repositories/faceRequestRepository";
 import PartnerRepository from "../repositories/partnerRepository";
 import exceptionHandler from "../services/exceptionHandler";
-import Web3 from "web3";
-import Config from "../services/config";
 
 class ProjectController {
-
-    static testing = async (req: Request, res: Response, next: NextFunction) => {
-        const address = req.query.addr;
-        const web3 = new Web3(Config.get("INFURA_PROJECT_URL", 'https://ropsten.infura.io/v3/015647b81e8d46c3a0e68bc0279641c7'));
-
-        const balance = await web3.eth.getBalance(address);
-
-        return ApiController.success({balance: balance}, res);
-    }
 
     static getProperties = async (req: Request, res: Response, next: NextFunction) => {
         try {

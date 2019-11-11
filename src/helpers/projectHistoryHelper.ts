@@ -1,5 +1,3 @@
-import User from "../models/user";
-import fs from "fs";
 import i18n from "i18next";
 import UserRepository from "../repositories/userRepository";
 import PartnerRepository from "../repositories/partnerRepository";

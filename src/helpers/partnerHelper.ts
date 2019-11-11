@@ -1,4 +1,3 @@
-import { Request } from "express";
 import sequelize from "../services/sequelize";
 import Sequelize from "sequelize";
 import Partner from "../models/partner";
@@ -7,7 +6,6 @@ import PartnerWithoutAssistant from "../exceptions/partner/partnerWithoutAssista
 import PartnerHasManyAssists from "../exceptions/partner/partnerHasManyAssists";
 import User from "../models/user";
 import UserNotfind from "../exceptions/userNotFind";
-import PartnerWithoutAuthorised from "../exceptions/partner/partnerWithoutAuthorised";
 
 class PartnerHelper {
     static partnerFields = [

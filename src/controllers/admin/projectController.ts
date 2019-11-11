@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import ApiController from "../apiController";
-import HttpException from "../../exceptions/httpException";
 import Project from "../../models/project";
 import ProjectNotFound from "../../exceptions/project/projectNotFound";
 import BadProjectStatus from "../../exceptions/project/badProjectStatus";

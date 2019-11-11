@@ -23,7 +23,6 @@ routes.options("/", (req: Request, res: Response) => {
     return ;
 })
 routes.use("/admin", admin);
-routes.get("/test-blockchain", BlockchainController.testBlockchain)
 routes.get("/me", checkAuthToken, UserController.getMe);
 routes.use("/localization", localization);
 routes.use("/user", user);
@@ -36,7 +35,6 @@ routes.use("/report", report);
 routes.get("/page", PageController.getPage);
 routes.get("/page/list", checkAuthToken, PageController.getList);
 
-routes.post("/wallets/generate", checkAuthToken, BlockchainController.generateUsersWallets);
 routes.post("/digicus/deploy", [checkAuthToken, checkAdminRole], BlockchainController.deployDigicus);
 
 export default routes;
